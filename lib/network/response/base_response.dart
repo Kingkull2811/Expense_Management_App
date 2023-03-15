@@ -1,34 +1,58 @@
 import 'dart:io';
 
+import 'package:viet_wallet/network/response/error_response.dart';
+import 'package:viet_wallet/utilities/utils.dart';
+
 class BaseResponse {
-  int? status;
-  dynamic errors;
+   int? httpStatus;
+   String? message;
+   List<Errors>? errors;
 
-  BaseResponse({this.status, this.errors});
-
-  BaseResponse.withHttpError({
-    this.errors,
-    this.status,
+  BaseResponse({
+     this.message,
+     this.httpStatus,
+     this.errors,
   });
 
-  factory BaseResponse.fromJson(Map<String, dynamic> json) => BaseResponse(
-        status: json["status"],
-        errors: json["errors"],
-      );
+  BaseResponse.withHttpError({
+     this.errors,
+     this.message,
+     this.httpStatus,
+  });
+
+  factory BaseResponse.fromJson(Map<String, dynamic> json) {
+    // List<Errors> errors = [];
+    // if(isNotNullOrEmpty(json["errors"])){
+    //   final List<dynamic> errorsJson = json["errors"];
+    //   errors = errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
+    // }
+
+    return BaseResponse(
+      httpStatus: json["httpStatus"],
+      message: json["message"],
+     // errors: errors,
+      errors: json["errors"],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'BaseResponse{httpStatus: $httpStatus, message: $message, errors: $errors}';
+  }
 
   bool isOK() {
-    return status == HttpStatus.ok;
+    return httpStatus == HttpStatus.ok;
   }
 
   bool isFailure() {
-    return status != HttpStatus.ok;
+    return httpStatus != HttpStatus.ok;
   }
 }
-
 class ExpiredTokenResponse extends BaseResponse {
   ExpiredTokenResponse()
       : super(
-          status: HttpStatus.unauthorized,
-          errors: 'Token Expired !',
+          httpStatus: HttpStatus.unauthorized,
+          message: 'Token Expired !',
+          errors: []
         );
 }

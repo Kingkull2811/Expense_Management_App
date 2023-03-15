@@ -7,13 +7,42 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final BuildContext context;
 
   SignInBloc(this.context) : super(SignInState()) {
-    on((event, emit) async {
-      if (event is ValidateForm) {
-        emit(state.copyWith());
-      }
-      if (event is DisplayLoading) {
-        emit(state.copyWith());
-      }
-    });
+    on(
+      (event, emit) async {
+        if (event is ValidateForm) {
+          emit(
+            state.copyWith(
+              isLoading: false,
+              isAuthenticating: false,
+            ),
+          );
+        }
+        if (event is DisplayLoading) {
+          emit(
+            state.copyWith(
+              isLoading: true,
+              isAuthenticating: false,
+            ),
+          );
+        }
+        if (event is SignInSuccess) {
+          emit(
+            state.copyWith(
+              isLoading: false,
+              isAuthenticating: true,
+            ),
+          );
+        }
+        if (event is SignInFailure) {
+          emit(
+            state.copyWith(
+              isLoading: false,
+              isAuthenticating: false,
+              errorMessage: event.errorMessage,
+            ),
+          );
+        }
+      },
+    );
   }
 }

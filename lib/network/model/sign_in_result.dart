@@ -1,8 +1,8 @@
-class LoginResult {
+class SignInResult {
   final bool isSuccess;
   LoginError error;
 
-  LoginResult({
+  SignInResult({
     this.isSuccess =false,
     this.error = LoginError.unknown,
 });

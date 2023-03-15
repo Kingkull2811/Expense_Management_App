@@ -30,9 +30,7 @@ class MainAppState extends State<MainApp>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   TabController? _tabController;
   StreamSubscription<ConnectivityResult>? _networkSubscription;
-  int newChatBadge = 0;
-  int newsBadge = 0;
-  int newTranscriptBadge = 0;
+
 
   @override
   void initState() {
@@ -60,21 +58,7 @@ class MainAppState extends State<MainApp>
               body: _handleScreen(activeTab),
               bottomNavigationBar: TabSelector(
                   activeTab: activeTab,
-                  newChatsBadgeNumber: 1,
-                  newsBadgeNumber: 2,
-                  newTranscriptBadgeNumber: 1,
                   onTabSelected: (tab) async {
-                    // if (activeTab == AppTab.chat && tab != AppTab.chat) {
-                    //   //todo:
-                    //   if (kDebugMode) {
-                    //     print('tab # chat');
-                    //   }
-                    // }
-                    // if (tab == AppTab.chat) {
-                    //   if (kDebugMode) {
-                    //     print('tab chat');
-                    //   }
-                    // }
                     BlocProvider.of<TabBloc>(context).add(TabUpdated(tab));
                     setState(() {});
                   }),

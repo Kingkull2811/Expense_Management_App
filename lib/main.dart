@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         AppRoutes.mainApp: (context) => BlocProvider<SignInBloc>(
           create: (context) => SignInBloc(context),
-          child: SignInScreen(),
+          child: SignInPage(),
         ),
       },
 

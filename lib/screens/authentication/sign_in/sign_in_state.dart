@@ -1,12 +1,9 @@
-import 'package:equatable/equatable.dart';
 import 'package:viet_wallet/bloc/api_result_state.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 
-import '../../../utilities/enum/highlight_status.dart';
-
-class SignInState implements ApiResultState{
-
+class SignInState implements ApiResultState {
   final bool isLoading;
+
   /// status Authenticating Login
   final bool isAuthenticating;
 
@@ -18,11 +15,10 @@ class SignInState implements ApiResultState{
     this.isLoading = false,
     this.isAuthenticating = false,
     this.errorMessage,
-  }): _apiError = apiError;
+  }) : _apiError = apiError;
 
   @override
   ApiError get apiError => _apiError;
-
 }
 
 extension SignInStateExtension on SignInState {

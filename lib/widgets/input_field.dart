@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,10 +15,7 @@ class Input extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final String? initText;
-  //final String? suffixIconPath;
-  final Icon? prefixIcon;
-  final String? prefixIconPath;
-  //final Function()? onShowPassword;
+  final IconData? prefixIcon;
 
   const Input({
     Key? key,
@@ -35,10 +31,7 @@ class Input extends StatelessWidget {
     this.whiteList,
     this.obscureText = false,
     this.initText,
-    //this.suffixIconPath,
     this.prefixIcon,
-    this.prefixIconPath,
-    //this.onShowPassword,
   }) : super(key: key);
 
   @override
@@ -51,40 +44,7 @@ class Input extends StatelessWidget {
       );
     }
 
-    return useCupertinoTextField
-        ? CupertinoTextField(
-            focusNode: focusNode,
-            textInputAction: textInputAction,
-            onSubmitted: onSubmit,
-            controller: controller,
-            onChanged: onChanged,
-            keyboardType: keyboardType,
-            obscureText: obscureText,
-            inputFormatters: [LengthLimitingTextInputFormatter(maxText)],
-            style: const TextStyle(
-              fontSize: 16,
-              color: Color.fromARGB(255, 26, 26, 26),
-              height: 1.35,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color: const Color.fromARGB(102, 230, 230, 230),
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            prefix: (prefixIconPath != null)
-                ? Image.asset(
-                    (prefixIconPath!),
-                    height: 24,
-                    width: 24,
-                  )
-                : prefixIcon,
-            placeholder: hint,
-            maxLines: 1,
-          )
-        : TextField(
+    return  TextField(
             focusNode: focusNode,
             textInputAction: textInputAction,
             onSubmitted: onSubmit,
@@ -101,13 +61,11 @@ class Input extends StatelessWidget {
                 color: Color.fromARGB(255, 26, 26, 26),
                 height: 1.35),
             decoration: InputDecoration(
-              prefixIcon: (prefixIconPath != null)
-                  ? Image.asset(
-                      (prefixIconPath!),
-                      height: 24,
-                      width: 24,
-                    )
-                  : prefixIcon,
+              prefixIcon: Icon(
+                prefixIcon,
+                size: 24,
+                //color: Colors.grey,
+              ),
               prefixIconColor: const Color.fromARGB(102, 230, 230, 230),
               contentPadding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
               filled: true,

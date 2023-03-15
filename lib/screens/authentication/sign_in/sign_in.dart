@@ -1,30 +1,46 @@
+import 'dart:developer';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viet_wallet/network/model/sign_in_data.dart';
+import 'package:viet_wallet/network/provider/auth_provider.dart';
+import 'package:viet_wallet/network/response/sign_in_response.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
+import 'package:viet_wallet/screens/authentication/sign_in/sign_in_event.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_state.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_bloc.dart';
+import 'package:viet_wallet/screens/home/home.dart';
+import 'package:viet_wallet/screens/home/home_bloc.dart';
+import 'package:viet_wallet/screens/main_app/main_app.dart';
+import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
+import 'package:viet_wallet/utilities/enum/api_error_result.dart';
+import 'package:viet_wallet/utilities/screen_utilities.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
+import 'package:viet_wallet/widgets/animation_loading.dart';
 import 'package:viet_wallet/widgets/input_field.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
 import '../../../widgets/custom_check_box.dart';
 import '../../../widgets/input_password_field.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({Key? key}) : super(key: key);
+class SignInPage extends StatefulWidget {
+  const SignInPage({Key? key}) : super(key: key);
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  State<SignInPage> createState() => _SignInPageState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInPageState extends State<SignInPage> {
   final focusNode = FocusNode();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isShowPassword = false;
   bool _rememberInfo = false;
 
-  SignInBloc? _signInBloc;
+  late SignInBloc _signInBloc;
+  final _authProvider = AuthProvider();
 
   @override
   void initState() {
@@ -34,42 +50,64 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
-    _signInBloc?.close();
+    _signInBloc.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
+    return BlocConsumer<SignInBloc, SignInState>(
+      listenWhen: (preState, curState) {
+        return curState.apiError != ApiError.noError;
+      },
+      listener: (context, curState) {
+        if (curState.apiError == ApiError.internalServerError) {
+          showCupertinoMessageDialog(
+              context, 'Error!', 'Internal_server_error');
+        }
+        if (curState.apiError == ApiError.noInternetConnection) {
+          showCupertinoMessageDialog(
+              context, 'Error!', 'No_internet_connection');
+        }
+      },
+      builder: (context, curState) {
+        Widget body = const SizedBox.shrink();
+        if (curState.isLoading) {
+          body = const AnimationLoading();
+        } else {
+          body = _body(curState);
+        }
 
-    return BlocBuilder<SignInBloc, SignInState>(builder: (context, state) {
-      return Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: height - 120,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _appIcon(),
-                      _signInForm(),
-                    ],
-                  ),
-                ),
-                _buttonSignIn(),
-                // _goToSignUp(),
-              ],
+        return Scaffold(body: body);
+      },
+    );
+  }
+
+  Widget _body(SignInState state) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              height: MediaQuery.of(context).size.height - 120,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _appIcon(),
+                  _signInForm(),
+                ],
+              ),
             ),
-          ),
+            _buttonSignIn(),
+            // _goToSignUp(),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 
   Widget _appIcon() => Padding(
@@ -107,16 +145,12 @@ class _SignInScreenState extends State<SignInScreen> {
             height: 50,
             child: Input(
               textInputAction: TextInputAction.next,
-              controller: _emailController,
+              controller: _usernameController,
               onChanged: (text) {},
               keyboardType: TextInputType.text,
               onSubmit: (_) => focusNode.requestFocus(),
               hint: 'Email',
-              prefixIcon: const Icon(
-                Icons.email_outlined,
-                size: 24,
-                color: Colors.grey,
-              ),
+              prefixIcon: Icons.email_outlined,
             ),
           ),
           Padding(
@@ -129,7 +163,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 keyboardType: TextInputType.text,
                 onFieldSubmitted: (_) => focusNode.requestFocus(),
                 hint: 'Password',
-                prefixIconPath: 'images/ic_lock.png',
+                prefixIcon: Icons.lock_outline,
                 isInputError: false,
                 obscureText: !_isShowPassword,
                 onTapSuffixIcon: () {
@@ -186,16 +220,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 Padding(
                   padding: const EdgeInsets.only(left: 10, right: 5),
                   child: GestureDetector(
-                    onTap: () {
-                      // Navigator.pushReplacement(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => ForgotPasswordPage(
-                      //       phoneNumber: _inputPhoneController.text,
-                      //     ),
-                      //   ),
-                      // );
-                    },
+                    onTap: () {},
                     child: const Text(
                       'Forgot password?',
                       style: TextStyle(
@@ -220,7 +245,52 @@ class _SignInScreenState extends State<SignInScreen> {
       children: [
         PrimaryButton(
           text: 'Sign In',
-          onTap: () {},
+          onTap: () async {
+            ConnectivityResult connectivityResult =
+                await Connectivity().checkConnectivity();
+            if (connectivityResult == ConnectivityResult.none && mounted) {
+              showMessageNoInternetDialog(context);
+            } else {
+              _signInBloc.add(DisplayLoading());
+              SignInResponse signInResponse = await _authProvider.signIn(
+                username: 'truong4',
+                password: '123456',
+                // username: _usernameController.text.trim(),
+                // password: _passwordController.text.trim(),
+              );
+              //todo:::
+              log('response: ${signInResponse.toString()}');
+              if (signInResponse.httpStatus == 200) {
+                await _saveUserInfo(signInResponse.data);
+                if (mounted) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider<TabBloc>(
+                        create: (context) => TabBloc(),
+                        child: MainApp(),
+                      ),
+                    ),
+                  );
+                }
+              } else {
+                _signInBloc.add(
+                  SignInFailure(
+                    errorMessage: signInResponse.errors?.first.errorMessage,
+                  ),
+                );
+                if (mounted) {
+                  showCupertinoMessageDialog(
+                      context,
+                      signInResponse.errors?.first.errorMessage,
+                      'Vui lòng nhập lại',
+                      buttonLabel: 'OK', onClose: () {
+                    Navigator.pop(context);
+                  });
+                }
+              }
+            }
+          },
         ),
         Padding(
           padding: const EdgeInsets.only(top: 16),
@@ -246,7 +316,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   );
                 },
                 child: Text(
-                  'Register',
+                  'Sign Up',
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontSize: 14,
@@ -260,4 +330,8 @@ class _SignInScreenState extends State<SignInScreen> {
       ],
     );
   }
+}
+
+Future<void> _saveUserInfo(SignInData? signInData) async {
+  await SharedPreferencesStorage().setSaveUserInfo(signInData);
 }
