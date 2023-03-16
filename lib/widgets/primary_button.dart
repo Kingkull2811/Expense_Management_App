@@ -16,7 +16,7 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width - 16 * 4;
+    final width = MediaQuery.of(context).size.width *0.5;
     return ButtonTheme(
       child: ElevatedButton(
         onPressed: onTap,

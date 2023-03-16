@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/sign_in_data.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
+import 'package:viet_wallet/network/response/auth_response.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
+import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password.dart';
+import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_event.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_state.dart';
@@ -220,7 +223,17 @@ class _SignInPageState extends State<SignInPage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 10, right: 5),
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider(
+                            create: (context) => ForgotPasswordBloc(context),
+                            child: const ForgotPasswordPage(),
+                          ),
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Forgot password?',
                       style: TextStyle(
@@ -252,6 +265,14 @@ class _SignInPageState extends State<SignInPage> {
               showMessageNoInternetDialog(context);
             } else {
               _signInBloc.add(DisplayLoading());
+
+              // AuthResponse authResponse = await _authProvider.refreshToken();
+              // log('auth: ${authResponse.toString()}');
+              // await SharedPreferencesStorage().saveUserInfoRefresh(
+              //   accessToken: authResponse.accessToken,
+              //   refreshToken: authResponse.refreshToken,
+              // );
+
               SignInResponse signInResponse = await _authProvider.signIn(
                 username: 'truong4',
                 password: '123456',

@@ -21,6 +21,8 @@ dependencies:
 
   intl: ^0.18.0
 
+  flutter_otp_text_field: ^1.1.1
+
   jwt_decoder: ^2.0.1
 
   #iOS implementation of the local_auth plugin.

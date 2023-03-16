@@ -4,6 +4,7 @@ import 'package:viet_wallet/network/model/base_result.dart';
 import 'package:viet_wallet/network/model/sign_in_data.dart';
 import 'package:viet_wallet/network/model/sign_in_result.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
+import 'package:viet_wallet/network/response/auth_response.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
@@ -59,6 +60,14 @@ class AuthRepository {
       isSuccess: false,
       message: null,
       errors: signUpResponse.errors,
+    );
+  }
+
+  Future<void> refreshToken() async {
+    AuthResponse response = await _authProvider.refreshToken();
+    await SharedPreferencesStorage().saveUserInfoRefresh(
+      accessToken: response.accessToken,
+      refreshToken: response.refreshToken,
     );
   }
 }

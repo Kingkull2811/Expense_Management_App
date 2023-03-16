@@ -20,20 +20,12 @@ class BaseResponse {
      this.httpStatus,
   });
 
-  factory BaseResponse.fromJson(Map<String, dynamic> json) {
-    // List<Errors> errors = [];
-    // if(isNotNullOrEmpty(json["errors"])){
-    //   final List<dynamic> errorsJson = json["errors"];
-    //   errors = errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
-    // }
-
-    return BaseResponse(
+  factory BaseResponse.fromJson(Map<String, dynamic> json)=> BaseResponse(
       httpStatus: json["httpStatus"],
       message: json["message"],
-     // errors: errors,
       errors: json["errors"],
     );
-  }
+
 
   @override
   String toString() {

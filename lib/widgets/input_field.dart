@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Input extends StatelessWidget {
-  final bool useCupertinoTextField;
-  final FocusNode? focusNode;
   final onSubmit;
   final TextInputAction textInputAction;
   final String? hint;
@@ -12,15 +10,12 @@ class Input extends StatelessWidget {
   final onChanged;
   final maxText;
   final whiteList;
-  final bool obscureText;
   final TextInputType? keyboardType;
   final String? initText;
   final IconData? prefixIcon;
 
   const Input({
     Key? key,
-    this.useCupertinoTextField = false,
-    this.focusNode,
     this.onSubmit,
     required this.textInputAction,
     this.hint,
@@ -29,7 +24,6 @@ class Input extends StatelessWidget {
     this.keyboardType,
     this.maxText,
     this.whiteList,
-    this.obscureText = false,
     this.initText,
     this.prefixIcon,
   }) : super(key: key);
@@ -45,13 +39,11 @@ class Input extends StatelessWidget {
     }
 
     return  TextField(
-            focusNode: focusNode,
             textInputAction: textInputAction,
             onSubmitted: onSubmit,
             controller: controller,
             onChanged: onChanged,
             keyboardType: keyboardType,
-            obscureText: obscureText,
             inputFormatters: [
               LengthLimitingTextInputFormatter(maxText),
               FilteringTextInputFormatter.allow(whiteList ?? RegExp('([\\S])'))
@@ -64,7 +56,7 @@ class Input extends StatelessWidget {
               prefixIcon: Icon(
                 prefixIcon,
                 size: 24,
-                //color: Colors.grey,
+                color: Theme.of(context).primaryColor,
               ),
               prefixIconColor: const Color.fromARGB(102, 230, 230, 230),
               contentPadding: const EdgeInsets.fromLTRB(12, 14, 12, 14),

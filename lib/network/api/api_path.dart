@@ -14,7 +14,7 @@ class ApiPath{
 
   static const String refreshToken = '$apiDomain/api/auth/refresh-token';
 
-  static const String sendOtp = '$apiDomain/api/auth/sign-in';
+  static const String sendOtp = '$apiDomain/api/auth/send-otp';
 
 
 

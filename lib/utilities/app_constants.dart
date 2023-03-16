@@ -21,7 +21,7 @@ class AppConstants{
     receiveDataWhenStatusError: true,
   );
 
-
+  static const String forgotPassword ='If you don\'t remember your password.\nEnter your email below, we will send a code to your email for reset your password.';
   static const String noInternetTitle = 'No Internet Connection';
   static const String noInternetContent = 'Please check your internet connection again or connect to Wi-fi';
 

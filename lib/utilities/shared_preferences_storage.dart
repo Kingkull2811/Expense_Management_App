@@ -7,12 +7,12 @@ import 'package:viet_wallet/utilities/secure_storage.dart';
 class SharedPreferencesStorage {
   static late SharedPreferences _preferences;
 
-  static Future<void> init() async{
+  static Future<void> init() async {
     _preferences = await SharedPreferences.getInstance();
   }
 
   Future<void> setSaveUserInfo(SignInData? signInData) async {
-    if(signInData != null){
+    if (signInData != null) {
       var token = signInData.accessToken?.split(' ')[1];
 
       final SecureStorage secureStorage = SecureStorage();
@@ -32,5 +32,17 @@ class SharedPreferencesStorage {
         DateTime expirationDate = JwtDecoder.getExpirationDate(token);
       }
     }
+  }
+
+  Future<void> saveUserInfoRefresh({
+    required String? accessToken,
+    required String? refreshToken,
+  }) async {
+    var token = accessToken?.split(' ')[1];
+    final SecureStorage secureStorage = SecureStorage();
+    //write accessToken, refreshToken to secureStorage
+    await secureStorage.writeSecureData(AppConstants.accessTokenKey, token);
+    await secureStorage.writeSecureData(
+        AppConstants.refreshTokenKey, refreshToken);
   }
 }
