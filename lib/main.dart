@@ -60,9 +60,11 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
       brightness: Brightness.light,
-      primaryColor: const Color.fromARGB(255, 107, 154, 107),
+      primaryColor: const Color.fromARGB(255, 107, 154, 107), //#6B9A6B
+      primaryColorDark:const Color(0xff4d6e4b),
+      primaryColorLight:const Color(0xFFb5ccb5),
       errorColor: const Color(0xFFCA0000),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[200],
       textTheme: Theme.of(context).textTheme.apply(
         bodyColor: const Color.fromARGB(255, 26, 26, 26),
         displayColor: const Color.fromARGB(255, 26, 26, 26),

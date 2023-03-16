@@ -3,11 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:viet_wallet/screens/account/account.dart';
+import 'package:viet_wallet/screens/account/account_bloc.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/home/home.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_event.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_selector.dart';
+import 'package:viet_wallet/screens/new_collection/new_collection.dart';
+import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
+import 'package:viet_wallet/screens/planning/planning.dart';
+import 'package:viet_wallet/screens/planning/planning_bloc.dart';
 
 import '../../utilities/database.dart';
 import '../my_wallet/my_wallet.dart';
@@ -86,30 +92,30 @@ class MainAppState extends State<MainApp>
           ),
         );
         break;
-      // case AppTab.newCollection:
-      //   // currentTab = BlocProvider<NewCollectionPageBloc>(
-      //   //   create: (context) => NewCollectionPageBloc(context),
-      //   //   child: NewCollectionPage(
-      //   //     key: DatabaseService().newCollectionKey,
-      //   //   ),
-      //   // );
-      //   break;
-      // case AppTab.report:
-      //   // currentTab = BlocProvider<ReportPageBloc>(
-      //   //   create: (context) => ReportPageBloc(context),
-      //   //   child: ReportPage(
-      //   //     key: DatabaseService().reportKey,
-      //   //   ),
-      //   // );
-      //   break;
-      // case AppTab.other:
-      //   // currentTab = BlocProvider<OtherPageBloc>(
-      //   //   create: (context) => OtherPageBloc(context),
-      //   //   child: OtherPage(
-      //   //     key: DatabaseService().otherKey,
-      //   //   ),
-      //   // );
-      //   break;
+      case AppTab.newCollection:
+        currentTab = BlocProvider<NewCollectionBloc>(
+          create: (context) => NewCollectionBloc(context),
+          child: NewCollectionPage(
+            key: DatabaseService().newCollectionKey,
+          ),
+        );
+        break;
+      case AppTab.report:
+        currentTab = BlocProvider<PlanningBloc>(
+          create: (context) => PlanningBloc(context),
+          child: PlanningPage(
+            key: DatabaseService().planningKey,
+          ),
+        );
+        break;
+      case AppTab.other:
+        currentTab = BlocProvider<AccountBloc>(
+          create: (context) => AccountBloc(context),
+          child: AccountPage(
+            key: DatabaseService().accountKey,
+          ),
+        );
+        break;
       default:
         currentTab = BlocProvider(
           create: (context) => HomePageBloc(context),
@@ -131,21 +137,6 @@ class MainAppState extends State<MainApp>
     setState(() {});
   }
 
-  // void changeTabToChat() {
-  //   BlocProvider.of<TabBloc>(context).add(TabUpdated(AppTab.chat));
-  // }
-  //
-  // void changeTabToNews() {
-  //   BlocProvider.of<TabBloc>(context).add(TabUpdated(AppTab.news));
-  // }
-  //
-  // void changeTabToTranscript() {
-  //   BlocProvider.of<TabBloc>(context).add(TabUpdated(AppTab.transcript));
-  // }
-  //
-  // void changeTabToProfile() {
-  //   BlocProvider.of<TabBloc>(context).add(TabUpdated(AppTab.profile));
-  // }
 
   Future<bool> _onWillPop() async {
     return (await showDialog(

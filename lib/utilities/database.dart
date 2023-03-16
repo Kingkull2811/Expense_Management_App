@@ -11,7 +11,7 @@ class DatabaseService{
   GlobalKey? homeKey;
   GlobalKey? myWalletKey;
   GlobalKey? newCollectionKey;
-  GlobalKey? reportKey;
-  GlobalKey? otherKey;
+  GlobalKey? planningKey;
+  GlobalKey? accountKey;
 
 }

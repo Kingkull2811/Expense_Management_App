@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
+import 'package:viet_wallet/screens/authentication/new_password/new_password.dart';
+import 'package:viet_wallet/screens/authentication/new_password/new_password_bloc.dart';
 import 'package:viet_wallet/screens/authentication/verify_otp/otp_event.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
@@ -247,23 +249,22 @@ class _OtpPageState extends State<OtpPage> {
 
                           final response = await _authProvider.verifyOtp(
                             email: 'kulltran281199@gmail.com',
-                            otpCode: '984007',
                             //todo::
                             // email: widget.email,
-                            // otpCode: otpCode,
+                             otpCode: otpCode,
                           );
                           print(response.toString());
                           if (response.isOK() && mounted) {
                             print('switch to new pass');
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => BlocProvider(
-                            //       create: (context) => NewPasswordBloc(context),
-                            //       child: NewPasswordPage(),
-                            //     ),
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider(
+                                  create: (context) => NewPasswordBloc(context),
+                                  child: NewPasswordPage(),
+                                ),
+                              ),
+                            );
                           }
                         }
                       }

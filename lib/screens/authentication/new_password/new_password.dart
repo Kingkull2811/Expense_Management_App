@@ -26,7 +26,8 @@ class NewPasswordPage extends StatefulWidget {
 
 class _NewPasswordPageState extends State<NewPasswordPage> {
   final focusNode = FocusNode();
-  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   late NewPasswordBloc _newPasswordBloc;
 
@@ -40,7 +41,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _passwordController.dispose();
     _newPasswordBloc.close();
     super.dispose();
   }
@@ -96,7 +97,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           ),
         ),
         title: const Text(
-          'Forgot Password',
+          'Set new Password',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -113,9 +114,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Text(
-                      AppConstants.forgotPassword,
-                      textAlign: TextAlign.center,
+                    const Text('sett a new password',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.black,
@@ -128,13 +127,30 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                         height: 50,
                         child: Input(
                           textInputAction: TextInputAction.send,
-                          controller: _emailController,
+                          controller: _passwordController,
                           onChanged: (text) {
                             setState(() {});
                           },
                           onSubmit: (_) => focusNode.requestFocus(),
-                          prefixIcon: Icons.mail_outline,
-                          hint: 'Enter your email',
+                          prefixIcon: Icons.lock_outline,
+                          hint: 'Enter your new password',
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 16, top: 16, right: 16),
+                      child: SizedBox(
+                        height: 50,
+                        child: Input(
+                          textInputAction: TextInputAction.send,
+                          controller: _confirmPasswordController,
+                          onChanged: (text) {
+                            setState(() {});
+                          },
+                          onSubmit: (_) => focusNode.requestFocus(),
+                          prefixIcon: Icons.lock_outline,
+                          hint: 'Confirm your new password',
                         ),
                       ),
                     ),
@@ -153,7 +169,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: PrimaryButton(
-        text: 'Send me Code',
+        text: 'Set a new password',
         // isDisable: _emailController.text.isEmpty,
         onTap:
             //_emailController.text.isEmpty ? null :
