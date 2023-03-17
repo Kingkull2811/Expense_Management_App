@@ -14,17 +14,17 @@ void showLoading(BuildContext context) {
         return Center(
           child: CircularProgressIndicator(
             valueColor:
-            AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
           ),
         );
       });
 }
 
 Future<void> showMessageNoInternetDialog(
-    BuildContext context, {
-      Function()? onClose,
-      String? buttonLabel,
-    }) async {
+  BuildContext context, {
+  Function()? onClose,
+  String? buttonLabel,
+}) async {
   await showDialog(
       barrierDismissible: false,
       context: context,
@@ -47,7 +47,7 @@ Future<void> showMessageNoInternetDialog(
               Container(
                 padding: const EdgeInsets.only(top: 16),
                 alignment: Alignment.center,
-                child: const  Text(
+                child: const Text(
                   'AppConstants.noInternetContent',
                   style: TextStyle(
                     fontSize: 14,
@@ -72,10 +72,13 @@ Future<void> showMessageNoInternetDialog(
 }
 
 Future<void> showCupertinoMessageDialog(
-    BuildContext context, String? title, String? content,
-    {Function()? onClose,
-      String? buttonLabel,
-      bool barrierDismiss = false}) async {
+  BuildContext context,
+  String? title, {
+  String? content,
+  Function()? onClose,
+  String? buttonLabel,
+  bool barrierDismiss = false,
+}) async {
   await showDialog(
       barrierDismissible: barrierDismiss,
       context: context,
@@ -89,15 +92,73 @@ Future<void> showCupertinoMessageDialog(
       });
 }
 
+Future<void> showCupertinoAlertDialog(
+  BuildContext context, {
+  required String content,
+  required Function() onClose,
+  String? buttonLabel,
+  bool barrierDismiss = false,
+}) async {
+  await showDialog(
+    barrierDismissible: barrierDismiss,
+    context: context,
+    builder: (context) {
+      return WillPopScope(
+        onWillPop: () async {
+          return false;
+        },
+        child: CupertinoAlertDialog(
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: Icon(
+                  Icons.verified_outlined,
+                  size: 150,
+                  color: Colors.green,
+                ),
+              ),
+              Text(
+                content,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              onPressed: () {
+                Navigator.pop(context);
+                onClose();
+              },
+              child: Text(
+                buttonLabel ?? 'OK',
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 Future<void> showSuccessBottomSheet(
-    BuildContext context, {
-      required bool isDismissible,
-      required bool enableDrag,
-      String? titleMessage,
-      String? contentMessage,
-      String? buttonLabel,
-      Function()? onTap,
-    }) async {
+  BuildContext context, {
+  required bool isDismissible,
+  required bool enableDrag,
+  String? titleMessage,
+  String? contentMessage,
+  String? buttonLabel,
+  Function()? onTap,
+}) async {
   await showModalBottomSheet(
     context: context,
     isDismissible: isDismissible,
@@ -110,9 +171,9 @@ Future<void> showSuccessBottomSheet(
         height: 350,
         color: const Color.fromARGB(102, 230, 230, 230),
         child: Container(
-          decoration:  const BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius:  BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(35),
               topRight: Radius.circular(35),
             ),
@@ -124,9 +185,12 @@ Future<void> showSuccessBottomSheet(
                 child: Column(
                   children: [
                     const Padding(
-                      padding:  EdgeInsets.only(top: 16),
-                      child: Icon(Icons.verified_outlined, size: 150,)
-                    ),
+                        padding: EdgeInsets.only(top: 16),
+                        child: Icon(
+                          Icons.verified_outlined,
+                          size: 150,
+                          color: Colors.green,
+                        ),),
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Text(
@@ -182,21 +246,21 @@ Future<void> showSuccessBottomSheet(
 // }
 
 AndroidAuthMessages androidLocalAuthMessage(
-    //BuildContext context,
-    ) =>
+        //BuildContext context,
+        ) =>
     const AndroidAuthMessages(
       cancelButton: 'OK',
       goToSettingsButton: 'Setting',
       goToSettingsDescription:
-      'Biometrics is not set up on your device. Please either enable TouchId or FaceId on your phone.',
+          'Biometrics is not set up on your device. Please either enable TouchId or FaceId on your phone.',
     );
 
 IOSAuthMessages iosLocalAuthMessages(
-    //BuildContext context,
-    ) =>
+        //BuildContext context,
+        ) =>
     const IOSAuthMessages(
       cancelButton: 'OK',
       goToSettingsButton: 'Setting',
       goToSettingsDescription:
-      'Biometrics is not set up on your device. Please either enable TouchId or FaceId on your phone.',
+          'Biometrics is not set up on your device. Please either enable TouchId or FaceId on your phone.',
     );

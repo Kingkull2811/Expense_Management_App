@@ -14,8 +14,6 @@ import 'package:viet_wallet/screens/authentication/sign_in/sign_in_event.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_state.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_bloc.dart';
-import 'package:viet_wallet/screens/home/home.dart';
-import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
@@ -67,12 +65,12 @@ class _SignInPageState extends State<SignInPage> {
       },
       listener: (context, curState) {
         if (curState.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(
-              context, 'Error!', 'Internal_server_error');
+          showCupertinoMessageDialog(context, 'Error!',
+              content: 'Internal_server_error');
         }
         if (curState.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(
-              context, 'Error!', 'No_internet_connection');
+          showCupertinoMessageDialog(context, 'Error!',
+              content: 'No_internet_connection');
         }
       },
       builder: (context, curState) {
@@ -302,9 +300,8 @@ class _SignInPageState extends State<SignInPage> {
                 );
                 if (mounted) {
                   showCupertinoMessageDialog(
-                      context,
-                      signInResponse.errors?.first.errorMessage,
-                      'Vui lòng nhập lại',
+                      context, signInResponse.errors?.first.errorMessage,
+                      content: 'Vui lòng nhập lại',
                       buttonLabel: 'OK', onClose: () {
                     Navigator.pop(context);
                   });

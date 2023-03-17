@@ -2,15 +2,14 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
-import 'package:viet_wallet/network/repository/auth_repository.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/network/response/error_response.dart';
-import 'package:viet_wallet/network/response/sign_up_response.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_event.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_state.dart';
+import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 import 'package:viet_wallet/widgets/input_password_field.dart';
@@ -32,12 +31,18 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isShow = false;
-  bool _isShowConfirm = false;
+  bool _isShowPassword = false;
+  bool _isShowConfirmPassword = false;
+
+  String messageValidate = '';
+  String messageValidateEmail = '';
+  bool hasCharacter = false;
+  bool checkValidate = false;
+  bool errorEmail = false;
+  bool errorPassword = false;
 
   late SignUpBloc _signUpBloc;
 
-  final _authRepository = AuthRepository();
   final _authProvider = AuthProvider();
 
   @override
@@ -64,12 +69,12 @@ class _SignUpPageState extends State<SignUpPage> {
       },
       listener: (context, curState) {
         if (curState.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(
-              context, 'Error!', 'Internal_server_error');
+          showCupertinoMessageDialog(context, 'Error!',
+              content: 'Internal_server_error');
         }
         if (curState.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(
-              context, 'Error!', 'No_internet_connection');
+          showCupertinoMessageDialog(context, 'Error!',
+              content: 'No_internet_connection');
         }
       },
       builder: (context, curState) {
@@ -105,65 +110,199 @@ class _SignUpPageState extends State<SignUpPage> {
               children: <Widget>[
                 SizedBox(
                   height: height - 120,
-                  child: Column(children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 40, bottom: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Image.asset(
-                            'images/logo_app.png',
-                            height: 150,
-                            width: 150,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 16),
-                            child: Text(
-                              'Welcome signup to \'app name\'',
-                              style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.black),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 40, bottom: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Image.asset(
+                              'images/logo_app.png',
+                              height: 150,
+                              width: 150,
+                              color: Theme.of(context).primaryColor,
                             ),
-                          ),
-                        ],
+                            const Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Text(
+                                'Welcome signup to \'app name\'',
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    _inputTextField(
-                      hintText: 'Username',
-                      controller: _usernameController,
-                      keyboardType: TextInputType.text,
-                      prefixIcon: Icons.person_outline,
-                    ),
-                    _inputTextField(
-                      hintText: 'Email',
-                      controller: _emailController,
-                      keyboardType: TextInputType.text,
-                      prefixIcon: Icons.mail_outline,
-                    ),
-                    _passwordField(
-                      hintText: 'Password',
-                      controller: _passwordController,
-                      obscureText: !_isShow,
-                      onTapSuffixIcon: () {
-                        setState(() {
-                          _isShow = !_isShow;
-                        });
-                      },
-                    ),
-                    _passwordField(
-                      hintText: 'Confirm Password',
-                      controller: _confirmPasswordController,
-                      obscureText: !_isShowConfirm,
-                      onTapSuffixIcon: () {
-                        setState(() {
-                          _isShowConfirm = !_isShowConfirm;
-                        });
-                      },
-                      validator: (text) {},
-                    ),
-                  ]),
+                      _inputTextField(
+                        hintText: 'Username',
+                        controller: _usernameController,
+                        keyboardType: TextInputType.text,
+                        prefixIcon: Icons.person_outline,
+                        onSubmit: (_) => focusNode.requestFocus(),
+                      ),
+                      _inputTextField(
+                        hintText: 'Email',
+                        controller: _emailController,
+                        keyboardType: TextInputType.text,
+                        prefixIcon: Icons.mail_outline,
+                        onSubmit: (value) {
+                          focusNode.requestFocus();
+                          if (_emailController.text.isNotEmpty &&
+                              !(AppConstants.emailExp)
+                                  .hasMatch(_emailController.text.trim())) {
+                            setState(() {
+                              errorEmail = true;
+                              hasCharacter = true;
+                              messageValidateEmail =
+                                  'Địa chỉ email không đúng đinh dạng';
+                            });
+                          }
+                        },
+                        isEmailError: errorEmail,
+                      ),
+                      _passwordField(
+                        hintText: 'Password',
+                        controller: _passwordController,
+                        obscureText: !_isShowPassword,
+                        onSubmit: (value) => focusNode.requestFocus(),
+                        //   // setState(() {
+                        //   //   hasCharacter = true;
+                        //   //   errorPassword = !checkValidate;
+                        //   // });
+                        // },
+                        isPasswordError: hasCharacter
+                            ? errorPassword
+                                ? true
+                                : false
+                            : false,
+                        onTapSuffixIcon: () {
+                          setState(() {
+                            _isShowPassword = !_isShowPassword;
+                          });
+                        },
+                      ),
+                      _passwordField(
+                        hintText: 'Confirm Password',
+                        controller: _confirmPasswordController,
+                        obscureText: !_isShowConfirmPassword,
+                        isPasswordError: hasCharacter
+                            ? errorPassword
+                                ? true
+                                : false
+                            : false,
+                        onTapSuffixIcon: () {
+                          setState(() {
+                            _isShowConfirmPassword = !_isShowConfirmPassword;
+                          });
+                        },
+                        onSubmit: (value) {
+                          focusNode.requestFocus();
+                          setState(() {
+                            hasCharacter = true;
+                            checkValidate = _validatePassword();
+                            errorPassword = !checkValidate;
+                          });
+                        },
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 16, top: 16, right: 16),
+                        child: !hasCharacter
+                            ? const SizedBox()
+                            : !errorEmail
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: const [
+                                      Icon(
+                                        Icons.task_alt,
+                                        size: 20,
+                                        color: Colors.green,
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const Icon(
+                                        Icons.cancel_outlined,
+                                        size: 20,
+                                        color: Colors.red,
+                                      ),
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                16 * 4 -
+                                                20 -
+                                                10,
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        child: Text(
+                                          messageValidateEmail,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 16, top: 16, right: 16),
+                        child: !hasCharacter
+                            ? const SizedBox()
+                            : checkValidate
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: const [
+                                      Icon(
+                                        Icons.task_alt,
+                                        size: 20,
+                                        color: Colors.green,
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const Icon(
+                                        Icons.cancel_outlined,
+                                        size: 20,
+                                        color: Colors.red,
+                                      ),
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                16 * 4 -
+                                                20 -
+                                                10,
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        child: Text(
+                                          messageValidate,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                      ),
+                    ],
+                  ),
                 ),
                 _buttonSendOTP(
                   state,
@@ -183,22 +322,20 @@ class _SignUpPageState extends State<SignUpPage> {
     required TextEditingController controller,
     required TextInputType keyboardType,
     IconData? prefixIcon,
-    String? prefixIconPath,
-    int? maxText,
+    Function(String)? onSubmit,
+    bool isEmailError = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
       child: SizedBox(
         height: 50,
         child: Input(
+          isInputError: isEmailError,
           keyboardType: keyboardType,
-          maxText: maxText,
           controller: controller,
-          onChanged: (text) {
-            //_validateForm();
-          },
+          onChanged: (text) {},
           textInputAction: TextInputAction.next,
-          onSubmit: (_) => focusNode.requestFocus(),
+          onSubmit: onSubmit,
           hint: hintText,
           prefixIcon: prefixIcon,
         ),
@@ -211,7 +348,9 @@ class _SignUpPageState extends State<SignUpPage> {
     Function? onTapSuffixIcon,
     required TextEditingController controller,
     bool obscureText = false,
+    Function(String)? onSubmit,
     Function? validator,
+    bool isPasswordError = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, top: 24, right: 16),
@@ -222,9 +361,9 @@ class _SignUpPageState extends State<SignUpPage> {
           controller: controller,
           onChanged: (text) {},
           obscureText: obscureText,
-          isInputError: false,
+          isInputError: isPasswordError,
           onTapSuffixIcon: onTapSuffixIcon,
-          onFieldSubmitted: (_) => focusNode.requestFocus(),
+          onFieldSubmitted: onSubmit,
           hint: hintText,
           textInputAction: TextInputAction.next,
           keyboardType: TextInputType.text,
@@ -239,61 +378,66 @@ class _SignUpPageState extends State<SignUpPage> {
       alignment: Alignment.bottomCenter,
       child: PrimaryButton(
         text: 'Sign Up',
-        onTap: () async {
-          ConnectivityResult connectivityResult =
-              await Connectivity().checkConnectivity();
-          if (connectivityResult == ConnectivityResult.none && mounted) {
-            showMessageNoInternetDialog(context);
-          } else {
-            _signUpBloc.add(SignUpLoading());
-            //  final signUpResult = _authRepository.signUp(
-            //      email: _emailController.text.trim(),
-            //      username: _usernameController.text.trim(),
-            //      password: _passwordController.text.trim(),
-            // );
-            BaseResponse response = await _authProvider.signUp(
-              email: 'truong4@gmail.com',
-              password: '123456',
-              username: 'truong4',
-              // email: _emailController.text.trim(),
-              // username: _usernameController.text.trim(),
-              // password: _passwordController.text.trim(),
-            );
-            if (response.httpStatus == 200 && mounted) {
-              _signUpBloc.add(
-                SignUpSuccess(message: response.message ?? ''),
-              );
-              showSuccessBottomSheet(
-                context,
-                isDismissible: true,
-                enableDrag: true,
-                titleMessage: response.message,
-                contentMessage: 'Vui lòng đăng nhập lại',
-                buttonLabel: 'Login',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider(
-                        create: (context) => SignInBloc(context),
-                        child: const SignInPage(),
-                      ),
-                    ),
+        isDisable: !checkValidate,
+        onTap: checkValidate
+            ? () async {
+                ConnectivityResult connectivityResult =
+                    await Connectivity().checkConnectivity();
+                if (connectivityResult == ConnectivityResult.none && mounted) {
+                  showMessageNoInternetDialog(context);
+                } else {
+                  _signUpBloc.add(SignUpLoading());
+
+                  final response = await _authProvider.signUp(
+                    // email: 'truong4@gmail.com',
+                    // password: '123456',
+                    // username: 'truong4',
+                    email: _emailController.text.trim(),
+                    username: _usernameController.text.trim(),
+                    password: _passwordController.text.trim(),
                   );
-                },
-              );
-            } else {
-              _signUpBloc.add(
-                SignUpFailure(errors: response.errors),
-              );
-              String? errorMessage = '';
-              List<Errors>? errors = response.errors;
-              for (var error in errors!) {
-                errorMessage = '$errorMessage\n${error.errorMessage}';
+                  if (response.isOK() && mounted) {
+                    _signUpBloc.add(
+                      SignUpSuccess(message: response.message ?? ''),
+                    );
+                    showSuccessBottomSheet(
+                      context,
+                      isDismissible: true,
+                      enableDrag: true,
+                      titleMessage: response.message,
+                      contentMessage: 'Vui lòng đăng nhập lại',
+                      buttonLabel: 'Đăng nhập',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (context) => SignInBloc(context),
+                              child: const SignInPage(),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    _signUpBloc.add(
+                      SignUpFailure(errors: response.errors),
+                    );
+
+                    String? errorMessage = '';
+                    List<Errors>? errors = response.errors;
+                    for (var error in errors!) {
+                      errorMessage =
+                      '$errorMessage\n${error.errorMessage}';
+                    }
+                    showCupertinoMessageDialog(
+                      context,
+                      errorMessage,
+                    );
+                  }
+                }
               }
-            }
-          }
-        },
+            : null,
       ),
     );
   }
@@ -334,5 +478,29 @@ class _SignUpPageState extends State<SignUpPage> {
         ],
       ),
     );
+  }
+
+  bool _validatePassword() {
+    if (_passwordController.text.isEmpty &&
+        _confirmPasswordController.text.isEmpty) {
+      messageValidate = 'Mật khẩu không được trống';
+      return false;
+    }
+    if (_passwordController.text.length < 6 &&
+        _confirmPasswordController.text.length < 6 &&
+        _passwordController.text.isNotEmpty &&
+        _confirmPasswordController.text.isNotEmpty) {
+      messageValidate = 'Mật khẩu phải ≥ 6 ký tự';
+      return false;
+    }
+
+    if (_passwordController.text.trim() !=
+            _confirmPasswordController.text.trim() &&
+        _passwordController.text.isNotEmpty &&
+        _confirmPasswordController.text.isNotEmpty) {
+      messageValidate = 'Mật khẩu và xác nhận mật khẩu không khớp';
+      return false;
+    }
+    return true;
   }
 }

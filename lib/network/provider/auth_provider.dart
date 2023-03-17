@@ -7,13 +7,15 @@ import 'package:viet_wallet/network/response/auth_response.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/network/response/forgot_password_response.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
+import 'package:viet_wallet/network/response/sign_up_response.dart';
+import 'package:viet_wallet/network/response/verify_otp_response.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
 
 class AuthProvider with ProviderMixin {
   final SecureStorage secureStorage = SecureStorage();
 
-  Future<BaseResponse> signUp({
+  Future<SignUpResponse> signUp({
     required String email,
     required String username,
     required String password,
@@ -24,20 +26,20 @@ class AuthProvider with ProviderMixin {
         "password": password,
         "username": username,
       };
-
+      print(data);
       final response = await dio.post(
         ApiPath.signup,
         data: data,
         options: AppConstants.options,
       );
 
-      return BaseResponse.fromJson(response.data);
+      return SignUpResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.signup);
       if (error is DioError) {
-        return BaseResponse.fromJson(error.response?.data);
+        return SignUpResponse.fromJson(error.response?.data);
       }
-      return BaseResponse();
+      return SignUpResponse();
     }
   }
 
@@ -92,34 +94,68 @@ class AuthProvider with ProviderMixin {
   Future<ForgotPasswordResponse> forgotPassword({
     required String email,
   }) async {
-    try{
+    try {
       final response = await dio.post(
         ApiPath.forgotPassword,
         data: {"email": email},
-        options: AppConstants.options,
+        //options: AppConstants.options,
       );
+      log('provider: ${response.data}');
 
       return ForgotPasswordResponse.fromJson(response.data);
-    }
-    catch(error, stacktrace){
-      showErrorLog(error, stacktrace, ApiPath.forgotPassword);
+    } catch (error, stacktrace) {
+      // showErrorLog(error, stacktrace, ApiPath.forgotPassword);
+      if (error is DioError) {
+        return ForgotPasswordResponse.fromJson(error.response?.data);
+      }
       return ForgotPasswordResponse();
     }
   }
 
-  Future<BaseResponse> verifyOtp({
+  Future<VerifyOtpResponse> verifyOtp({
     required String email,
     required String otpCode,
-})async{
-    try{
+  }) async {
+    try {
       final data = {"email": email, "otp": otpCode};
 
-      final response = await dio.post(ApiPath.sendOtp, data: data, options: AppConstants.options,);
+      final response = await dio.post(
+        ApiPath.sendOtp,
+        data: data,
+        //options: AppConstants.options,
+      );
+      return VerifyOtpResponse.fromJson(response.data);
+    } catch (error, stacktrace) {
+      //showErrorLog(error, stacktrace, ApiPath.sendOtp);
+      if (error is DioError) {
+        return VerifyOtpResponse.fromJson(error.response?.data);
+      }
+      return VerifyOtpResponse();
+    }
+  }
+
+  Future<BaseResponse> newPassword({
+    required String email,
+    required String password,
+    required String confirmPassword,
+  }) async {
+    try {
+      final data = {
+        "confirm_password": confirmPassword,
+        "email": email,
+        "password": confirmPassword
+      };
+
+      final response = await dio.post(
+        ApiPath.newPassword,
+        data: data,
+        //options: AppConstants.options,
+      );
+      log(response.toString());
       return BaseResponse.fromJson(response.data);
-    }catch(error, stacktrace){
-      showErrorLog(error, stacktrace, ApiPath.sendOtp);
+    } catch (error, stacktrace) {
+      showErrorLog(error, stacktrace, ApiPath.newPassword);
       return BaseResponse();
     }
-
   }
 }

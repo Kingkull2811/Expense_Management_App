@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Input extends StatelessWidget {
-  final onSubmit;
+  final Function(String)? onSubmit;
   final TextInputAction textInputAction;
   final String? hint;
   final TextEditingController controller;
@@ -13,6 +13,7 @@ class Input extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? initText;
   final IconData? prefixIcon;
+  final bool isInputError;
 
   const Input({
     Key? key,
@@ -26,6 +27,7 @@ class Input extends StatelessWidget {
     this.whiteList,
     this.initText,
     this.prefixIcon,
+    this.isInputError = false,
   }) : super(key: key);
 
   @override
@@ -56,9 +58,8 @@ class Input extends StatelessWidget {
               prefixIcon: Icon(
                 prefixIcon,
                 size: 24,
-                color: Theme.of(context).primaryColor,
+                 color: Theme.of(context).colorScheme.primary,
               ),
-              prefixIconColor: const Color.fromARGB(102, 230, 230, 230),
               contentPadding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
               filled: true,
               fillColor: const Color.fromARGB(102, 230, 230, 230),
@@ -71,9 +72,11 @@ class Input extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
-                borderSide: const BorderSide(
+                borderSide:  BorderSide(
                   width: 1,
-                  color: Color.fromARGB(128, 130, 130, 130),
+                  color:  isInputError
+                      ? const Color(0xffca0000)
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ),
               hintText: hint,

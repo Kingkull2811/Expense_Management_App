@@ -16,7 +16,6 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width *0.5;
     return ButtonTheme(
       child: ElevatedButton(
         onPressed: onTap,
@@ -46,28 +45,23 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
         child: Container(
-          width: width / 2,
           padding: const EdgeInsets.symmetric(
             vertical: 12,
           ),
-          constraints: const BoxConstraints(
-            minHeight: 50,
-            maxHeight: 50,
+          constraints:  BoxConstraints(
+            minWidth: 100,
+            maxWidth: MediaQuery.of(context).size.width *0.7,
           ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            physics: const ClampingScrollPhysics(),
-            child: Text(
-              text ?? '',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color:
-                    isDisable ? Theme.of(context).primaryColor : Colors.white,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
+          child: Text(
+            text ?? '',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color:
+                  isDisable ? Theme.of(context).primaryColor : Colors.white,
+              height: 1.3,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),

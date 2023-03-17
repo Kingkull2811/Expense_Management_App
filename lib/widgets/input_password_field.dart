@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class InputPasswordField extends StatelessWidget {
   final FocusNode? focusNode;
-  final onFieldSubmitted;
+  final Function(String)? onFieldSubmitted;
   final TextInputAction? textInputAction;
   final String? hint;
   final TextEditingController controller;
@@ -67,30 +66,24 @@ class InputPasswordField extends StatelessWidget {
         prefixIcon: Icon(
           prefixIcon,
           size: 24,
-         // color: Colors.grey,
+          color: Theme.of(context).colorScheme.primary,
         ),
-        prefixIconColor: const Color.fromARGB(102, 230, 230, 230),
         suffixIcon: InkWell(
           onTap: onTapSuffixIcon,
           child: Icon(
             obscureText ? Icons.visibility_off : Icons.visibility,
             size: 24,
-           // color: Colors.grey,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
-        suffixIconColor: const Color.fromARGB(102, 230, 230, 230),
         contentPadding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
         filled: true,
-        fillColor: isInputError
-            ? const Color(0xffca0000)
-            : const Color.fromARGB(102, 230, 230, 230),
+        fillColor: const Color.fromARGB(102, 230, 230, 230),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide(
             width: 1,
-            color: isInputError
-                ? const Color(0xffca0000)
-                : Theme.of(context).primaryColor,
+            color: Theme.of(context).primaryColor,
           ),
         ),
         enabledBorder: OutlineInputBorder(
@@ -99,7 +92,7 @@ class InputPasswordField extends StatelessWidget {
             width: 1,
             color: isInputError
                 ? const Color(0xffca0000)
-                : const Color.fromARGB(128, 130, 130, 130),
+                : Theme.of(context).colorScheme.primary,
           ),
         ),
         hintText: hint,

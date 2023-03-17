@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
+import 'package:viet_wallet/network/response/forgot_password_response.dart';
 import 'package:viet_wallet/screens/authentication/verify_otp/otp.dart';
 import 'package:viet_wallet/screens/authentication/verify_otp/otp_bloc.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
@@ -16,7 +17,6 @@ import 'package:viet_wallet/widgets/primary_button.dart';
 import 'forgot_password_bloc.dart';
 import 'forgot_password_event.dart';
 import 'forgot_password_state.dart';
-
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({Key? key}) : super(key: key);
@@ -57,14 +57,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           showCupertinoMessageDialog(
             context,
             'error',
-            'internal_server_error',
+            content: 'internal_server_error',
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
           showCupertinoMessageDialog(
             context,
             'error',
-            'no_internet_connection',
+            content: 'no_internet_connection',
           );
         }
       },
@@ -128,7 +128,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       child: SizedBox(
                         height: 50,
                         child: Input(
-                          textInputAction: TextInputAction.send,
+                          textInputAction: TextInputAction.done,
                           controller: _emailController,
                           onChanged: (text) {
                             setState(() {});
@@ -165,21 +165,35 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             showMessageNoInternetDialog(context);
           } else {
             _forgotPasswordBloc.add(DisplayLoading());
-            final baseResponse = _authProvider.forgotPassword(
-                // email: _emailController.text.trim(),
-                email: 'kulltran281199@gmail.com');
-            log(baseResponse.toString());
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider<OtpBloc>(
-                  create: (context) => OtpBloc(context),
-                  child: OtpPage(
-                    email: _emailController.text.trim(),
+            ForgotPasswordResponse response =
+                await _authProvider.forgotPassword(
+                    // email: _emailController.text.trim(),
+                    email: 'kulltran281199@gmail.com');
+            // log(response.toString());
+            if (response.httpStatus == 200 && mounted) {
+              _forgotPasswordBloc.add(OnSuccess());
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider<OtpBloc>(
+                    create: (context) => OtpBloc(context),
+                    child: OtpPage(
+                      email: _emailController.text.trim(),
+                    ),
                   ),
                 ),
-              ),
-            );
+              );
+            } else {
+              _forgotPasswordBloc.add(
+                OnFailure(
+                  errorMessage: response.errors?.first.errorMessage,
+                ),
+              );
+              showCupertinoMessageDialog(
+                context,
+                response.errors?.first.errorMessage,
+              );
+            }
           }
         },
       ),

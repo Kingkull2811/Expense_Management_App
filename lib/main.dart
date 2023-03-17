@@ -63,6 +63,10 @@ class _MyAppState extends State<MyApp> {
       primaryColor: const Color.fromARGB(255, 107, 154, 107), //#6B9A6B
       primaryColorDark:const Color(0xff4d6e4b),
       primaryColorLight:const Color(0xFFb5ccb5),
+      colorScheme: ThemeData().colorScheme.copyWith(
+        primary:  Colors.grey,
+        secondary:  const Color(0xffe6e6e6),
+      ),
       errorColor: const Color(0xFFCA0000),
       backgroundColor: Colors.grey[200],
       textTheme: Theme.of(context).textTheme.apply(
@@ -91,7 +95,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         AppRoutes.mainApp: (context) => BlocProvider<SignInBloc>(
           create: (context) => SignInBloc(context),
-          child: SignInPage(),
+          child: const SignInPage(),
         ),
       },
 

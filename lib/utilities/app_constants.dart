@@ -20,6 +20,11 @@ class AppConstants{
     receiveTimeout: const Duration(seconds: 3),
     receiveDataWhenStatusError: true,
   );
+  static RegExp emailExp = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+  static RegExp  passwordExp = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$');
+
+  // ignore: constant_identifier_names
+  static const String set_new_password_success =  'Thiết lập mật khẩu mới thành công.\nVui lòng đăng nhập lại với mật khẩu mới.';
 
   static const String forgotPassword ='If you don\'t remember your password.\nEnter your email below, we will send a code to your email for reset your password.';
   static const String noInternetTitle = 'No Internet Connection';

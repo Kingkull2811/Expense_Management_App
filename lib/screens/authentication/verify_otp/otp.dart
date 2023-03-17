@@ -32,6 +32,7 @@ class OtpPage extends StatefulWidget {
 class _OtpPageState extends State<OtpPage> {
   String otpCode = '';
   int _timerCounter = 59;
+  final focusNode = FocusNode();
 
   late OtpBloc _otpBloc;
 
@@ -63,14 +64,14 @@ class _OtpPageState extends State<OtpPage> {
           showCupertinoMessageDialog(
             context,
             'error',
-            'internal_server_error',
+            content: 'internal_server_error',
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
           showCupertinoMessageDialog(
             context,
             'error',
-            'no_internet_connection',
+            content: 'no_internet_connection',
           );
         }
       },
@@ -145,10 +146,12 @@ class _OtpPageState extends State<OtpPage> {
                       enabledBorderColor: Colors.grey,
                       disabledBorderColor: Colors.blue,
                       focusedBorderColor: Theme.of(context).primaryColor,
+                      autoFocus: true,
                       //set to true to show as box or false to show as dash
                       showFieldAsBox: true,
                       //runs when a code is typed in
                       onCodeChanged: (String code) {
+                        print(code);
                         //handle validation or checks here
                       },
                       //runs when every text field is filled
@@ -157,6 +160,8 @@ class _OtpPageState extends State<OtpPage> {
                           otpCode = verificationCode;
                           _otpBloc.add(Validate(isValidated: true));
                         });
+                        // focusNode.requestFocus();
+                        //todo:::
                         print(otpCode);
                       }, // end onSubmit
                     ),
@@ -209,11 +214,11 @@ class _OtpPageState extends State<OtpPage> {
                           mounted) {
                         showMessageNoInternetDialog(context);
                       } else {
-                        final baseResponse = _authProvider.forgotPassword(
+                        final response = _authProvider.forgotPassword(
                           // email: widget.email,
                           email: 'kulltran281199@gmail.com',
                         );
-                        log(baseResponse.toString());
+                        log(response.toString());
                       }
                     },
                     child: Text(
@@ -246,25 +251,45 @@ class _OtpPageState extends State<OtpPage> {
                           showMessageNoInternetDialog(context);
                         } else {
                           _otpBloc.add(DisplayLoading());
-
                           final response = await _authProvider.verifyOtp(
-                            email: 'kulltran281199@gmail.com',
-                            //todo::
                             // email: widget.email,
-                             otpCode: otpCode,
+                            email: 'kulltran281199@gmail.com',
+                            otpCode: otpCode,
                           );
+                          //todo:::
                           print(response.toString());
                           if (response.isOK() && mounted) {
-                            print('switch to new pass');
+                            _otpBloc.add(OnSuccess());
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => BlocProvider(
                                   create: (context) => NewPasswordBloc(context),
-                                  child: NewPasswordPage(),
+                                  child: NewPasswordPage(
+                                    email: widget.email,
+                                  ),
                                 ),
                               ),
                             );
+                          } else {
+                            _otpBloc.add(
+                              OnFailure(
+                                errorMessage:
+                                    response.errors?.first.errorMessage,
+                              ),
+                            );
+                            showCupertinoMessageDialog(
+                              context,
+                              response.errors?.first.errorMessage,
+                            );
+                            _otpBloc.add(
+                              Validate(
+                                isValidated: false,
+                              ),
+                            );
+                            setState(() {
+                              otpCode = '';
+                            });
                           }
                         }
                       }

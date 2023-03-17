@@ -3,9 +3,9 @@ import 'package:viet_wallet/utilities/utils.dart';
 
 import 'error_response.dart';
 
-class ForgotPasswordResponse extends BaseResponse{
+class VerifyOtpResponse extends BaseResponse{
 
-  ForgotPasswordResponse({
+  VerifyOtpResponse({
     httpStatus,
     String? message,
     List<Errors>? errors,
@@ -15,14 +15,14 @@ class ForgotPasswordResponse extends BaseResponse{
     errors: errors,
   );
 
-  factory ForgotPasswordResponse.fromJson(Map<String, dynamic> json) {
+  factory VerifyOtpResponse.fromJson(Map<String, dynamic> json) {
     List<Errors> errors = [];
     if(isNotNullOrEmpty(json["errors"])){
       final List<dynamic> errorsJson = json["errors"];
       errors = errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
     }
 
-    return ForgotPasswordResponse(
+    return VerifyOtpResponse(
       httpStatus: json['httpStatus'],
       message: json['message'],
       errors: errors,
