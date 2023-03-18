@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 class AppConstants{
-  static const String rememberInfo = 'REMEMBER_INFO';
+  static const String isRememberInfo = 'REMEMBER_INFO';
   static const String isLoggedOut = 'IS_LOGGED_OUT';
   static const String passwordExpireTimeKey = 'PASSWORD_EXPIRE_TIME';
   static const String refreshTokenKey = 'REFRESH_TOKEN';

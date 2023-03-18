@@ -146,7 +146,7 @@ class _OtpPageState extends State<OtpPage> {
                       enabledBorderColor: Colors.grey,
                       disabledBorderColor: Colors.blue,
                       focusedBorderColor: Theme.of(context).primaryColor,
-                      autoFocus: true,
+                      //autoFocus: true,
                       //set to true to show as box or false to show as dash
                       showFieldAsBox: true,
                       //runs when a code is typed in

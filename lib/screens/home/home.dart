@@ -27,25 +27,10 @@ class _HomePageState extends State<HomePage>
 
   late TabController _tabController;
 
-  Future<String>authenticationStatus()async {
-    final SecureStorage secureStorage = SecureStorage();
-    String accessToken = await secureStorage.readSecureData(
-        AppConstants.accessTokenKey);
-    print('accessToken: $accessToken');
-    print('date now: ${DateTime.now().toIso8601String()}');
-    if(DateTime.parse(accessToken).isAfter(DateTime.now())){
-      print('accessToken has expired');
-    }else{
-
-      print('accessToken hasn\'t expired');
-    }
-    return accessToken;
-  }
   @override
   void initState() {
     _homePageBloc = BlocProvider.of<HomePageBloc>(context);
     _tabController = TabController(length: 2, vsync: this);
-    authenticationStatus();
     super.initState();
   }
 

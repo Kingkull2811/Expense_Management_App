@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth_android/types/auth_messages_android.dart';
 import 'package:local_auth_ios/types/auth_messages_ios.dart';
-import 'package:viet_wallet/screens/home/home_state.dart';
+import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
+import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
+import 'package:viet_wallet/widgets/message_dialog.dart';
+import 'package:viet_wallet/widgets/primary_button.dart';
 
-import '../widgets/message_dialog.dart';
-import '../widgets/primary_button.dart';
 import 'database.dart';
 
 void showLoading(BuildContext context) {
@@ -188,12 +191,13 @@ Future<void> showSuccessBottomSheet(
                 child: Column(
                   children: [
                     const Padding(
-                        padding: EdgeInsets.only(top: 16),
-                        child: Icon(
-                          Icons.verified_outlined,
-                          size: 150,
-                          color: Colors.green,
-                        ),),
+                      padding: EdgeInsets.only(top: 16),
+                      child: Icon(
+                        Icons.verified_outlined,
+                        size: 150,
+                        color: Colors.green,
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Text(
@@ -245,6 +249,39 @@ void backToHome(BuildContext context) {
   try {
     (DatabaseService().homeKey?.currentState as MainAppState).reloadPage();
   } catch (_) {}
+}
+
+///logout if need
+void logoutIfNeed(BuildContext? context){
+  final refreshTokenExpiredKey = SharedPreferencesStorage().getRefreshTokenExpired();
+  if(refreshTokenExpiredKey.isEmpty){
+    logout(context);
+  }else{
+    try{
+      DateTime expiredDate = DateTime.parse(refreshTokenExpiredKey);
+      if(expiredDate.isBefore(DateTime.now())){
+        logout(context);
+      }
+    }
+        catch(error){
+      logout(context);
+        }
+  }
+}
+
+///logout and remove data user
+void logout(BuildContext? context) async {
+  SharedPreferencesStorage().resetDataWhenLogout();
+  if (context != null) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BlocProvider(
+                  create: (context) => SignInBloc(context),
+                  child: const SignInPage(),
+                )),
+        (route) => false);
+  }
 }
 
 AndroidAuthMessages androidLocalAuthMessage(
