@@ -48,9 +48,9 @@ class SharedPreferencesStorage {
     //write accessToken, refreshToken to secureStorage
     await _secureStorage.writeSecureData(AppConstants.accessTokenKey, token);
     await _secureStorage.writeSecureData(
-      AppConstants.refreshTokenKey,
-      refreshTokenData.refreshToken
-    );
+        AppConstants.refreshTokenKey, refreshTokenData.refreshToken);
+    await _preferences.setString(AppConstants.accessTokenExpiredKey,
+        refreshTokenData.expiredAccessToken ?? '');
   }
 
   Future<String> getAccessToken() async {
@@ -61,14 +61,14 @@ class SharedPreferencesStorage {
   }
 
   String getAccessTokenExpired() {
-    return _preferences.getString(AppConstants.accessTokenExpiredKey) ??'';
+    return _preferences.getString(AppConstants.accessTokenExpiredKey) ?? '';
   }
 
   String getRefreshTokenExpired() {
-    return _preferences.getString(AppConstants.refreshTokenExpiredKey) ??'';
+    return _preferences.getString(AppConstants.refreshTokenExpiredKey) ?? '';
   }
 
-  void resetDataWhenLogout(){
+  void resetDataWhenLogout() {
     _preferences.remove(AppConstants.accessTokenExpiredKey);
     _preferences.remove(AppConstants.refreshTokenExpiredKey);
     _preferences.remove(AppConstants.usernameKey);
@@ -78,7 +78,5 @@ class SharedPreferencesStorage {
     _secureStorage.deleteSecureData(AppConstants.emailKey);
     _secureStorage.deleteSecureData(AppConstants.accessTokenKey);
     _secureStorage.deleteSecureData(AppConstants.refreshTokenKey);
-
-
   }
 }

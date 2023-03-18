@@ -18,11 +18,15 @@ class AuthProvider with ProviderMixin {
 
   Future<bool> checkAuthenticationStatus() async {
     String accessTokenExpired =
-        SharedPreferencesStorage().getAccessTokenExpired() ?? '';
+        SharedPreferencesStorage().getAccessTokenExpired();
+
     if (DateTime.parse(accessTokenExpired).isBefore(DateTime.now())) {
+
       String refreshTokenExpired =
-          SharedPreferencesStorage().getRefreshTokenExpired() ?? '';
+          SharedPreferencesStorage().getRefreshTokenExpired();
+
       if (DateTime.parse(refreshTokenExpired).isAfter(DateTime.now())) {
+
         String refreshToken = await _secureStorage.readSecureData(
           AppConstants.refreshTokenKey,
         );

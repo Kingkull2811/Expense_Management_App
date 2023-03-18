@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 
@@ -22,24 +23,55 @@ class _AccountPageState extends State<AccountPage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               child: InkWell(
-                onTap: () async{
-                  print('logout');
-                  logout(context);
-                  // await showDialog(context: context, builder: (context){
-                  //   return Container(
-                  //     decoration: BoxDecoration(
-                  //       borderRadius: BorderRadius.circular(15),
-                  //     ),
-                  //     child: AlertDialog(
-                  //       title: const Text('Đăng xuất', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red,),),
-                  //       content: Text('Bạn có muón đăng xuất tài khoản?'),
-                  //       actions: <Widget>[
-                  //         Size
-                  //       ],
-                  //
-                  //     ),
-                  //   );
-                  // });
+                onTap: () async {
+                  await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: AlertDialog(
+
+                            title: const Text(
+                              'Đăng xuất',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
+                            ),
+                            content:const Text('Bạn có muón đăng xuất tài khoản?', style: TextStyle(fontSize: 14, color: Colors.grey,),),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              CupertinoDialogAction(
+                                isDefaultAction: true,
+                                onPressed: () {
+                                  logout(context);
+                                },
+                                child: const Text(
+                                  'Logout',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
                 },
                 child: SizedBox(
                   child: Row(
