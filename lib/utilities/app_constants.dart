@@ -5,8 +5,9 @@ class AppConstants{
   static const String isLoggedOut = 'IS_LOGGED_OUT';
   static const String passwordExpireTimeKey = 'PASSWORD_EXPIRE_TIME';
   static const String refreshTokenKey = 'REFRESH_TOKEN';
+  static const String refreshTokenExpiredKey = 'REFRESH_TOKEN_EXPIRED';
   static const String accessTokenKey = 'ACCESS_TOKEN';
-  static const String authTokenExpireKey = 'AUTH_TOKEN_EXPIRE_TIME';
+  static const String accessTokenExpiredKey = 'ACCESS_TOKEN_EXPIRED';
   static const String usernameKey = 'USERNAME';
   static const String emailKey = 'EMAIL';
 

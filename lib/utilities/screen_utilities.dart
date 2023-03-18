@@ -2,9 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:local_auth_android/types/auth_messages_android.dart';
 import 'package:local_auth_ios/types/auth_messages_ios.dart';
+import 'package:viet_wallet/screens/home/home_state.dart';
+import 'package:viet_wallet/screens/main_app/main_app.dart';
 
 import '../widgets/message_dialog.dart';
 import '../widgets/primary_button.dart';
+import 'database.dart';
 
 void showLoading(BuildContext context) {
   showDialog(
@@ -231,19 +234,18 @@ Future<void> showSuccessBottomSheet(
   );
 }
 
-// void backToChat(BuildContext context) {
-//   // Reset app mode
-//   //resetSwitchAppMode();
-//   Navigator.popUntil(context, (route) => route.isFirst);
-//   DatabaseService().gpsInfo = null;
-//   try {
-//     (DatabaseService().chatKey?.currentState as MainAppState).changeTabToChat();
-//     (DatabaseService().chatKey?.currentState as MainAppState).reloadPage();
-//   } catch (_) {}
-//   try {
-//     (DatabaseService().chatKey?.currentState as ChatsPageState).reloadPage();
-//   } catch (_) {}
-// }
+void backToHome(BuildContext context) {
+  // Reset app mode
+  //resetSwitchAppMode();
+  Navigator.popUntil(context, (route) => route.isFirst);
+  try {
+    (DatabaseService().homeKey?.currentState as MainAppState).changeTabToHome();
+    (DatabaseService().homeKey?.currentState as MainAppState).reloadPage();
+  } catch (_) {}
+  try {
+    (DatabaseService().homeKey?.currentState as MainAppState).reloadPage();
+  } catch (_) {}
+}
 
 AndroidAuthMessages androidLocalAuthMessage(
         //BuildContext context,

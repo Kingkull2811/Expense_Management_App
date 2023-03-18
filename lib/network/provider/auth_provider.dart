@@ -11,9 +11,34 @@ import 'package:viet_wallet/network/response/sign_up_response.dart';
 import 'package:viet_wallet/network/response/verify_otp_response.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 class AuthProvider with ProviderMixin {
-  final SecureStorage secureStorage = SecureStorage();
+  final SecureStorage _secureStorage = SecureStorage();
+
+  Future<bool> checkAuthenticationStatus() async {
+    String accessTokenExpired =
+        SharedPreferencesStorage().getAccessTokenExpired() ?? '';
+    if (DateTime.parse(accessTokenExpired).isBefore(DateTime.now())) {
+      String refreshTokenExpired =
+          SharedPreferencesStorage().getRefreshTokenExpired() ?? '';
+      if (DateTime.parse(refreshTokenExpired).isAfter(DateTime.now())) {
+        String refreshToken = await _secureStorage.readSecureData(
+          AppConstants.refreshTokenKey,
+        );
+
+        final response = await AuthProvider().refreshToken(
+          refreshToken: refreshToken,
+        );
+        await SharedPreferencesStorage().saveUserInfoRefresh(
+          refreshTokenData: response,
+        );
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
 
   Future<SignUpResponse> signUp({
     required String email,
@@ -58,31 +83,27 @@ class AuthProvider with ProviderMixin {
         data: data,
         options: AppConstants.options,
       );
-      log('provider: ${response.toString()}');
       return SignInResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.signIn);
-      // if (error is DioError) {
-      //   return SignInResponse.fromJson(error.response?.data);
-      // }
+      if (error is DioError) {
+        return SignInResponse.fromJson(error.response?.data);
+      }
       return SignInResponse();
     }
   }
 
-  Future<AuthResponse> refreshToken() async {
+  Future<AuthResponse> refreshToken({
+    required String refreshToken,
+  }) async {
     try {
-      final data = {
-        "refreshToken": (await secureStorage.readSecureData(
-          AppConstants.refreshTokenKey,
-        ))
-      };
-      final response = await dio.post(
+      Response response = await dio.post(
         ApiPath.refreshToken,
-        data: data,
-        options: AppConstants.options,
+        data: {"refreshToken": refreshToken},
+        // options: AppConstants.options,
       );
 
-      log("token data: ${response.data.toString()}");
+      log("new token data: ${response.data.toString()}");
 
       return AuthResponse.fromJson(response.data);
     } catch (error, stacktrace) {

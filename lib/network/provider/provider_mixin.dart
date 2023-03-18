@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:viet_wallet/network/provider/auth_provider.dart';
 
 import '../response/base_response.dart';
 
 mixin ProviderMixin {
   late Dio _dio;
+   AuthProvider? _authProvider;
 
   Dio get dio {
     _dio = Dio()..httpClientAdapter = HttpClientAdapter();
@@ -33,5 +35,10 @@ mixin ProviderMixin {
       httpStatus: (error is DioError) ? error.response?.statusCode : null,
       errors: (error is DioError) ? error.response?.data : [],
     );
+  }
+
+  Future<bool> isExpiredToken() async {
+    _authProvider ??= AuthProvider();
+    return (await _authProvider?.checkAuthenticationStatus() ?? false);
   }
 }

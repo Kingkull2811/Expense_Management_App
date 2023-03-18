@@ -137,7 +137,6 @@ class MainAppState extends State<MainApp>
     setState(() {});
   }
 
-
   Future<bool> _onWillPop() async {
     return (await showDialog(
       context: context,
@@ -172,5 +171,9 @@ class MainAppState extends State<MainApp>
       ),
     )) ??
         false;
+  }
+
+  void changeTabToHome() {
+    BlocProvider.of<TabBloc>(context).add(const TabUpdated(AppTab.home));
   }
 }

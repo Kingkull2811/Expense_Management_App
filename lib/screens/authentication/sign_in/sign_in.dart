@@ -3,9 +3,8 @@ import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:viet_wallet/network/model/sign_in_data.dart';
+import 'package:viet_wallet/network/response/user_response.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
-import 'package:viet_wallet/network/response/auth_response.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
 import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password.dart';
 import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password_bloc.dart';
@@ -103,7 +102,7 @@ class _SignInPageState extends State<SignInPage> {
                 ],
               ),
             ),
-            _buttonSignIn(),
+            _buttonSignIn(state),
             // _goToSignUp(),
           ],
         ),
@@ -250,7 +249,7 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  Widget _buttonSignIn() {
+  Widget _buttonSignIn(SignInState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -272,7 +271,7 @@ class _SignInPageState extends State<SignInPage> {
               // );
 
               SignInResponse signInResponse = await _authProvider.signIn(
-                username: 'truong4',
+                username: 'truong3',
                 password: '123456',
                 // username: _usernameController.text.trim(),
                 // password: _passwordController.text.trim(),
@@ -296,14 +295,18 @@ class _SignInPageState extends State<SignInPage> {
                 _signInBloc.add(
                   SignInFailure(
                     errorMessage: signInResponse.errors?.first.errorMessage,
+
                   ),
                 );
+                setState(() {
+                  // state.isLoading = false;
+                });
                 if (mounted) {
                   showCupertinoMessageDialog(
                       context, signInResponse.errors?.first.errorMessage,
                       content: 'Vui lòng nhập lại',
                       buttonLabel: 'OK', onClose: () {
-                    Navigator.pop(context);
+                    backToHome(context);
                   });
                 }
               }
@@ -328,7 +331,7 @@ class _SignInPageState extends State<SignInPage> {
                     MaterialPageRoute(
                       builder: (context) => BlocProvider<SignUpBloc>(
                         create: (context) => SignUpBloc(context),
-                        child: SignUpPage(),
+                        child: const SignUpPage(),
                       ),
                     ),
                   );
@@ -350,6 +353,6 @@ class _SignInPageState extends State<SignInPage> {
   }
 }
 
-Future<void> _saveUserInfo(SignInData? signInData) async {
+Future<void> _saveUserInfo(UserResponse? signInData) async {
   await SharedPreferencesStorage().setSaveUserInfo(signInData);
 }

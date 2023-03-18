@@ -151,7 +151,7 @@ class _OtpPageState extends State<OtpPage> {
                       showFieldAsBox: true,
                       //runs when a code is typed in
                       onCodeChanged: (String code) {
-                        print(code);
+                       // print(code);
                         //handle validation or checks here
                       },
                       //runs when every text field is filled
