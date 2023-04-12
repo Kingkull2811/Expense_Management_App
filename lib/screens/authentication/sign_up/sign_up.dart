@@ -304,10 +304,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ],
                   ),
                 ),
-                _buttonSendOTP(
-                  state,
-                  _usernameController.text,
-                )
+                _buttonSignUp(state)
               ],
             ),
           ),
@@ -373,7 +370,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget _buttonSendOTP(SignUpState currentState, String phoneNumber) {
+  Widget _buttonSignUp(SignUpState currentState) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: PrimaryButton(
@@ -427,8 +424,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     String? errorMessage = '';
                     List<Errors>? errors = response.errors;
                     for (var error in errors!) {
-                      errorMessage =
-                      '$errorMessage\n${error.errorMessage}';
+                      errorMessage = '$errorMessage\n${error.errorMessage}';
                     }
                     showCupertinoMessageDialog(
                       context,

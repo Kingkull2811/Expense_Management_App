@@ -151,7 +151,7 @@ class _OtpPageState extends State<OtpPage> {
                       showFieldAsBox: true,
                       //runs when a code is typed in
                       onCodeChanged: (String code) {
-                       // print(code);
+                        // print(code);
                         //handle validation or checks here
                       },
                       //runs when every text field is filled
@@ -162,7 +162,7 @@ class _OtpPageState extends State<OtpPage> {
                         });
                         // focusNode.requestFocus();
                         //todo:::
-                        print(otpCode);
+                        // print(otpCode);
                       }, // end onSubmit
                     ),
                   ],
@@ -252,8 +252,8 @@ class _OtpPageState extends State<OtpPage> {
                         } else {
                           _otpBloc.add(DisplayLoading());
                           final response = await _authProvider.verifyOtp(
-                            // email: widget.email,
-                            email: 'kulltran281199@gmail.com',
+                            email: widget.email,
+                            // email: 'kulltran281199@gmail.com',
                             otpCode: otpCode,
                           );
                           //todo:::
@@ -287,9 +287,6 @@ class _OtpPageState extends State<OtpPage> {
                                 isValidated: false,
                               ),
                             );
-                            setState(() {
-                              otpCode = '';
-                            });
                           }
                         }
                       }

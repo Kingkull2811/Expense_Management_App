@@ -1,4 +1,4 @@
-class ApiPath{
+class ApiPath {
   static const String apiDomain = 'http://192.168.1.26:8080';
   static const String apiDomainMac = 'http://10.10.142.45:8080';
 
@@ -16,7 +16,7 @@ class ApiPath{
 
   static const String sendOtp = '$apiDomain/api/auth/send-otp';
 
+  static const String getListCategory = '$apiDomain/api/v1/category';
 
-
-
+  static const String getListWallet = '$apiDomain/api/v1/wallet';
 }

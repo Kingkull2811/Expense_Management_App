@@ -1,7 +1,6 @@
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:viet_wallet/network/response/user_response.dart';
 import 'package:viet_wallet/network/response/auth_response.dart';
+import 'package:viet_wallet/network/response/user_response.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
 
@@ -13,19 +12,28 @@ class SharedPreferencesStorage {
     _preferences = await SharedPreferences.getInstance();
   }
 
+  Future<bool> setLoggedOutStatus(bool value) {
+    return _preferences.setBool(AppConstants.isLoggedOut, value);
+  }
+
+  bool getLoggedOutStatus() {
+    return _preferences.getBool(AppConstants.isLoggedOut) ?? true;
+  }
+
   ///save user info
   Future<void> setSaveUserInfo(UserResponse? signInData) async {
     if (signInData != null) {
-      var token = signInData.accessToken?.split(' ')[1];
-      await _secureStorage.writeSecureData(AppConstants.accessTokenKey, token);
+      // var token = signInData.accessToken?.split(' ')[1];
+      await _secureStorage.writeSecureData(
+          AppConstants.accessTokenKey, signInData.accessToken);
       await _secureStorage.writeSecureData(
           AppConstants.refreshTokenKey, signInData.refreshToken);
       await _secureStorage.writeSecureData(
           AppConstants.emailKey, signInData.email.toString());
 
       if (signInData.expiredAccessToken != null) {
-        await _preferences.setString(
-            AppConstants.accessTokenExpiredKey, signInData.expiredAccessToken!);
+        await _preferences.setString(AppConstants.accessTokenExpiredTimeKey,
+            signInData.expiredAccessToken!);
       }
 
       if (signInData.expiredRefreshToken != null) {
@@ -49,7 +57,7 @@ class SharedPreferencesStorage {
     await _secureStorage.writeSecureData(AppConstants.accessTokenKey, token);
     await _secureStorage.writeSecureData(
         AppConstants.refreshTokenKey, refreshTokenData.refreshToken);
-    await _preferences.setString(AppConstants.accessTokenExpiredKey,
+    await _preferences.setString(AppConstants.accessTokenExpiredTimeKey,
         refreshTokenData.expiredAccessToken ?? '');
   }
 
@@ -61,7 +69,7 @@ class SharedPreferencesStorage {
   }
 
   String getAccessTokenExpired() {
-    return _preferences.getString(AppConstants.accessTokenExpiredKey) ?? '';
+    return _preferences.getString(AppConstants.accessTokenExpiredTimeKey) ?? '';
   }
 
   String getRefreshTokenExpired() {
@@ -69,7 +77,7 @@ class SharedPreferencesStorage {
   }
 
   void resetDataWhenLogout() {
-    _preferences.remove(AppConstants.accessTokenExpiredKey);
+    _preferences.remove(AppConstants.accessTokenExpiredTimeKey);
     _preferences.remove(AppConstants.refreshTokenExpiredKey);
     _preferences.remove(AppConstants.usernameKey);
     _preferences.setBool(AppConstants.isLoggedOut, false);
