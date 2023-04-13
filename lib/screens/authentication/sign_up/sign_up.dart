@@ -378,9 +378,10 @@ class _SignUpPageState extends State<SignUpPage> {
       alignment: Alignment.bottomCenter,
       child: PrimaryButton(
         text: 'Sign Up',
-        isDisable: !checkValidate,
-        onTap: checkValidate
-            ? () async {
+        // isDisable: !checkValidate,
+        onTap:
+        // checkValidate ?
+            () async {
                 ConnectivityResult connectivityResult =
                     await Connectivity().checkConnectivity();
                 if (connectivityResult == ConnectivityResult.none && mounted) {
@@ -437,7 +438,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   }
                 }
               }
-            : null,
+            // : null,
       ),
     );
   }

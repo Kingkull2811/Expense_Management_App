@@ -248,8 +248,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                 } else {
                   _newPasswordBloc.add(DisplayLoading());
                   final response = await _authProvider.newPassword(
-                    // email: widget.email,
-                    email: 'kulltran281199@gmail.com',
+                    email: widget.email,
+                    // email: 'kulltran281199@gmail.com',
                     password: _passwordController.text.trim(),
                     confirmPassword: _confirmPasswordController.text.trim(),
                   );

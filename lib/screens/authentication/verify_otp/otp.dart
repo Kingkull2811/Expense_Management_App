@@ -252,8 +252,8 @@ class _OtpPageState extends State<OtpPage> {
                         } else {
                           _otpBloc.add(DisplayLoading());
                           final response = await _authProvider.verifyOtp(
-                            // email: widget.email,
-                            email: 'kulltran281199@gmail.com',
+                            email: widget.email,
+                            // email: 'kulltran281199@gmail.com',
                             otpCode: otpCode,
                           );
                           //todo:::

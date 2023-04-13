@@ -271,10 +271,10 @@ class _SignInPageState extends State<SignInPage> {
               // );
 
               SignInResponse signInResponse = await _authProvider.signIn(
-                username: 'truong3',
-                password: '123456',
-                // username: _usernameController.text.trim(),
-                // password: _passwordController.text.trim(),
+                // username: 'viet1',
+                // password: '123456',
+                username: _usernameController.text.trim(),
+                password: _passwordController.text.trim(),
               );
               //todo:::
               log('response: ${signInResponse.toString()}');

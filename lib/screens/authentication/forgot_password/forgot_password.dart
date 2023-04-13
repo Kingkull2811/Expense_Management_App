@@ -167,8 +167,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             _forgotPasswordBloc.add(DisplayLoading());
             ForgotPasswordResponse response =
                 await _authProvider.forgotPassword(
-                    // email: _emailController.text.trim(),
-                    email: 'kulltran281199@gmail.com');
+                    email: _emailController.text.trim(),
+                    // email: 'kulltran281199@gmail.com',
+                );
             // log(response.toString());
             if (response.httpStatus == 200 && mounted) {
               _forgotPasswordBloc.add(OnSuccess());
