@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:viet_wallet/network/model/base_result.dart';
-import 'package:viet_wallet/network/response/user_response.dart';
 import 'package:viet_wallet/network/model/sign_in_result.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
+import 'package:viet_wallet/network/response/user_response.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 class AuthRepository {
@@ -45,7 +43,7 @@ class AuthRepository {
       password: password,
     );
 
-    log('signUp: ${signUpResponse.toString()}');
+    // log('signUp: ${signUpResponse.toString()}');
 
     if (signUpResponse.httpStatus == 200) {
       return BaseResult(

@@ -2,12 +2,10 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:viet_wallet/screens/home/report_month/report_month.dart';
 import 'package:viet_wallet/screens/home/report_week/report_week.dart';
-import 'package:viet_wallet/utilities/app_constants.dart';
-import 'package:viet_wallet/utilities/secure_storage.dart';
-import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
+
+import '../../utilities/utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -21,7 +19,6 @@ class _HomePageState extends State<HomePage>
   bool _isShowBalance = false;
   int notificationBadge = 3;
   double balance = 15150169.00;
-  final formatter = NumberFormat("#,##0.00", "en_US");
 
   late HomePageBloc _homePageBloc;
 
@@ -121,7 +118,7 @@ class _HomePageState extends State<HomePage>
                           labelStyle: const TextStyle(
                             fontSize: 14,
                           ),
-                          padding:const EdgeInsets.all(2),
+                          padding: const EdgeInsets.all(2),
                           indicatorWeight: 1.5,
                           indicatorColor: Colors.black,
                           indicator: BoxDecoration(
@@ -138,13 +135,15 @@ class _HomePageState extends State<HomePage>
                         ),
                       ),
                     ),
-                    Expanded(child: TabBarView(
-                      controller: _tabController,
-                      children: const [
-                        ReportWeekTab(),
-                        ReportMonthTab(),
-                      ],
-                    ),),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: const [
+                          ReportWeekTab(),
+                          ReportMonthTab(),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -225,9 +224,7 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
                 trailing: Text(
-                  _isShowBalance
-                      ? '${formatter.format(balance)} ₫'
-                      : '****** ₫',
+                  _isShowBalance ? '${formatterDouble(balance)} ₫' : '****** ₫',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -258,7 +255,7 @@ class _HomePageState extends State<HomePage>
                   children: [
                     Text(
                       _isShowBalance
-                          ? '${formatter.format(balance)}  ₫'
+                          ? '${formatterDouble(balance)}  ₫'
                           : '******  ₫',
                       style: const TextStyle(
                         fontSize: 26,

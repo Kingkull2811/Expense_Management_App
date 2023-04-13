@@ -16,7 +16,7 @@ class ApiPath{
 
   static const String sendOtp = '$apiDomain/api/auth/send-otp';
 
+  static const String getListCategory = '$apiDomain/api/v1/category';
 
-
-
+  static const String getListWallet = '$apiDomain/api/v1/wallet';
 }

@@ -77,10 +77,10 @@ class TabSelectorState extends State<TabSelector> {
               borderRadius: BorderRadius.circular(25),
               color: Theme.of(context).primaryColor.withOpacity(0.4),
             ),
-            child:const Icon(
+            child: const Icon(
               Icons.add,
               size: 40,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           label: "New Collection",
@@ -100,16 +100,16 @@ class TabSelectorState extends State<TabSelector> {
         ),
         BottomNavigationBarItem(
           icon: Icon(
-            Icons.person,
+            Icons.grid_view,
             size: 30,
             color: Theme.of(context).primaryColor,
           ),
           activeIcon: const Icon(
-            Icons.person_outlined,
+            Icons.grid_view,
             size: 34,
             color: Colors.black,
           ),
-          label: 'Profile',
+          label: 'Menu',
         ),
       ],
       selectedLabelStyle: const TextStyle(

@@ -177,46 +177,8 @@ class _SignInPageState extends State<SignInPage> {
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _rememberInfo = !_rememberInfo;
-                      });
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CustomCheckBox(
-                            value: _rememberInfo,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberInfo = value;
-                              });
-                            },
-                          ),
-                        ),
-                        const Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 10),
-                            child: Text(
-                              'Remember password',
-                              style: TextStyle(
-                                fontSize: 16,
-                                height: 1.2,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10, right: 5),
                   child: GestureDetector(
@@ -271,14 +233,15 @@ class _SignInPageState extends State<SignInPage> {
               // );
 
               SignInResponse signInResponse = await _authProvider.signIn(
-                // username: 'viet1',
+                // username: 'truong00',
                 // password: '123456',
                 username: _usernameController.text.trim(),
                 password: _passwordController.text.trim(),
               );
               //todo:::
-              log('response: ${signInResponse.toString()}');
+              // log('response: ${signInResponse.toString()}');
               if (signInResponse.httpStatus == 200) {
+                await SharedPreferencesStorage().setLoggedOutStatus(false);
                 await _saveUserInfo(signInResponse.data);
                 if (mounted) {
                   Navigator.pushReplacement(
@@ -295,7 +258,6 @@ class _SignInPageState extends State<SignInPage> {
                 _signInBloc.add(
                   SignInFailure(
                     errorMessage: signInResponse.errors?.first.errorMessage,
-
                   ),
                 );
                 setState(() {

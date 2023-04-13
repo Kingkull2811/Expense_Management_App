@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class DatabaseService{
+class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
 
-  factory DatabaseService(){
+  factory DatabaseService() {
     return _instance;
   }
   DatabaseService._internal();
+  GlobalKey? mainKey;
 
   GlobalKey? homeKey;
   GlobalKey? myWalletKey;
   GlobalKey? newCollectionKey;
   GlobalKey? planningKey;
   GlobalKey? accountKey;
-
 }

@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:viet_wallet/screens/account/account.dart';
 import 'package:viet_wallet/screens/account/account_bloc.dart';
-import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/home/home.dart';
+import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_event.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_selector.dart';
@@ -21,13 +21,14 @@ import '../my_wallet/my_wallet_bloc.dart';
 
 class MainApp extends StatefulWidget {
   final bool navFromStart;
+  final AppTab? tab;
 
-  MainApp({key, this.navFromStart = false})
+  MainApp({key, this.navFromStart = false, this.tab})
       : super(key: GlobalKey<MainAppState>());
 
   @override
   MainAppState createState() {
-    // DatabaseService().chatKey = this.key as GlobalKey<State<StatefulWidget>>?;
+    // DatabaseService().mainKey = this.key as GlobalKey<State<StatefulWidget>>?;
     return MainAppState();
   }
 }
@@ -36,7 +37,6 @@ class MainAppState extends State<MainApp>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   TabController? _tabController;
   StreamSubscription<ConnectivityResult>? _networkSubscription;
-
 
   @override
   void initState() {
@@ -59,9 +59,10 @@ class MainAppState extends State<MainApp>
         future: Future.wait([getChatBadge()]),
         builder: (context, snapshot) {
           return BlocBuilder<TabBloc, AppTab>(builder: (context, activeTab) {
-            _tabController?.index = AppTab.values.indexOf(activeTab);
+            _tabController?.index =
+                AppTab.values.indexOf(widget.tab ?? activeTab);
             return Scaffold(
-              body: _handleScreen(activeTab),
+              body: _handleScreen(widget.tab ?? activeTab),
               bottomNavigationBar: TabSelector(
                   activeTab: activeTab,
                   onTabSelected: (tab) async {
@@ -139,41 +140,45 @@ class MainAppState extends State<MainApp>
 
   Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'Are you sure exit app?',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: const Text(
-          'Do you want to exit an App',
-          style: TextStyle(fontSize: 16),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Exits',
-              style: TextStyle(color: Color(0xffCA0000)),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text(
+              'Are you sure exit app?',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            content: const Text(
+              'Do you want to exit an App',
+              style: TextStyle(fontSize: 16),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Exits',
+                  style: TextStyle(color: Color(0xffCA0000)),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    )) ??
+        )) ??
         false;
   }
 
   void changeTabToHome() {
     BlocProvider.of<TabBloc>(context).add(const TabUpdated(AppTab.home));
+  }
+
+  void changeTabToWallet() {
+    BlocProvider.of<TabBloc>(context).add(const TabUpdated(AppTab.myWallet));
   }
 }

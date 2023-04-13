@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth_android/types/auth_messages_android.dart';
-import 'package:local_auth_ios/types/auth_messages_ios.dart';
+import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
@@ -10,6 +10,7 @@ import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/message_dialog.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
+import 'app_constants.dart';
 import 'database.dart';
 
 void showLoading(BuildContext context) {
@@ -37,7 +38,7 @@ Future<void> showMessageNoInternetDialog(
       builder: (context) {
         return CupertinoAlertDialog(
           title: const Text(
-            "AppConstants.noInternetTitle",
+            AppConstants.noInternetTitle,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -54,7 +55,7 @@ Future<void> showMessageNoInternetDialog(
                 padding: const EdgeInsets.only(top: 16),
                 alignment: Alignment.center,
                 child: const Text(
-                  'AppConstants.noInternetContent',
+                  AppConstants.noInternetContent,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
@@ -239,8 +240,6 @@ Future<void> showSuccessBottomSheet(
 }
 
 void backToHome(BuildContext context) {
-  // Reset app mode
-  //resetSwitchAppMode();
   Navigator.popUntil(context, (route) => route.isFirst);
   try {
     (DatabaseService().homeKey?.currentState as MainAppState).changeTabToHome();
@@ -251,21 +250,33 @@ void backToHome(BuildContext context) {
   } catch (_) {}
 }
 
+void backToWallet(BuildContext context) {
+  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myWallet));
+  try {
+    (DatabaseService().mainKey?.currentState as MainAppState)
+        .changeTabToWallet();
+    (DatabaseService().mainKey?.currentState as MainAppState).reloadPage();
+  } catch (_) {}
+  try {
+    (DatabaseService().mainKey?.currentState as MainAppState).reloadPage();
+  } catch (_) {}
+}
+
 ///logout if need
-void logoutIfNeed(BuildContext? context){
-  final refreshTokenExpiredKey = SharedPreferencesStorage().getRefreshTokenExpired();
-  if(refreshTokenExpiredKey.isEmpty){
+void logoutIfNeed(BuildContext? context) {
+  final refreshTokenExpiredKey =
+      SharedPreferencesStorage().getRefreshTokenExpired();
+  if (refreshTokenExpiredKey.isEmpty) {
     logout(context);
-  }else{
-    try{
+  } else {
+    try {
       DateTime expiredDate = DateTime.parse(refreshTokenExpiredKey);
-      if(expiredDate.isBefore(DateTime.now())){
+      if (expiredDate.isBefore(DateTime.now())) {
         logout(context);
       }
-    }
-        catch(error){
+    } catch (error) {
       logout(context);
-        }
+    }
   }
 }
 
@@ -288,16 +299,6 @@ AndroidAuthMessages androidLocalAuthMessage(
         //BuildContext context,
         ) =>
     const AndroidAuthMessages(
-      cancelButton: 'OK',
-      goToSettingsButton: 'Setting',
-      goToSettingsDescription:
-          'Biometrics is not set up on your device. Please either enable TouchId or FaceId on your phone.',
-    );
-
-IOSAuthMessages iosLocalAuthMessages(
-        //BuildContext context,
-        ) =>
-    const IOSAuthMessages(
       cancelButton: 'OK',
       goToSettingsButton: 'Setting',
       goToSettingsDescription:

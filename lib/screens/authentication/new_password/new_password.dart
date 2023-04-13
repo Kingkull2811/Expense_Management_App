@@ -209,7 +209,10 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                                       color: Colors.red,
                                     ),
                                     Container(
-                                      width: MediaQuery.of(context).size.width - 16*4 - 20 - 10,
+                                      width: MediaQuery.of(context).size.width -
+                                          16 * 4 -
+                                          20 -
+                                          10,
                                       padding: const EdgeInsets.only(left: 10),
                                       child: Text(
                                         messageValidate,

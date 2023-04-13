@@ -1,16 +1,20 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viet_wallet/routes.dart';
-import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
-import 'package:viet_wallet/utilities/helper_functions.dart';
+import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
+import 'package:viet_wallet/screens/main_app/main_app.dart';
+import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
+import 'package:viet_wallet/screens/main_app/tab/tab_event.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  _removeBadgeWhenOpenApp();
+  // _removeBadgeWhenOpenApp();
 
   //init global key for tabs
   // DatabaseService().homeKey = GlobalKey<HomePageState>();
@@ -41,13 +45,12 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-
 class _MyAppState extends State<MyApp> {
-  bool _isLogin = false;
+  bool _isLoggedIn = false;
 
   @override
   void initState() {
-    _getUserSignInStatus();
+    _checkAuthenticationState();
     super.initState();
   }
 
@@ -61,54 +64,80 @@ class _MyAppState extends State<MyApp> {
     final ThemeData theme = ThemeData(
       brightness: Brightness.light,
       primaryColor: const Color.fromARGB(255, 107, 154, 107), //#6B9A6B
-      primaryColorDark:const Color(0xff4d6e4b),
-      primaryColorLight:const Color(0xFFb5ccb5),
+      primaryColorDark: const Color(0xff4d6e4b),
+      primaryColorLight: const Color(0xFFb5ccb5),
       colorScheme: ThemeData().colorScheme.copyWith(
-        primary:  Colors.grey,
-        secondary:  const Color(0xffe6e6e6),
-      ),
+            primary: Colors.grey,
+            secondary: const Color(0xffe6e6e6),
+          ),
       errorColor: const Color(0xFFCA0000),
       backgroundColor: Colors.grey[200],
       textTheme: Theme.of(context).textTheme.apply(
-        bodyColor: const Color.fromARGB(255, 26, 26, 26),
-        displayColor: const Color.fromARGB(255, 26, 26, 26),
-      ),
+            bodyColor: const Color.fromARGB(255, 26, 26, 26),
+            displayColor: const Color.fromARGB(255, 26, 26, 26),
+          ),
     );
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: widget.navKey,
-        supportedLocales: const [
-          Locale('en'),
-          Locale('vi'),
-        ],
-        // localizationsDelegates: [
-        //   AppLocalizations.delegate,
-        //   GlobalMaterialLocalizations.delegate,
-        //   GlobalWidgetsLocalizations.delegate,
-        //   GlobalCupertinoLocalizations.delegate,
-        //   DefaultCupertinoLocalizations.delegate
-        // ],
-        title: 'Viet Wallet App',
+      supportedLocales: const [
+        Locale('en'),
+        Locale('vi'),
+      ],
+      localizationsDelegates: const [
+        // AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        // DefaultCupertinoLocalizations.delegate
+      ],
+      title: 'Viet Wallet App',
       theme: theme.copyWith(
         colorScheme: theme.colorScheme.copyWith(secondary: Colors.white),
       ),
       routes: {
-        AppRoutes.mainApp: (context) => BlocProvider<SignInBloc>(
-          create: (context) => SignInBloc(context),
-          child: const SignInPage(),
-        ),
+        AppRoutes.mainApp: (context) => _isLoggedIn
+            ? BlocProvider<TabBloc>(
+                create: (context) => TabBloc(initTab: AppTab.home),
+                child: MainApp(
+                  navFromStart: true,
+                ),
+              )
+            : BlocProvider<SignInBloc>(
+                create: (context) => SignInBloc(context),
+                child: const SignInPage(),
+              ),
       },
-
     );
   }
 
-  _getUserSignInStatus() async {
-    await HelperFunctions.getUserLoggedInStatus().then((value) {
-      if (value != null) {
+  _checkAuthenticationState() {
+    bool isLoggedOut = SharedPreferencesStorage().getLoggedOutStatus();
+    bool isExpired = true;
+    String passwordExpiredTime =
+        SharedPreferencesStorage().getAccessTokenExpired();
+    if (passwordExpiredTime.isNotEmpty) {
+      try {
+        if (DateTime.parse(passwordExpiredTime).isAfter(DateTime.now())) {
+          isExpired = false;
+        }
+      } catch (_) {}
+
+      if (!isExpired) {
+        if (isLoggedOut) {
+          setState(() {
+            _isLoggedIn = false;
+          });
+        } else {
+          setState(() {
+            _isLoggedIn = true;
+          });
+        }
+      } else {
         setState(() {
-          _isLogin = value;
+          _isLoggedIn = false;
         });
       }
-    });
+    }
   }
 }

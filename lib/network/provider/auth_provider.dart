@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
@@ -21,12 +19,10 @@ class AuthProvider with ProviderMixin {
         SharedPreferencesStorage().getAccessTokenExpired();
 
     if (DateTime.parse(accessTokenExpired).isBefore(DateTime.now())) {
-
       String refreshTokenExpired =
           SharedPreferencesStorage().getRefreshTokenExpired();
 
       if (DateTime.parse(refreshTokenExpired).isAfter(DateTime.now())) {
-
         String refreshToken = await _secureStorage.readSecureData(
           AppConstants.refreshTokenKey,
         );
@@ -55,7 +51,7 @@ class AuthProvider with ProviderMixin {
         "password": password,
         "username": username,
       };
-      print(data);
+      // print(data);
       final response = await dio.post(
         ApiPath.signup,
         data: data,
@@ -107,7 +103,7 @@ class AuthProvider with ProviderMixin {
         // options: AppConstants.options,
       );
 
-      log("new token data: ${response.data.toString()}");
+      // log("new token data: ${response.data.toString()}");
 
       return AuthResponse.fromJson(response.data);
     } catch (error, stacktrace) {
@@ -125,7 +121,7 @@ class AuthProvider with ProviderMixin {
         data: {"email": email},
         //options: AppConstants.options,
       );
-      log('provider: ${response.data}');
+      // log('provider: ${response.data}');
 
       return ForgotPasswordResponse.fromJson(response.data);
     } catch (error, stacktrace) {
@@ -176,7 +172,7 @@ class AuthProvider with ProviderMixin {
         data: data,
         //options: AppConstants.options,
       );
-      log(response.toString());
+      // log(response.toString());
       return BaseResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.newPassword);

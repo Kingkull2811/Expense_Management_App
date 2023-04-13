@@ -13,7 +13,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           emit(
             state.copyWith(
               isLoading: false,
-              isAuthenticating: false,
             ),
           );
         }
@@ -21,7 +20,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           emit(
             state.copyWith(
               isLoading: true,
-              isAuthenticating: false,
             ),
           );
         }
@@ -29,7 +27,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           emit(
             state.copyWith(
               isLoading: false,
-              isAuthenticating: true,
             ),
           );
         }
@@ -37,7 +34,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           emit(
             state.copyWith(
               isLoading: false,
-              isAuthenticating: false,
               errorMessage: event.errorMessage,
             ),
           );
