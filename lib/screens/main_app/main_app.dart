@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:viet_wallet/screens/account/account.dart';
-import 'package:viet_wallet/screens/account/account_bloc.dart';
 import 'package:viet_wallet/screens/home/home.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
@@ -18,6 +16,8 @@ import 'package:viet_wallet/screens/planning/planning_bloc.dart';
 import '../../utilities/database.dart';
 import '../my_wallet/my_wallet.dart';
 import '../my_wallet/my_wallet_bloc.dart';
+import '../setting/setting.dart';
+import '../setting/setting_bloc.dart';
 
 class MainApp extends StatefulWidget {
   final bool navFromStart;
@@ -110,9 +110,9 @@ class MainAppState extends State<MainApp>
         );
         break;
       case AppTab.other:
-        currentTab = BlocProvider<AccountBloc>(
-          create: (context) => AccountBloc(context),
-          child: AccountPage(
+        currentTab = BlocProvider<SettingBloc>(
+          create: (context) => SettingBloc(context),
+          child: SettingPage(
             key: DatabaseService().accountKey,
           ),
         );

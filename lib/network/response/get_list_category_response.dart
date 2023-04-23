@@ -1,9 +1,10 @@
 import 'package:viet_wallet/network/model/category_model.dart';
+import 'package:viet_wallet/utilities/utils.dart';
 
 import 'base_get_response.dart';
 
 class GetCategoryResponse extends BaseGetResponse {
-  List<ContentItem>? listCategory;
+  List<CategoryModel>? listCategory;
 
   GetCategoryResponse({
     this.listCategory,
@@ -22,11 +23,11 @@ class GetCategoryResponse extends BaseGetResponse {
 
   factory GetCategoryResponse.fromJson(Map<String, dynamic> json) {
     return GetCategoryResponse(
-      listCategory: json['content'] == null
+      listCategory: isNullOrEmpty(json['content'])
           ? []
-          : List.generate(
+          : List<CategoryModel>.generate(
               json['content'].length,
-              (index) => ContentItem.fromJson(json['content'][index]),
+              (index) => CategoryModel.fromJson(json['content'][index]),
             ),
       pageNumber: json['pageNumber'],
       pageSize: json['pageSize'],
@@ -34,5 +35,10 @@ class GetCategoryResponse extends BaseGetResponse {
       status: json['status'],
       error: json['error'],
     );
+  }
+
+  @override
+  String toString() {
+    return 'GetCategoryResponse{listCategory: $listCategory}';
   }
 }

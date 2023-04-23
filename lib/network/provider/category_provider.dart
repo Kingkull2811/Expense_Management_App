@@ -1,30 +1,35 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
 
 import '../response/base_get_response.dart';
-import '../response/get_category_response.dart';
+import '../response/get_list_category_response.dart';
 
 class CategoryProvider with ProviderMixin {
-  Future<BaseGetResponse> getListCategory() async {
+  Future<BaseGetResponse> getAllListCategory({
+    required String param,
+  }) async {
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
     }
 
     try {
       Options options = await defaultOptions(
-        url: ApiPath.getListCategory,
+        url: ApiPath.getAllListCategory,
       );
 
       final response = await dio.get(
-        ApiPath.getListCategory,
+        ApiPath.getAllListCategory,
+        queryParameters: {"type": param},
         options: options,
       );
-      // log('response: ${response.toString()}');
 
       return GetCategoryResponse.fromJson(response.data);
     } catch (error, stacktrace) {
-      return errorGetResponse(error, stacktrace, ApiPath.getListCategory);
+      log(error.toString());
+      return errorGetResponse(error, stacktrace, ApiPath.getAllListCategory);
     }
   }
 }

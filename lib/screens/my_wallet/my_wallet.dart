@@ -6,6 +6,7 @@ import 'package:viet_wallet/screens/my_wallet/my_wallet_bloc.dart';
 import 'package:viet_wallet/screens/my_wallet/my_wallet_event.dart';
 import 'package:viet_wallet/screens/my_wallet/my_wallet_state.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/no_internet_widget.dart';
 
@@ -112,7 +113,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Center(
                       child: Text(
-                        'Tổng tiền : ${formatterInt(state.moneyTotal ?? 0)} đ',
+                        'Tổng tiền : ${formatterInt(state.moneyTotal ?? 0)} ${SharedPreferencesStorage().getCurrency()}',
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
@@ -238,7 +239,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     ),
                   ),
                   Text(
-                    // '${formatterBalance(listWallet.accountBalance.toString())} ${listWallet.currency}',
                     '${formatterInt(listWallet.accountBalance)} ${listWallet.currency}',
                     style: const TextStyle(
                       fontSize: 14,

@@ -145,7 +145,7 @@ class _SignInPageState extends State<SignInPage> {
               onChanged: (text) {},
               keyboardType: TextInputType.text,
               onSubmit: (_) => focusNode.requestFocus(),
-              hint: 'Email',
+              hint: 'Username',
               prefixIcon: Icons.email_outlined,
             ),
           ),
@@ -221,18 +221,11 @@ class _SignInPageState extends State<SignInPage> {
             } else {
               _signInBloc.add(DisplayLoading());
 
-              // AuthResponse authResponse = await _authProvider.refreshToken();
-              // log('auth: ${authResponse.toString()}');
-              // await SharedPreferencesStorage().saveUserInfoRefresh(
-              //   accessToken: authResponse.accessToken,
-              //   refreshToken: authResponse.refreshToken,
-              // );
-
               SignInResponse signInResponse = await _authProvider.signIn(
-                // username: 'truong00',
-                // password: '123456',
-                username: _usernameController.text.trim(),
-                password: _passwordController.text.trim(),
+                username: 'truong00',
+                password: '123456',
+                // username: _usernameController.text.trim(),
+                // password: _passwordController.text.trim(),
               );
               //todo:::
               // log('response: ${signInResponse.toString()}');

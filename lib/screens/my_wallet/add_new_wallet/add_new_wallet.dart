@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
@@ -260,7 +258,6 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                         showCurrencyCode: true,
                         showSearchField: false,
                         onSelect: (Currency value) {
-                          log('${value.name}, ${value.symbol},${value.code}, ${value.decimalDigits},${value.decimalSeparator},${value.flag}, ${value.namePlural}, ${value.thousandsSeparator}');
                           setState(() {
                             currencyName = value.code;
                             currency = value.symbol;

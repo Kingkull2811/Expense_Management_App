@@ -1,16 +1,15 @@
 import '../../bloc/api_result_state.dart';
-import '../../network/model/category_model.dart';
 import '../../utilities/enum/api_error_result.dart';
 
 class NewCollectionState implements ApiResultState {
   final bool isLoading;
+  final bool isNoInternet;
   final ApiError _apiError;
-  final List<ContentItem>? listContentCategory;
 
   NewCollectionState({
     ApiError apiError = ApiError.noError,
     this.isLoading = false,
-    this.listContentCategory,
+    this.isNoInternet = false,
   }) : _apiError = apiError;
 
   @override
@@ -20,12 +19,12 @@ class NewCollectionState implements ApiResultState {
 extension NewCollectionStateExtension on NewCollectionState {
   NewCollectionState copyWith({
     bool? isLoading,
+    bool? isNoInternet,
     ApiError? apiError,
-    List<ContentItem>? listContentCategory,
   }) =>
       NewCollectionState(
         isLoading: isLoading ?? this.isLoading,
+        isNoInternet: isNoInternet ?? this.isNoInternet,
         apiError: apiError ?? this.apiError,
-        listContentCategory: listContentCategory ?? this.listContentCategory,
       );
 }

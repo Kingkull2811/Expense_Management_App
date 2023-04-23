@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/home/report_month/report_month.dart';
 import 'package:viet_wallet/screens/home/report_week/report_week.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 import '../../utilities/utils.dart';
 
@@ -16,13 +17,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  bool _isShowBalance = false;
+  bool _isShowBalance = SharedPreferencesStorage().getHiddenAmount() ?? false;
   int notificationBadge = 3;
   double balance = 15150169.00;
 
   late HomePageBloc _homePageBloc;
 
   late TabController _tabController;
+
+  final String currency = SharedPreferencesStorage().getCurrency() ?? '';
 
   @override
   void initState() {
@@ -224,7 +227,9 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
                 trailing: Text(
-                  _isShowBalance ? '${formatterDouble(balance)} ₫' : '****** ₫',
+                  _isShowBalance
+                      ? '${formatterDouble(balance)} $currency'
+                      : '****** $currency',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -255,8 +260,8 @@ class _HomePageState extends State<HomePage>
                   children: [
                     Text(
                       _isShowBalance
-                          ? '${formatterDouble(balance)}  ₫'
-                          : '******  ₫',
+                          ? '${formatterDouble(balance)}  $currency'
+                          : '******  $currency',
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
