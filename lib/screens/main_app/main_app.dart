@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/screens/home/home.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_event.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_selector.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning.dart';
@@ -20,27 +18,19 @@ import '../setting/setting.dart';
 import '../setting/setting_bloc.dart';
 
 class MainApp extends StatefulWidget {
-  final bool navFromStart;
-  final AppTab? tab;
+  final int? currentTab;
 
-  MainApp({key, this.navFromStart = false, this.tab})
-      : super(key: GlobalKey<MainAppState>());
+  MainApp({key, this.currentTab}) : super(key: GlobalKey<MainAppState>());
 
   @override
-  MainAppState createState() {
-    // DatabaseService().mainKey = this.key as GlobalKey<State<StatefulWidget>>?;
-    return MainAppState();
-  }
+  MainAppState createState() => MainAppState();
 }
 
-class MainAppState extends State<MainApp>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
-  TabController? _tabController;
+class MainAppState extends State<MainApp> with WidgetsBindingObserver {
   StreamSubscription<ConnectivityResult>? _networkSubscription;
 
   @override
   void initState() {
-    _tabController = TabController(length: AppTab.values.length, vsync: this);
     super.initState();
   }
 
@@ -56,28 +46,117 @@ class MainAppState extends State<MainApp>
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dynamic>(
-        future: Future.wait([getChatBadge()]),
-        builder: (context, snapshot) {
-          return BlocBuilder<TabBloc, AppTab>(builder: (context, activeTab) {
-            _tabController?.index =
-                AppTab.values.indexOf(widget.tab ?? activeTab);
-            return Scaffold(
-              body: _handleScreen(widget.tab ?? activeTab),
-              bottomNavigationBar: TabSelector(
-                  activeTab: activeTab,
-                  onTabSelected: (tab) async {
-                    BlocProvider.of<TabBloc>(context).add(TabUpdated(tab));
-                    setState(() {});
-                  }),
-            );
-          });
-        });
+      future: Future.wait([getChatBadge()]),
+      builder: (context, snapshot) {
+        return WillPopScope(
+          onWillPop: _onWillPop,
+          child: CupertinoTabScaffold(
+            tabBar: _tabBar(),
+            tabBuilder: (context, index) => _handleScreen(context, index),
+          ),
+        );
+      },
+    );
   }
 
-  _handleScreen(AppTab activeTab) {
+  CupertinoTabBar _tabBar() {
+    return CupertinoTabBar(
+      currentIndex: widget.currentTab ?? 0,
+      activeColor: Colors.grey[600],
+      inactiveColor: Theme.of(context).primaryColor,
+      backgroundColor: Colors.grey[50],
+      iconSize: 30,
+      height: 50,
+      items: <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.home,
+            size: 30,
+            color: Theme.of(context).primaryColor,
+          ),
+          activeIcon: Icon(
+            Icons.home_outlined,
+            size: 30,
+            color: Colors.grey[600],
+          ),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.account_balance_wallet,
+            size: 30,
+            color: Theme.of(context).primaryColor,
+          ),
+          activeIcon: Icon(
+            Icons.account_balance_wallet_outlined,
+            size: 30,
+            color: Colors.grey[600],
+          ),
+          label: 'My Wallet',
+        ),
+        BottomNavigationBarItem(
+          icon: Container(
+            height: 50,
+            width: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: Theme.of(context).primaryColor,
+            ),
+            child: const Icon(
+              Icons.add,
+              size: 30,
+              color: Colors.white,
+            ),
+          ),
+          activeIcon: Container(
+            height: 50,
+            width: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: Colors.grey[600],
+            ),
+            child: const Icon(
+              Icons.add,
+              size: 30,
+              color: Colors.white,
+            ),
+          ),
+          label: "New Collection",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.bar_chart,
+            size: 30,
+            color: Theme.of(context).primaryColor,
+          ),
+          activeIcon: Icon(
+            Icons.bar_chart_outlined,
+            size: 30,
+            color: Colors.grey[600],
+          ),
+          label: 'Planning',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(
+            Icons.grid_view,
+            size: 30,
+            color: Theme.of(context).primaryColor,
+          ),
+          activeIcon: Icon(
+            Icons.grid_view,
+            size: 30,
+            color: Colors.grey[600],
+          ),
+          label: 'Menu',
+        ),
+      ],
+    );
+  }
+
+  _handleScreen(BuildContext context, int index) {
     Widget currentTab;
-    switch (activeTab) {
-      case AppTab.home:
+    switch (index) {
+      case 0:
         currentTab = BlocProvider(
           create: (context) => HomePageBloc(context),
           child: HomePage(
@@ -85,7 +164,7 @@ class MainAppState extends State<MainApp>
           ),
         );
         break;
-      case AppTab.myWallet:
+      case 1:
         currentTab = BlocProvider<MyWalletPageBloc>(
           create: (context) => MyWalletPageBloc(context),
           child: MyWalletPage(
@@ -93,7 +172,7 @@ class MainAppState extends State<MainApp>
           ),
         );
         break;
-      case AppTab.newCollection:
+      case 2:
         currentTab = BlocProvider<NewCollectionBloc>(
           create: (context) => NewCollectionBloc(context),
           child: NewCollectionPage(
@@ -101,7 +180,7 @@ class MainAppState extends State<MainApp>
           ),
         );
         break;
-      case AppTab.report:
+      case 3:
         currentTab = BlocProvider<PlanningBloc>(
           create: (context) => PlanningBloc(context),
           child: PlanningPage(
@@ -109,7 +188,7 @@ class MainAppState extends State<MainApp>
           ),
         );
         break;
-      case AppTab.other:
+      case 4:
         currentTab = BlocProvider<SettingBloc>(
           create: (context) => SettingBloc(context),
           child: SettingPage(
@@ -172,13 +251,5 @@ class MainAppState extends State<MainApp>
           ),
         )) ??
         false;
-  }
-
-  void changeTabToHome() {
-    BlocProvider.of<TabBloc>(context).add(const TabUpdated(AppTab.home));
-  }
-
-  void changeTabToWallet() {
-    BlocProvider.of<TabBloc>(context).add(const TabUpdated(AppTab.myWallet));
   }
 }

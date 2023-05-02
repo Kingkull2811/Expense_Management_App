@@ -18,5 +18,9 @@ class ApiPath {
 
   static const String getAllListCategory = '$apiDomain/api/v1/category/all';
 
+  static const String apiCategory = '$apiDomain/api/v1/category';
+
+  static const String apiLogoCategory = '$apiDomain/api/v1/category-logo';
+
   static const String getListWallet = '$apiDomain/api/v1/wallet';
 }

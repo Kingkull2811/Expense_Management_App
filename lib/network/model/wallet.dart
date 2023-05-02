@@ -34,4 +34,9 @@ class Wallet {
       report: json['report'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Wallet{id: $id, accountBalance: $accountBalance, name: $name, accountType: $accountType, currency: $currency, description: $description, createdAt: $createdAt, createdBy: $createdBy, report: $report}';
+  }
 }

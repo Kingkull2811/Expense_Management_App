@@ -1,11 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/wallet.dart';
 import 'package:viet_wallet/network/repository/wallet_repository.dart';
-import 'package:viet_wallet/screens/main_app/main_app.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
+import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/widgets/button_switch.dart';
 import 'package:viet_wallet/widgets/no_internet_widget.dart';
@@ -14,7 +12,6 @@ import '../../../utilities/app_constants.dart';
 import '../../../utilities/enum/wallet_type.dart';
 import '../../../utilities/utils.dart';
 import '../../../widgets/primary_button.dart';
-import '../../main_app/tab/tab_event.dart';
 
 class EditWalletPage extends StatefulWidget {
   final Wallet wallet;
@@ -56,8 +53,9 @@ class _EditWalletPageState extends State<EditWalletPage> {
           ? widget.wallet.currency.split('/')[1]
           : 'VND';
       itemSelected = WalletType(
-        walletTypeName: nameWallet(walletType: widget.wallet.accountType),
-        walletTypeIcon: iconWallet(walletType: widget.wallet.accountType),
+        walletTypeName:
+            getNameWalletType(walletType: widget.wallet.accountType),
+        walletTypeIcon: getIconWallet(walletType: widget.wallet.accountType),
       );
     });
   }
@@ -172,16 +170,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
                         await _walletRepository.removeWalletWithID(
                             walletId: widget.wallet.id);
                         if (mounted) {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BlocProvider<TabBloc>(
-                                create: (context) => TabBloc(),
-                                child: MainApp(tab: AppTab.myWallet),
-                              ),
-                            ),
-                            (route) => false,
-                          );
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, AppRoutes.myWallet, (route) => false);
                         }
                       },
                       child: const Text(
@@ -665,16 +655,8 @@ class _EditWalletPageState extends State<EditWalletPage> {
           showCupertinoMessageDialog(context, 'Sửa khoản thành công',
               onClose: () {
             // backToHome(context);
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider<TabBloc>(
-                  create: (context) => TabBloc(),
-                  child: MainApp(tab: AppTab.myWallet),
-                ),
-              ),
-              (route) => false,
-            );
+            Navigator.pushNamedAndRemoveUntil(
+                context, AppRoutes.myWallet, (route) => false);
           });
         }
       }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -40,47 +39,45 @@ class Input extends StatelessWidget {
       );
     }
 
-    return  TextField(
-            textInputAction: textInputAction,
-            onSubmitted: onSubmit,
-            controller: controller,
-            onChanged: onChanged,
-            keyboardType: keyboardType,
-            inputFormatters: [
-              LengthLimitingTextInputFormatter(maxText),
-              FilteringTextInputFormatter.allow(whiteList ?? RegExp('([\\S])'))
-            ],
-            style: const TextStyle(
-                fontSize: 16,
-                color: Color.fromARGB(255, 26, 26, 26),
-                height: 1.35),
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                prefixIcon,
-                size: 24,
-                 color: Theme.of(context).colorScheme.primary,
-              ),
-              contentPadding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
-              filled: true,
-              fillColor: const Color.fromARGB(102, 230, 230, 230),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(
-                  width: 1,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide:  BorderSide(
-                  width: 1,
-                  color:  isInputError
-                      ? const Color(0xffca0000)
-                      : Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              hintText: hint,
-            ),
-          );
+    return TextField(
+      textInputAction: textInputAction,
+      onSubmitted: onSubmit,
+      controller: controller,
+      onChanged: onChanged,
+      keyboardType: keyboardType,
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(maxText),
+        FilteringTextInputFormatter.allow(whiteList ?? RegExp('([\\S])'))
+      ],
+      style: const TextStyle(
+          fontSize: 16, color: Color.fromARGB(255, 26, 26, 26), height: 1.35),
+      decoration: InputDecoration(
+        prefixIcon: Icon(
+          prefixIcon,
+          size: 24,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        contentPadding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+        filled: true,
+        fillColor: const Color.fromARGB(102, 230, 230, 230),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            width: 1,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            width: 1,
+            color: isInputError
+                ? const Color(0xffca0000)
+                : Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        hintText: hint,
+      ),
+    );
   }
 }

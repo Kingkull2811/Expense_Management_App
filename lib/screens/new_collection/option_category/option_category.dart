@@ -10,6 +10,8 @@ import '../../../network/model/category_model.dart';
 import '../../../utilities/enum/api_error_result.dart';
 import '../../../utilities/screen_utilities.dart';
 import '../../../widgets/app_image.dart';
+import '../../setting/category_item/category_item.dart';
+import '../../setting/category_item/category_item_bloc.dart';
 
 class OptionCategoryPage extends StatefulWidget {
   final int? categoryIdSelected;
@@ -99,11 +101,7 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
                     );
                   }
                   if (state.apiError == ApiError.noInternetConnection) {
-                    showCupertinoMessageDialog(
-                      context,
-                      'Error!',
-                      content: 'No_internet_connection',
-                    );
+                    showMessageNoInternetDialog(context);
                   }
                 },
                 builder: (context, state) {
@@ -367,7 +365,7 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
     );
   }
 
-  Widget _itemChildCategory(BuildContext context, ContentItem? item) {
+  Widget _itemChildCategory(BuildContext context, CategoryModel? item) {
     return InkWell(
       onTap: () async {
         await SharedPreferencesStorage().setItemCategorySelected(
@@ -471,11 +469,11 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0),
             child: _showClearSearch
-                ? IconButton(
-                    onPressed: () {
+                ? InkWell(
+                    onTap: () {
                       _searchController.clear();
                     },
-                    icon: const Icon(
+                    child: const Icon(
                       Icons.cancel,
                       size: 20,
                       color: Colors.grey,
@@ -510,7 +508,17 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                  create: (context) => CategoryItemBloc(context),
+                  child: const CategoryItem(),
+                ),
+              ),
+            );
+          },
           icon: const Icon(
             Icons.edit_note,
             color: Colors.white,

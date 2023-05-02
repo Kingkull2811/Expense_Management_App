@@ -1,6 +1,9 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:viet_wallet/screens/setting/security.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viet_wallet/screens/setting/category_item/category_item.dart';
+import 'package:viet_wallet/screens/setting/category_item/category_item_bloc.dart';
+import 'package:viet_wallet/screens/setting/security/security.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
@@ -114,6 +117,17 @@ class _SettingPageState extends State<SettingPage> {
             _itemOption(
               title: 'Hạng mục thu/chi',
               icon: Icons.list_alt_outlined,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => CategoryItemBloc(context),
+                      child: const CategoryItem(),
+                    ),
+                  ),
+                );
+              },
             ),
             _itemOption(
               title: 'Ghi chép định kỳ',

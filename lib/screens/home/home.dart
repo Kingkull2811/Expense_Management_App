@@ -1,11 +1,18 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
+import 'package:viet_wallet/screens/home/home_event.dart';
+import 'package:viet_wallet/screens/home/home_state.dart';
 import 'package:viet_wallet/screens/home/report_month/report_month.dart';
 import 'package:viet_wallet/screens/home/report_week/report_week.dart';
+import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
+import 'package:viet_wallet/widgets/animation_loading.dart';
 
+import '../../network/model/wallet.dart';
+import '../../utilities/screen_utilities.dart';
 import '../../utilities/utils.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,7 +26,6 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   bool _isShowBalance = SharedPreferencesStorage().getHiddenAmount() ?? false;
   int notificationBadge = 3;
-  double balance = 15150169.00;
 
   late HomePageBloc _homePageBloc;
 
@@ -30,6 +36,7 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     _homePageBloc = BlocProvider.of<HomePageBloc>(context);
+    _homePageBloc.add(HomeInitial());
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
   }
@@ -43,197 +50,138 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
-      body: _body(),
+    return BlocConsumer<HomePageBloc, HomePageState>(
+      listenWhen: (preState, curState) {
+        return curState.apiError != ApiError.noError;
+      },
+      listener: (context, curState) {
+        if (curState.apiError == ApiError.internalServerError) {
+          showCupertinoMessageDialog(
+            context,
+            'Error!',
+            content: 'Internal_server_error',
+          );
+        }
+        if (curState.apiError == ApiError.noInternetConnection) {
+          showMessageNoInternetDialog(context);
+        }
+      },
+      builder: (context, curState) {
+        Widget body = const SizedBox.shrink();
+        if (curState.isLoading) {
+          body = const Scaffold(body: AnimationLoading());
+        } else {
+          body = _body(context, curState);
+        }
+        return body;
+      },
     );
   }
 
-  Widget _body() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            _balance(),
-            _myWallet(),
-            _expenseReport(),
-          ],
+  Widget _body(BuildContext context, HomePageState state) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _balance((state.moneyTotal ?? 0).toDouble()),
+              _myWallet(state.listWallet),
+              _expenseReport(),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _expenseReport() {
-    return SizedBox(
-      height: 800,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Báo cáo chi tiêu',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'Xem báo cáo',
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: SizedBox(
+        height: 800,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Báo cáo chi tiêu',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Theme.of(context).primaryColor,
+                    color: Colors.grey[500],
                   ),
                 ),
-              )
-            ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).backgroundColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          unselectedLabelColor: Colors.grey[500],
-                          labelColor: Colors.black,
-                          labelStyle: const TextStyle(
-                            fontSize: 14,
+                GestureDetector(
+                  onTap: () {},
+                  child: Text(
+                    'Xem báo cáo',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).backgroundColor,
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.all(2),
-                          indicatorWeight: 1.5,
-                          indicatorColor: Colors.black,
-                          indicator: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                          tabs: const [
-                            Tab(
-                              text: 'Tuần',
+                          child: TabBar(
+                            controller: _tabController,
+                            unselectedLabelColor: Colors.grey[500],
+                            labelColor: Colors.black,
+                            labelStyle: const TextStyle(
+                              fontSize: 14,
                             ),
-                            Tab(
-                              text: 'Tháng',
-                            ),
+                            padding: const EdgeInsets.all(2),
+                            indicatorWeight: 1.5,
+                            indicatorColor: Colors.black,
+                            indicator: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10)),
+                            tabs: const [
+                              Tab(
+                                text: 'Tuần',
+                              ),
+                              Tab(
+                                text: 'Tháng',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: const [
+                            ReportWeekTab(),
+                            ReportMonthTab(),
                           ],
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: const [
-                          ReportWeekTab(),
-                          ReportMonthTab(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _myWallet() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Ví của tôi',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      'Xem tất cả',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Divider(
-                thickness: 1,
-                color: Theme.of(context).backgroundColor,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    Icons.wallet,
-                    size: 24,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                title: const Text(
-                  'Wallet name',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                trailing: Text(
-                  _isShowBalance
-                      ? '${formatterDouble(balance)} $currency'
-                      : '****** $currency',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    ],
                   ),
                 ),
               ),
@@ -244,12 +192,85 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _balance() {
+  Widget _myWallet(List<Wallet>? listWallet) {
+    return SizedBox(
+      height: 60 * ((listWallet?.length ?? 0) + 1).toDouble() + 15,
+      child: ListView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: (listWallet?.length ?? 0) + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return Container(
+                height: 47,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(15),
+                    topLeft: Radius.circular(15),
+                  ),
+                  color: Colors.white,
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+                      child: SizedBox(
+                        height: 20,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Ví của tôi',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, AppRoutes.myWallet);
+                              },
+                              child: Text(
+                                'Xem tất cả',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 10.0),
+                      child: Divider(height: 1, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              );
+            }
+            return _createItemWallet(
+              context,
+              listWallet?[index - 1],
+              thisIndex: index - 1,
+              endIndex: (listWallet?.length ?? 0) - 1,
+            );
+          }),
+    );
+  }
+
+  Widget _balance(double balance) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.only(top: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Tổng số dư ',
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,14 +279,20 @@ class _HomePageState extends State<HomePage>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      _isShowBalance
-                          ? '${formatterDouble(balance)}  $currency'
-                          : '******  $currency',
-                      style: const TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                    Container(
+                      constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.8),
+                      child: Text(
+                        _isShowBalance
+                            ? '${formatterDouble(balance)}  $currency'
+                            : '******  $currency',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                     Padding(
@@ -309,20 +336,70 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                'Tổng số dư ',
-                style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+        ],
+      ),
+    );
+  }
+
+  Widget _createItemWallet(
+    BuildContext context,
+    Wallet? wallet, {
+    required int thisIndex,
+    required int endIndex,
+  }) {
+    return Container(
+      height: 60,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+          bottomRight: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(20),
               ),
-              Icon(
-                Icons.help,
-                size: 14,
-                color: Colors.grey[500],
+              child: Icon(
+                isNotNullOrEmpty(wallet?.accountType)
+                    ? getIconWallet(walletType: wallet!.accountType)
+                    : Icons.help_outline,
+                size: 24,
+                color: Theme.of(context).primaryColor,
               ),
-            ],
+            ),
+          ),
+          Expanded(
+            child: Text(
+              '${wallet?.name}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 16),
+            child: Text(
+              _isShowBalance
+                  ? '${formatterDouble((wallet?.accountBalance ?? 0).toDouble())} $currency'
+                  : '****** $currency',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
           ),
         ],
       ),

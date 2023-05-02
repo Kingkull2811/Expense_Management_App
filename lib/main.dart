@@ -2,14 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viet_wallet/routes.dart';
-import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
-import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
-import 'package:viet_wallet/screens/main_app/main_app.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_event.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 Future<void> main() async {
@@ -95,19 +89,7 @@ class _MyAppState extends State<MyApp> {
       theme: theme.copyWith(
         colorScheme: theme.colorScheme.copyWith(secondary: Colors.white),
       ),
-      routes: {
-        AppRoutes.mainApp: (context) => _isLoggedIn
-            ? BlocProvider<TabBloc>(
-                create: (context) => TabBloc(initTab: AppTab.home),
-                child: MainApp(
-                  navFromStart: true,
-                ),
-              )
-            : BlocProvider<SignInBloc>(
-                create: (context) => SignInBloc(context),
-                child: const SignInPage(),
-              ),
-      },
+      routes: AppRoutes().routes(context, isLoggedIn: _isLoggedIn),
     );
   }
 

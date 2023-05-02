@@ -1,31 +1,29 @@
 import 'dart:io';
 
 import 'package:viet_wallet/network/response/error_response.dart';
-import 'package:viet_wallet/utilities/utils.dart';
 
 class BaseResponse {
-   int? httpStatus;
-   String? message;
-   List<Errors>? errors;
+  int? httpStatus;
+  String? message;
+  List<Errors>? errors;
 
   BaseResponse({
-     this.message,
-     this.httpStatus,
-     this.errors,
+    this.message,
+    this.httpStatus,
+    this.errors,
   });
 
   BaseResponse.withHttpError({
-     this.errors,
-     this.message,
-     this.httpStatus,
+    this.errors,
+    this.message,
+    this.httpStatus,
   });
 
-  factory BaseResponse.fromJson(Map<String, dynamic> json)=> BaseResponse(
-      httpStatus: json["httpStatus"],
-      message: json["message"],
-      errors: json["errors"],
-    );
-
+  factory BaseResponse.fromJson(Map<String, dynamic> json) => BaseResponse(
+        httpStatus: json["httpStatus"],
+        message: json["message"],
+        errors: json["errors"],
+      );
 
   @override
   String toString() {
@@ -40,11 +38,11 @@ class BaseResponse {
     return httpStatus != HttpStatus.ok;
   }
 }
+
 class ExpiredTokenResponse extends BaseResponse {
   ExpiredTokenResponse()
       : super(
-          httpStatus: HttpStatus.unauthorized,
-          message: 'Token Expired !',
-          errors: []
-        );
+            httpStatus: HttpStatus.unauthorized,
+            message: 'Token Expired !',
+            errors: []);
 }

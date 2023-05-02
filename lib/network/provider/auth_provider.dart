@@ -124,7 +124,7 @@ class AuthProvider with ProviderMixin {
       // log('provider: ${response.data}');
 
       return ForgotPasswordResponse.fromJson(response.data);
-    } catch (error, stacktrace) {
+    } catch (error) {
       // showErrorLog(error, stacktrace, ApiPath.forgotPassword);
       if (error is DioError) {
         return ForgotPasswordResponse.fromJson(error.response?.data);
@@ -146,7 +146,7 @@ class AuthProvider with ProviderMixin {
         //options: AppConstants.options,
       );
       return VerifyOtpResponse.fromJson(response.data);
-    } catch (error, stacktrace) {
+    } catch (error) {
       //showErrorLog(error, stacktrace, ApiPath.sendOtp);
       if (error is DioError) {
         return VerifyOtpResponse.fromJson(error.response?.data);

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
 import 'package:viet_wallet/network/response/user_response.dart';
+import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password.dart';
 import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
@@ -11,8 +12,6 @@ import 'package:viet_wallet/screens/authentication/sign_in/sign_in_event.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_state.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_bloc.dart';
-import 'package:viet_wallet/screens/main_app/main_app.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
@@ -76,7 +75,10 @@ class _SignInPageState extends State<SignInPage> {
           body = _body(curState);
         }
 
-        return Scaffold(body: body);
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(body: body),
+        );
       },
     );
   }
@@ -107,7 +109,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Widget _appIcon() => Padding(
-        padding: const EdgeInsets.only(top: 50),
+        padding: const EdgeInsets.only(top: 80, bottom: 20),
         child: Column(
           children: [
             Image.asset(
@@ -119,22 +121,22 @@ class _SignInPageState extends State<SignInPage> {
             const Padding(
               padding: EdgeInsets.only(top: 20),
               child: Text(
-                'Welcome',
+                'Welcome back',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontSize: 22,
                 ),
               ),
-            )
+            ),
           ],
         ),
       );
 
   Widget _signInForm() {
     return Container(
-      height: 350,
-      padding: const EdgeInsets.only(top: 32, left: 16.0, right: 16),
+      height: 200,
+      padding: const EdgeInsets.only(top: 30, left: 16.0, right: 16),
       child: Column(
         children: <Widget>[
           SizedBox(
@@ -171,7 +173,7 @@ class _SignInPageState extends State<SignInPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 20.0),
+            padding: const EdgeInsets.only(top: 20.0, bottom: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
@@ -189,12 +191,13 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       'Forgot password?',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
                         fontStyle: FontStyle.italic,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ),
@@ -222,43 +225,26 @@ class _SignInPageState extends State<SignInPage> {
               _signInBloc.add(DisplayLoading());
 
               SignInResponse signInResponse = await _authProvider.signIn(
-                username: 'truong00',
-                password: '123456',
-                // username: _usernameController.text.trim(),
-                // password: _passwordController.text.trim(),
+                username: _usernameController.text.trim(),
+                password: _passwordController.text.trim(),
               );
-              //todo:::
-              // log('response: ${signInResponse.toString()}');
               if (signInResponse.httpStatus == 200) {
                 await SharedPreferencesStorage().setLoggedOutStatus(false);
                 await _saveUserInfo(signInResponse.data);
                 if (mounted) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider<TabBloc>(
-                        create: (context) => TabBloc(),
-                        child: MainApp(),
-                      ),
-                    ),
-                  );
+                  Navigator.pushReplacementNamed(context, AppRoutes.home);
                 }
               } else {
-                _signInBloc.add(
-                  SignInFailure(
-                    errorMessage: signInResponse.errors?.first.errorMessage,
-                  ),
-                );
-                setState(() {
-                  // state.isLoading = false;
-                });
+                _signInBloc.add(SignInFailure(
+                  errorMessage: signInResponse.errors?.first.errorMessage,
+                ));
                 if (mounted) {
                   showCupertinoMessageDialog(
-                      context, signInResponse.errors?.first.errorMessage,
-                      content: 'Vui lòng nhập lại',
-                      buttonLabel: 'OK', onClose: () {
-                    backToHome(context);
-                  });
+                    context,
+                    signInResponse.errors?.first.errorMessage,
+                    content: 'Vui lòng nhập lại',
+                    buttonLabel: 'OK',
+                  );
                 }
               }
             }

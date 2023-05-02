@@ -33,11 +33,7 @@ class AppImage extends StatelessWidget {
     return Image.network(
       localPathOrUrl ?? '',
       alignment: alignment ?? Alignment.center,
-      errorBuilder: (
-        context,
-        error,
-        stackTrace,
-      ) =>
+      errorBuilder: (context, error, stackTrace) =>
           errorWidget ?? const SizedBox.shrink(),
       width: width,
       height: height,
