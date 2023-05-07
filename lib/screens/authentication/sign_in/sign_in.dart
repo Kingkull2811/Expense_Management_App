@@ -239,7 +239,7 @@ class _SignInPageState extends State<SignInPage> {
                 password: _passwordController.text.trim(),
               );
               //todo:::
-              // log('response: ${signInResponse.toString()}');
+              log('response: ${signInResponse.toString()}');
               if (signInResponse.httpStatus == 200) {
                 await SharedPreferencesStorage().setLoggedOutStatus(false);
                 await _saveUserInfo(signInResponse.data);
