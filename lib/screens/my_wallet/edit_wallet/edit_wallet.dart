@@ -652,7 +652,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
           report: _showOnReport,
         );
         if (mounted) {
-          showCupertinoMessageDialog(context, 'Sửa khoản thành công',
+          showMessage1OptionDialog(context, 'Sửa khoản thành công',
               onClose: () {
             // backToHome(context);
             Navigator.pushNamedAndRemoveUntil(

@@ -1,6 +1,7 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:viet_wallet/screens/setting/category_item/category_item.dart';
 import 'package:viet_wallet/screens/setting/category_item/category_item_bloc.dart';
 import 'package:viet_wallet/screens/setting/security/security.dart';
@@ -493,13 +494,22 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
-                    child: Switch(
-                        activeColor: Theme.of(context).backgroundColor,
-                        activeTrackColor: Theme.of(context).primaryColor,
-                        inactiveThumbColor: Theme.of(context).backgroundColor,
-                        inactiveTrackColor: Colors.grey,
-                        value: _isHiddenAmount,
-                        onChanged: (v) {}),
+                    child: FlutterSwitch(
+                      activeColor: Theme.of(context).primaryColor,
+                      width: 40,
+                      height: 20,
+                      valueFontSize: 25.0,
+                      toggleSize: 18,
+                      value: _isHiddenAmount,
+                      borderRadius: 10,
+                      padding: 2,
+                      showOnOff: false,
+                      onToggle: (val) {
+                        setState(() {
+                          _isHiddenAmount = val;
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),

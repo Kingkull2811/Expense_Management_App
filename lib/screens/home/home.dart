@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage>
       },
       listener: (context, curState) {
         if (curState.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'Error!',
             content: 'Internal_server_error',

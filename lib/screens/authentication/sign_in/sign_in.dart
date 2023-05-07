@@ -59,11 +59,11 @@ class _SignInPageState extends State<SignInPage> {
       },
       listener: (context, curState) {
         if (curState.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(context, 'Error!',
+          showMessage1OptionDialog(context, 'Error!',
               content: 'Internal_server_error');
         }
         if (curState.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(context, 'Error!',
+          showMessage1OptionDialog(context, 'Error!',
               content: 'No_internet_connection');
         }
       },
@@ -239,7 +239,7 @@ class _SignInPageState extends State<SignInPage> {
                   errorMessage: signInResponse.errors?.first.errorMessage,
                 ));
                 if (mounted) {
-                  showCupertinoMessageDialog(
+                  showMessage1OptionDialog(
                     context,
                     signInResponse.errors?.first.errorMessage,
                     content: 'Vui lòng nhập lại',

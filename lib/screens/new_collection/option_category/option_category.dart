@@ -94,7 +94,7 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
                 },
                 listener: (context, state) {
                   if (state.apiError == ApiError.internalServerError) {
-                    showCupertinoMessageDialog(
+                    showMessage1OptionDialog(
                       context,
                       'Error!',
                       content: 'Internal_server_error',

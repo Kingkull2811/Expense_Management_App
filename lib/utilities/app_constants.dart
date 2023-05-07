@@ -42,6 +42,9 @@ class AppConstants {
   static const String noInternetContent =
       'Please check your internet connection again or connect to Wi-fi';
 
+  static const String mathReport =
+      'Ghi chép này sẽ không được thống kê vào báo cáo';
+
   static const String contentDeleteWallet =
       'Nếu bạn xóa tài khoản này, tất cả dữ liệu liên quan cũng sẽ bị xóa. Dữ liệu sau khi xóa sẽ không khôi phục được.';
 }

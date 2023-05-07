@@ -116,7 +116,7 @@ class _CategoryItemState extends State<CategoryItem>
               },
               listener: (context, state) {
                 if (state.apiError == ApiError.internalServerError) {
-                  showCupertinoMessageDialog(
+                  showMessage1OptionDialog(
                     context,
                     'Error!',
                     content: 'Internal_server_error',
@@ -735,8 +735,10 @@ class _CategoryItemState extends State<CategoryItem>
       });
     }
     final suggestion = listCate
-        .where((category) =>
-            category.name!.toLowerCase().contains(query.toLowerCase()))
+        .where(
+          (category) =>
+              category.name!.toLowerCase().contains(query.toLowerCase()),
+        )
         .toList();
     setState(() {
       listSearchResult = suggestion;

@@ -120,7 +120,7 @@ class SharedPreferencesStorage {
   ItemCategory getItemCategorySelected() {
     return ItemCategory(
         categoryId: _preferences.getInt(AppConstants.itemId),
-        leading: _preferences.getString(AppConstants.itemLeading) ?? '',
+        iconLeading: _preferences.getString(AppConstants.itemLeading) ?? '',
         title: _preferences.getString(AppConstants.itemTitle) ?? '');
   }
 

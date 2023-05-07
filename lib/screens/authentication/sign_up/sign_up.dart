@@ -68,11 +68,11 @@ class _SignUpPageState extends State<SignUpPage> {
       },
       listener: (context, curState) {
         if (curState.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(context, 'Error!',
+          showMessage1OptionDialog(context, 'Error!',
               content: 'Internal_server_error');
         }
         if (curState.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(context, 'Error!',
+          showMessage1OptionDialog(context, 'Error!',
               content: 'No_internet_connection');
         }
       },
@@ -393,9 +393,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     password: _passwordController.text.trim(),
                   );
                   if (response.isOK() && mounted) {
-                    _signUpBloc.add(
-                      SignUpSuccess(message: response.message ?? ''),
-                    );
+                    // _signUpBloc.add(
+                    //   SignUpSuccess(message: response.message ?? ''),
+                    // );
                     showSuccessBottomSheet(
                       context,
                       isDismissible: true,
@@ -416,16 +416,16 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                     );
                   } else {
-                    _signUpBloc.add(
-                      SignUpFailure(errors: response.errors),
-                    );
+                    // _signUpBloc.add(
+                    //   SignUpFailure(errors: response.errors),
+                    // );
 
                     String? errorMessage = '';
                     List<Errors>? errors = response.errors;
                     for (var error in errors!) {
                       errorMessage = '$errorMessage\n${error.errorMessage}';
                     }
-                    showCupertinoMessageDialog(
+                    showMessage1OptionDialog(
                       context,
                       errorMessage,
                     );

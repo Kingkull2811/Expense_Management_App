@@ -139,7 +139,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
               body = _body(context, state, isExpandedCategory);
             }
             if (state is OnFailureState) {
-              showCupertinoMessageDialog(
+              showMessage1OptionDialog(
                 context,
                 'Error!',
                 content: 'Internal Server Error',
@@ -654,9 +654,9 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
             Expanded(
               child: isNotNullOrEmpty(listLogo)
                   ? Padding(
-                      padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                       child: GridView.builder(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 5,

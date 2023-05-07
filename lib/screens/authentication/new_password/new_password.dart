@@ -61,14 +61,14 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       },
       listener: (context, state) {
         if (state.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'error',
             content: 'internal_server_error',
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'error',
             content: 'no_internet_connection',

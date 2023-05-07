@@ -566,7 +566,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
           report: _showOnReport,
         );
         if (mounted) {
-          showCupertinoMessageDialog(context, 'Tạo tài khoản thành công',
+          showMessage1OptionDialog(context, 'Tạo tài khoản thành công',
               onClose: () {
             // backToHome(context);
             Navigator.pushNamed(context, AppRoutes.myWallet);

@@ -8,6 +8,7 @@ import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/message_dialog.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
+import '../widgets/message_dialog_2_option.dart';
 import 'app_constants.dart';
 
 void showLoading(BuildContext context) {
@@ -75,7 +76,7 @@ Future<void> showMessageNoInternetDialog(
       });
 }
 
-Future<void> showCupertinoMessageDialog(
+Future<void> showMessage1OptionDialog(
   BuildContext context,
   String? title, {
   String? content,
@@ -92,6 +93,31 @@ Future<void> showCupertinoMessageDialog(
           content: content,
           buttonLabel: buttonLabel,
           onClose: onClose,
+        );
+      });
+}
+
+Future<void> showMessage2OptionDialog(
+  BuildContext context,
+  String? title, {
+  String? content,
+  Function()? onCancel,
+  String? cancelLabel,
+  Function()? onOK,
+  String? okLabel,
+  bool barrierDismiss = false,
+}) async {
+  await showDialog(
+      barrierDismissible: barrierDismiss,
+      context: context,
+      builder: (context) {
+        return MessageDialog2Option(
+          title: title,
+          content: content,
+          okLabel: okLabel,
+          onOk: onOK,
+          onCancel: onCancel,
+          cancelLabel: cancelLabel,
         );
       });
 }

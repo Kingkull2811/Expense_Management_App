@@ -55,3 +55,7 @@ String getNameWalletType({required String walletType}) {
   }
   return "Khác";
 }
+
+String formatToLocaleVietnam(DateTime date) {
+  return '${DateFormat.EEEE('vi').format(date)} - ${DateFormat('dd/MM/yyyy').format(date)}';
+}

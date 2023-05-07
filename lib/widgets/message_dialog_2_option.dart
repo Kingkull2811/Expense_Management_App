@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
-class MessageDialog extends StatelessWidget {
+class MessageDialog2Option extends StatelessWidget {
   final String? title;
   final String? content;
-  final Function()? onClose;
-  final String? buttonLabel;
+  final Function()? onCancel;
+  final String? cancelLabel;
+  final Function()? onOk;
+  final String? okLabel;
 
-  const MessageDialog({
+  const MessageDialog2Option({
     Key? key,
     this.title,
     this.content,
-    this.onClose,
-    this.buttonLabel,
+    this.onCancel,
+    this.cancelLabel,
+    this.onOk,
+    this.okLabel,
   }) : super(key: key);
 
   @override
@@ -41,18 +45,26 @@ class MessageDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             Navigator.pop(context);
-            if (onClose != null) {
-              onClose!();
+            if (onCancel != null) {
+              onCancel!();
             }
           },
           child: Text(
-            buttonLabel ?? 'OK',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-            ),
+            cancelLabel ?? 'Cancel',
+            style: const TextStyle(fontSize: 16, color: Colors.black),
           ),
         ),
+        TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (onOk != null) {
+                onOk!();
+              }
+            },
+            child: Text(
+              okLabel ?? 'OK',
+              style: const TextStyle(fontSize: 16, color: Color(0xffCA0000)),
+            )),
       ],
     );
   }

@@ -1,3 +1,3 @@
 abstract class NewCollectionEvent {}
 
-class GetListContentCategory extends NewCollectionEvent {}
+class CollectionInit extends NewCollectionEvent {}
