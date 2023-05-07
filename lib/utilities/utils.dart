@@ -30,7 +30,7 @@ String formatterBalance(String str) {
   return result;
 }
 
-IconData iconWallet({required String walletType}) {
+IconData getIconWallet({required String walletType}) {
   if (walletType == WalletAccountType.wallet.name) {
     return Icons.wallet;
   }
@@ -43,7 +43,7 @@ IconData iconWallet({required String walletType}) {
   return Icons.payment;
 }
 
-String nameWallet({required String walletType}) {
+String getNameWalletType({required String walletType}) {
   if (walletType == WalletAccountType.wallet.name) {
     return 'Ví tiền mặt';
   }
@@ -54,4 +54,8 @@ String nameWallet({required String walletType}) {
     return "Ví điện tử";
   }
   return "Khác";
+}
+
+String formatToLocaleVietnam(DateTime date) {
+  return '${DateFormat.EEEE('vi').format(date)} - ${DateFormat('dd/MM/yyyy').format(date)}';
 }

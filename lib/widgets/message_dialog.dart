@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class MessageDialog extends StatelessWidget {
   final String? title;
@@ -16,18 +16,43 @@ class MessageDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
-      title: title == null? null : Text(title!),
-      content: content == null ? null : Text(content!),
+    return AlertDialog(
+      title: title == null
+          ? null
+          : Text(
+              title!,
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+      content: content == null
+          ? null
+          : Text(
+              content!,
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
       actions: <Widget>[
-        CupertinoDialogAction(
-            onPressed: (){
-              Navigator.pop(context);
-              if(onClose !=null){
-                onClose!();
-              }
-            },
-            child: Text(buttonLabel ?? 'OK')),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            if (onClose != null) {
+              onClose!();
+            }
+          },
+          child: Text(
+            buttonLabel ?? 'OK',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+        ),
       ],
     );
   }

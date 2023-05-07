@@ -1,59 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:intl/intl.dart';
+import 'package:viet_wallet/network/response/collection_response.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
-import 'package:viet_wallet/screens/new_collection/new_collection_event.dart';
-import 'package:viet_wallet/widgets/animation_loading.dart';
+import 'package:viet_wallet/screens/new_collection/option_category/option_category_bloc.dart';
+import 'package:viet_wallet/utilities/app_constants.dart';
+import 'package:viet_wallet/widgets/app_image.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
+import '../../network/model/collection_model.dart';
+import '../../network/model/wallet.dart';
+import '../../network/provider/collection_provider.dart';
 import '../../utilities/enum/api_error_result.dart';
 import '../../utilities/screen_utilities.dart';
+import '../../utilities/shared_preferences_storage.dart';
+import '../../utilities/utils.dart';
+import 'new_collection_event.dart';
 import 'new_collection_state.dart';
+import 'option_category/option_category.dart';
 
 class NewCollectionPage extends StatefulWidget {
-  const NewCollectionPage({Key? key}) : super(key: key);
+  final bool isEdit;
+  final CollectionModel? collectionReport;
+
+  const NewCollectionPage({
+    Key? key,
+    this.isEdit = false,
+    this.collectionReport,
+  }) : super(key: key);
 
   @override
   State<NewCollectionPage> createState() => _NewCollectionPageState();
 }
 
-class _NewCollectionPageState extends State<NewCollectionPage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  // late NewCollectionBloc _newCollectionBloc;
+class _NewCollectionPageState extends State<NewCollectionPage> {
+  final _collectionProvider = CollectionProvider();
 
   final _moneyController = TextEditingController();
   final _noteController = TextEditingController();
-  final _searchController = TextEditingController();
   bool _showIconClear = false;
-  bool _showClearSearch = false;
-  bool _isSeeDetails = false;
 
-  String optionTitle = 'Chi tiền';
+  ItemOption itemOption = ItemOption(
+    itemId: 0,
+    title: 'Chi tiền',
+    icon: Icons.remove,
+  );
   ItemCategory itemCategorySelected = ItemCategory(
+    categoryId: null,
     title: "Chọn hạng mục",
-    icon: Icons.help_outlined,
-    isBigCategory: false,
+    iconLeading: '',
   );
 
   String datePicker = formatToLocaleVietnam(DateTime.now());
   String timePicker = DateFormat.Hms().format(DateTime.now());
+  DateTime? _datePicked;
+  DateTime? _timePicked;
+
+  bool _isMathReport = false;
+
+  int? walletId;
+  String? walletName;
+  String? walletType;
+
+  void initCollectionEdit() {
+    if (widget.collectionReport == null) {
+      return;
+    }
+    setState(() {
+      itemOption = (widget.collectionReport?.transactionType == 'EXPENSE')
+          ? ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove)
+          : ItemOption(itemId: 1, title: 'Thu tiền', icon: Icons.add);
+      datePicker = formatToLocaleVietnam(
+          DateTime.tryParse(widget.collectionReport?.ariseDate ?? '') ??
+              DateTime.now());
+      timePicker = DateFormat.Hms().format(
+          DateTime.tryParse(widget.collectionReport?.ariseDate ?? '') ??
+              DateTime.now());
+      _isMathReport = widget.collectionReport?.addToReport ?? false;
+      _noteController.text = widget.collectionReport?.description ?? '';
+      _moneyController.text = (widget.collectionReport?.amount).toString();
+      walletId = widget.collectionReport?.walletId;
+      walletName = widget.collectionReport?.walletName;
+      walletType = widget.collectionReport?.walletType;
+      itemCategorySelected = ItemCategory(
+        categoryId: widget.collectionReport?.categoryId,
+        title: widget.collectionReport?.categoryName,
+        iconLeading: widget.collectionReport?.categoryLogo,
+      );
+    });
+  }
 
   @override
   void initState() {
-    BlocProvider.of<NewCollectionBloc>(context).add(GetListContentCategory());
-
-    _tabController = TabController(length: 3, vsync: this);
+    BlocProvider.of<NewCollectionBloc>(context).add(CollectionInit());
+    initCollectionEdit();
     _noteController.addListener(() {
       setState(() {
         _showIconClear = _noteController.text.isNotEmpty;
-      });
-    });
-    _searchController.addListener(() {
-      setState(() {
-        _showClearSearch = _searchController.text.isNotEmpty;
       });
     });
 
@@ -62,10 +107,8 @@ class _NewCollectionPageState extends State<NewCollectionPage>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _moneyController.dispose();
     _noteController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -77,11 +120,11 @@ class _NewCollectionPageState extends State<NewCollectionPage>
       },
       listener: (context, curState) {
         if (curState.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(context, 'Error!',
+          showMessage1OptionDialog(context, 'Error!',
               content: 'Internal_server_error');
         }
         if (curState.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(context, 'Error!',
+          showMessage1OptionDialog(context, 'Error!',
               content: 'No_internet_connection');
         }
       },
@@ -92,139 +135,290 @@ class _NewCollectionPageState extends State<NewCollectionPage>
   }
 
   Widget _body(BuildContext context, NewCollectionState state) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        leading: InkWell(
-          onTap: () {},
-          child: const Icon(
-            Icons.history,
-            size: 24,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        title: GestureDetector(
-          onTap: () async {
-            await showDialog(
-              context: context,
-              builder: (context) => _buildOptionDialog(context),
-            );
-          },
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColorDark,
-              borderRadius: BorderRadius.circular(20),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          elevation: 0,
+          automaticallyImplyLeading: widget.isEdit,
+          backgroundColor: Theme.of(context).primaryColor,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios,
+              size: 24,
+              color: Colors.white,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  optionTitle,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
+          ),
+          centerTitle: true,
+          title: GestureDetector(
+            onTap: () async {
+              await showDialog(
+                context: context,
+                builder: (context) => _buildOptionDialog(context),
+              );
+            },
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColorDark,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    itemOption.title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const Icon(
-                  Icons.arrow_drop_down,
-                  size: 20,
-                  color: Colors.white,
-                )
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    size: 20,
+                    color: Colors.white,
+                  )
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: widget.isEdit
+                  ? const SizedBox(
+                      width: 24,
+                    )
+                  : InkWell(
+                      onTap: () {},
+                      child: const Icon(
+                        Icons.history,
+                        size: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                _money(),
+                _select(state),
+                _mathReport(),
+                _buttonSave(context),
               ],
             ),
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: InkWell(
-              onTap: () {},
-              child: const Icon(
-                Icons.check,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              _money(),
-              _select(state),
-              _details(state),
-              _buttonSeeDetails(),
-              _buttonSave(),
-            ],
-          ),
-        ),
       ),
     );
   }
 
-  Widget _buttonSave() {
+  Widget _buttonSave(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 16),
-      child: PrimaryButton(
-        text: 'Lưu',
-        onTap: () {},
-      ),
+      child: widget.isEdit
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                PrimaryButton(
+                  text: 'Xóa',
+                  onTap: () {
+                    showMessage2OptionDialog(
+                      context,
+                      'Bạn có muốn xóa giao dịch này?',
+                      cancelLabel: 'Hủy',
+                      okLabel: 'Xóa',
+                      onOK: () async {
+                        await _collectionProvider.deleteCollection(
+                          collectionId: (widget.collectionReport?.id)!,
+                        );
+                        Navigator.pop(this.context, 'refresh');
+                      },
+                    );
+                  },
+                ),
+                PrimaryButton(
+                  text: 'Cập nhật',
+                  onTap: () async {
+                    final Map<String, dynamic> data = {
+                      "addToReport": _isMathReport,
+                      "amount": double.tryParse(
+                          _moneyController.text.trim().toString()),
+                      'ariseDate': isNotNullOrEmpty(_getDateTimePicked())
+                          ? _getDateTimePicked()
+                          : widget.collectionReport?.ariseDate,
+                      "categoryId": itemCategorySelected.categoryId,
+                      "description": _noteController.text.trim(),
+                      "transactionType":
+                          (itemOption.itemId == 0) ? 'EXPENSE' : 'INCOME',
+                      "walletId": walletId,
+                    };
+
+                    final response = await _collectionProvider.updateCollection(
+                      collectionId: (widget.collectionReport?.id)!,
+                      data: data,
+                    );
+
+                    if (response is CollectionModel) {
+                      showMessage1OptionDialog(
+                        this.context,
+                        'Cập nhật giao dịch thành công',
+                        onClose: () {
+                          Navigator.pop(this.context, 'refresh');
+                        },
+                      );
+                    }
+                  },
+                ),
+              ],
+            )
+          : PrimaryButton(
+              text: 'Lưu',
+              onTap: () async {
+                if (_moneyController.text.trim().isEmpty) {
+                  showMessage1OptionDialog(context, 'Vui lòng nhập số tiền');
+                } else if (itemCategorySelected.categoryId == null) {
+                  showMessage1OptionDialog(
+                    context,
+                    'Vui lòng chọn danh mục thu/chi',
+                  );
+                } else if (walletId == null) {
+                  showMessage1OptionDialog(context, 'Vui lòng chọn ví');
+                } else {
+                  await _postCollection(context);
+                }
+              },
+            ),
     );
   }
 
-  Widget _details(NewCollectionState state) {
-    return _isSeeDetails
-        ? Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-            child: Container(
-              height: 500,
-              decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          )
-        : const SizedBox.shrink();
+  Future<void> _postCollection(BuildContext context) async {
+    final Map<String, dynamic> data = {
+      "addToReport": _isMathReport,
+      "amount": double.tryParse(_moneyController.text.trim().toString()),
+      'ariseDate': isNotNullOrEmpty(_getDateTimePicked())
+          ? _getDateTimePicked()
+          : DateTime.now().toIso8601String(),
+      "categoryId": itemCategorySelected.categoryId,
+      "description": _noteController.text.trim(),
+      "transactionType": (itemOption.itemId == 0) ? 'EXPENSE' : 'INCOME',
+      "walletId": walletId
+    };
+
+    final response = await _collectionProvider.newCollection(data: data);
+
+    if (response is CollectionResponse) {
+      showMessage1OptionDialog(
+        this.context,
+        'Thêm giao dịch thành công',
+        onClose: () {
+          reloadPage();
+        },
+      );
+    }
   }
 
-  Widget _buttonSeeDetails() {
-    return GestureDetector(
-      onTap: () async {
-        setState(() {
-          _isSeeDetails = !_isSeeDetails;
-        });
-      },
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+  void reloadPage() {
+    setState(() {
+      _moneyController.clear();
+      _noteController.clear();
+      walletId = null;
+      walletName = null;
+      walletType = null;
+      itemCategorySelected = ItemCategory(
+          categoryId: null, title: "Chọn hạng mục", iconLeading: '');
+      itemOption = ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove);
+      datePicker = formatToLocaleVietnam(DateTime.now());
+      timePicker = DateFormat.Hms().format(DateTime.now());
+    });
+  }
+
+  String _getDateTimePicked() {
+    if (_datePicked != null && _timePicked != null) {
+      return DateTime(
+        _datePicked!.year,
+        _datePicked!.month,
+        _datePicked!.day,
+        _timePicked!.hour,
+        _timePicked!.minute,
+        _timePicked!.second,
+      ).toIso8601String();
+    } else {
+      return '';
+    }
+  }
+
+  Widget _mathReport() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).backgroundColor,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 0, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _isSeeDetails ? 'Ẩn chi tiết' : 'Thêm chi tiết',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _isMathReport = !_isMathReport;
+                });
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Không tính vào báo cáo',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    child: FlutterSwitch(
+                      activeColor: Theme.of(context).primaryColor,
+                      width: 40,
+                      height: 20,
+                      valueFontSize: 25.0,
+                      toggleSize: 18,
+                      value: _isMathReport,
+                      borderRadius: 10,
+                      padding: 2,
+                      showOnOff: false,
+                      onToggle: (val) {
+                        setState(() {
+                          _isMathReport = val;
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-            Icon(
-              _isSeeDetails ? Icons.expand_less : Icons.expand_more,
-              size: 16,
-              color: Theme.of(context).primaryColor,
+            const SizedBox(height: 10),
+            const Text(
+              AppConstants.mathReport,
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -243,187 +437,350 @@ class _NewCollectionPageState extends State<NewCollectionPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ListTile(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => _buildOptionCategory(context, state),
-                );
-              },
-              dense: false,
-              horizontalTitleGap: 6,
-              leading: Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  // color: Colors.grey,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(
-                  itemCategorySelected.icon,
-                  color: Colors.grey,
-                  size: 40,
-                ),
-              ),
-              title: Text(
-                itemCategorySelected.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.grey,
-                ),
-              ),
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
-              ),
-            ),
+            _selectCategory(),
             Divider(
               height: 0.5,
               color: Colors.grey.withOpacity(0.3),
             ),
-            TextField(
-              maxLines: null,
-              controller: _noteController,
-              textAlign: TextAlign.start,
-              onChanged: (_) {},
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
-                fontWeight: FontWeight.normal,
-              ),
-              textInputAction: TextInputAction.done,
-              textAlignVertical: TextAlignVertical.center,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                // contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                hintText: 'Ghi chú',
-                hintStyle: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
-                prefixIcon: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Icon(
-                    Icons.event_note,
-                    size: 30,
+            _noteHandle(),
+            Divider(
+              height: 0.5,
+              color: Colors.grey.withOpacity(0.3),
+            ),
+            _pickDateTime(),
+            Divider(
+              height: 0.5,
+              color: Colors.grey.withOpacity(0.3),
+            ),
+            _selectWallet(state.listWallet),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _selectCategory() {
+    return ListTile(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => BlocProvider(
+            create: (context) => OptionCategoryBloc(context),
+            child: OptionCategoryPage(
+              categoryIdSelected: itemCategorySelected.categoryId,
+            ),
+          ),
+        ).whenComplete(() {
+          setState(() {
+            itemCategorySelected =
+                SharedPreferencesStorage().getItemCategorySelected();
+          });
+        });
+      },
+      dense: false,
+      horizontalTitleGap: 6,
+      leading: Container(
+        height: 30,
+        width: 30,
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: AppImage(
+          localPathOrUrl: itemCategorySelected.iconLeading,
+          width: 30,
+          height: 30,
+          boxFit: BoxFit.cover,
+          alignment: Alignment.center,
+          errorWidget: const Icon(
+            Icons.help_outline,
+            color: Colors.grey,
+            size: 30,
+          ),
+        ),
+      ),
+      title: Text(
+        itemCategorySelected.title ?? '',
+        style: TextStyle(
+          fontSize: 20,
+          color: (itemCategorySelected.categoryId != null)
+              ? Colors.black
+              : Colors.grey,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _noteHandle() {
+    return TextField(
+      maxLines: null,
+      controller: _noteController,
+      textAlign: TextAlign.start,
+      onChanged: (_) {},
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.black,
+        fontWeight: FontWeight.normal,
+      ),
+      textInputAction: TextInputAction.done,
+      textAlignVertical: TextAlignVertical.center,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        // contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+        hintText: 'Ghi chú',
+        hintStyle: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+        ),
+        prefixIcon: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Icon(
+            Icons.event_note,
+            size: 30,
+            color: Colors.grey,
+          ),
+        ),
+        suffixIcon: _showIconClear
+            ? Padding(
+                padding: const EdgeInsets.only(left: 6, right: 16),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _noteController.clear();
+                    });
+                  },
+                  child: const Icon(
+                    Icons.cancel,
+                    size: 18,
                     color: Colors.grey,
                   ),
                 ),
-                suffixIcon: _showIconClear
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 6, right: 16),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              _noteController.clear();
-                            });
-                          },
-                          child: const Icon(
-                            Icons.cancel,
-                            size: 18,
-                            color: Colors.grey,
-                          ),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget _pickDateTime() {
+    return ListTile(
+      dense: false,
+      horizontalTitleGap: 6,
+      leading: const Icon(
+        Icons.calendar_month,
+        size: 30,
+        color: Colors.grey,
+      ),
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: () {
+              DatePicker.showDatePicker(
+                context,
+                showTitleActions: true,
+                minTime: DateTime(2000, 01, 01),
+                maxTime: DateTime(2025, 12, 30),
+                locale: LocaleType.vi,
+                currentTime: DateTime.now(),
+                onConfirm: (date) {
+                  setState(() {
+                    datePicker = formatToLocaleVietnam(date);
+                    _datePicked = date;
+                  });
+                },
+                onCancel: () {
+                  setState(() {});
+                },
+              );
+            },
+            child: Text(datePicker),
+          ),
+          InkWell(
+            onTap: () {
+              DatePicker.showTimePicker(
+                context,
+                showTitleActions: true,
+                currentTime: DateTime.now(),
+                locale: LocaleType.vi,
+                onConfirm: (time) {
+                  setState(() {
+                    timePicker = DateFormat.Hms().format(time);
+                    _timePicked = time;
+                  });
+                },
+                onCancel: () {
+                  setState(() {});
+                },
+              );
+            },
+            child: Text(timePicker),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _selectWallet(List<Wallet>? listWallet) {
+    return ListTile(
+      onTap: () async {
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) => SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Theme.of(context).primaryColor,
+                elevation: 0,
+                leading: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                centerTitle: true,
+                title: const Text(
+                  'Chọn tài khoản',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: isNullOrEmpty(listWallet)
+                    ? Text(
+                        'Không có dữ liệu tài khoản, vui lòng thêm tài khoản mới.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).primaryColor,
                         ),
                       )
-                    : null,
+                    : ListView.builder(
+                        itemCount: listWallet!.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  walletId = listWallet[index].id;
+                                  walletName = listWallet[index].name;
+                                  walletType = listWallet[index].accountType;
+                                });
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Theme.of(context).backgroundColor,
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: Icon(
+                                        isNotNullOrEmpty(
+                                                listWallet[index].accountType)
+                                            ? getIconWallet(
+                                                walletType: listWallet[index]
+                                                    .accountType,
+                                              )
+                                            : Icons.help,
+                                        size: 30,
+                                        color: Colors.grey.withOpacity(0.6),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Text(
+                                            listWallet[index].name,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${listWallet[index].accountBalance} ${listWallet[index].currency}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (walletId == listWallet[index].id)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Icon(
+                                          Icons.check_circle_outline,
+                                          color: Theme.of(context).primaryColor,
+                                          size: 24,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
               ),
             ),
-            Divider(
-              height: 0.5,
-              color: Colors.grey.withOpacity(0.3),
-            ),
-            ListTile(
-              dense: false,
-              horizontalTitleGap: 6,
-              leading: const Icon(
-                Icons.calendar_month,
-                size: 30,
-                color: Colors.grey,
-              ),
-              title: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      DatePicker.showDatePicker(
-                        context,
-                        showTitleActions: true,
-                        minTime: DateTime(2000, 01, 01),
-                        maxTime: DateTime(2025, 12, 30),
-                        locale: LocaleType.vi,
-                        currentTime: DateTime.now(),
-                        onChanged: (date) {
-                          setState(() {
-                            datePicker = formatToLocaleVietnam(date);
-                          });
-                        },
-                        onConfirm: (date) {
-                          setState(() {
-                            datePicker = formatToLocaleVietnam(date);
-                          });
-                        },
-                        onCancel: () {
-                          setState(() {});
-                        },
-                      );
-                    },
-                    child: Text(datePicker),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      DatePicker.showTimePicker(
-                        context,
-                        showTitleActions: true,
-                        currentTime: DateTime.now(),
-                        locale: LocaleType.vi,
-                        onChanged: (time) {
-                          setState(() {
-                            timePicker = DateFormat.Hms().format(time);
-                          });
-                        },
-                        onConfirm: (time) {
-                          setState(() {
-                            timePicker = DateFormat.Hms().format(time);
-                          });
-                        },
-                        onCancel: () {
-                          setState(() {});
-                        },
-                      );
-                    },
-                    child: Text(timePicker),
-                  ),
-                ],
-              ),
-            ),
-            Divider(
-              height: 0.5,
-              color: Colors.grey.withOpacity(0.3),
-            ),
-            ListTile(
-              onTap: () {},
-              dense: false,
-              horizontalTitleGap: 6,
-              leading: const Icon(
-                Icons.wallet,
-                size: 30,
-                color: Colors.grey,
-              ),
-              title: const Text('Ví tiền mặt'),
-              trailing: const Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
-              ),
-            ),
-          ],
+          ),
+        ).whenComplete(() {
+          setState(() {});
+        });
+      },
+      dense: false,
+      horizontalTitleGap: 6,
+      leading: Icon(
+        isNotNullOrEmpty(walletType)
+            ? getIconWallet(walletType: walletType!)
+            : Icons.help_outline,
+        size: 30,
+        color: Colors.grey,
+      ),
+      title: Text(
+        walletName ?? 'Chọn tài khoản/ ví',
+        style: TextStyle(
+          fontSize: 16,
+          color: isNotNullOrEmpty(walletName) ? Colors.black : Colors.grey,
         ),
+      ),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.grey,
       ),
     );
   }
@@ -497,12 +854,12 @@ class _NewCollectionPageState extends State<NewCollectionPage>
           borderRadius: BorderRadius.circular(15),
         ),
         child: ListView.builder(
-          itemCount: itemOption.length,
+          itemCount: itemsOption.length,
           itemBuilder: (context, index) {
             return InkWell(
               onTap: () {
                 setState(() {
-                  optionTitle = itemOption[index].title;
+                  itemOption = itemsOption[index];
                 });
                 Navigator.pop(context);
               },
@@ -533,7 +890,7 @@ class _NewCollectionPageState extends State<NewCollectionPage>
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Icon(
-                              itemOption[index].icon,
+                              itemsOption[index].icon,
                               size: 24,
                               color: Theme.of(context).primaryColor,
                             ),
@@ -541,7 +898,7 @@ class _NewCollectionPageState extends State<NewCollectionPage>
                           Padding(
                             padding: const EdgeInsets.only(left: 10.0),
                             child: Text(
-                              itemOption[index].title,
+                              itemsOption[index].title,
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
@@ -550,7 +907,7 @@ class _NewCollectionPageState extends State<NewCollectionPage>
                           ),
                         ],
                       ),
-                      trailing: (itemOption[index].title == optionTitle)
+                      trailing: (itemsOption[index].itemId == itemOption.itemId)
                           ? Icon(
                               Icons.check,
                               color: Theme.of(context).primaryColor,
@@ -567,437 +924,37 @@ class _NewCollectionPageState extends State<NewCollectionPage>
       ),
     );
   }
-
-  Widget _buildOptionCategory(BuildContext context, NewCollectionState state) {
-    return AlertDialog(
-      insetPadding: EdgeInsets.zero,
-      contentPadding: const EdgeInsets.all(0),
-      content: Container(
-        height: MediaQuery.of(context).size.height * 0.9,
-        width: MediaQuery.of(context).size.width * 0.9,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _itemHeaderCategory(context),
-            Container(
-              height: 35,
-              color: Colors.white,
-              child: TabBar(
-                controller: _tabController,
-                unselectedLabelColor: Colors.grey.withOpacity(0.3),
-                labelColor: Theme.of(context).primaryColor,
-                labelStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-                indicatorWeight: 2,
-                indicatorColor: Theme.of(context).primaryColor,
-                tabs: const [
-                  Tab(
-                    text: 'CHI TIỀN',
-                  ),
-                  Tab(
-                    text: 'THU TIỀN',
-                  ),
-                  Tab(
-                    text: 'VAY NỢ',
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.9 - 50 - 35,
-                width: MediaQuery.of(context).size.width * 0.9,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _payTab(state),
-                    _collectTab(),
-                    _borrowTab(),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _itemHeaderCategory(BuildContext context) {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(3),
-          topRight: Radius.circular(3),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: InkWell(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: const Icon(
-                Icons.cancel,
-                color: Colors.red,
-                size: 30,
-              ),
-            ),
-          ),
-          const Expanded(
-            child: Center(
-              child: Text(
-                'Chọn hạng mục',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: InkWell(
-              onTap: () {},
-              child: const Icon(
-                Icons.edit_note,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _payTab(NewCollectionState state) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.7,
-      width: MediaQuery.of(context).size.width * 0.9,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: state.isLoading
-            ? const AnimationLoading()
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _itemSearch(),
-                  Expanded(
-                    child: SizedBox(
-                      height: 500,
-                      width: 300,
-                      child: ListView.builder(
-                        itemCount: state.listContentCategory?.length,
-                        itemBuilder: (context, index) {
-                          return SizedBox(
-                            height: 50,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 10.0),
-                                  child: Icon(Icons.expand_less),
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 40,
-                                        height: 40,
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          child: Image.network(
-                                            state.listContentCategory?[index]
-                                                    .logoImageUrl ??
-                                                '',
-                                            width: 40,
-                                            height: 40,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Text(
-                                          state.listContentCategory?[index]
-                                                  .name ??
-                                              '',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      // child: ListView.builder(
-                      //   itemCount: itemCategory.length,
-                      //   itemBuilder: (context, index) {
-                      //     // Widget body = const SizedBox.shrink();
-                      //     if (_hideItemCategory) {
-                      //       if (itemCategory[index].isBigCategory) {
-                      //         return Row(
-                      //           crossAxisAlignment: CrossAxisAlignment.center,
-                      //           children: [
-                      //             InkWell(
-                      //               onTap: () {
-                      //                 setState(() {
-                      //                   _hideItemCategory = !_hideItemCategory;
-                      //                 });
-                      //               },
-                      //               child: const Icon(
-                      //                 Icons.expand_less,
-                      //                 size: 18,
-                      //                 color: Colors.grey,
-                      //               ),
-                      //             ),
-                      //             InkWell(
-                      //               onTap: () {
-                      //                 setState(() {
-                      //                   itemCategorySelected = itemCategory[index];
-                      //                 });
-                      //               },
-                      //               child: Expanded(
-                      //                 child: Row(
-                      //                   children: [
-                      //                     Padding(
-                      //                       padding: const EdgeInsets.only(
-                      //                           left: 10, top: 5, bottom: 5),
-                      //                       child: Container(
-                      //                         width: 40,
-                      //                         height: 40,
-                      //                         decoration: BoxDecoration(
-                      //                           borderRadius:
-                      //                               BorderRadius.circular(20),
-                      //                         ),
-                      //                         child: Icon(
-                      //                           itemCategory[index].icon,
-                      //                           size: 30,
-                      //                           color: Theme.of(context).primaryColor,
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                     Expanded(
-                      //                       child: Text(
-                      //                         itemCategory[index].title,
-                      //                         style: const TextStyle(
-                      //                           fontSize: 16,
-                      //                           color: Colors.black,
-                      //                         ),
-                      //                       ),
-                      //                     ),
-                      //                     (itemCategory[index].title ==
-                      //                             itemCategorySelected.title)
-                      //                         ? Padding(
-                      //                             padding:
-                      //                                 const EdgeInsets.only(left: 10),
-                      //                             child: Icon(
-                      //                               Icons.check,
-                      //                               size: 18,
-                      //                               color: Theme.of(context)
-                      //                                   .primaryColor,
-                      //                             ),
-                      //                           )
-                      //                         : const SizedBox.shrink(),
-                      //                   ],
-                      //                 ),
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         );
-                      //       }
-                      //     }
-                      //     return Row(
-                      //       crossAxisAlignment: CrossAxisAlignment.center,
-                      //       children: [
-                      //         InkWell(
-                      //           onTap: () {
-                      //             setState(() {
-                      //               _hideItemCategory = !_hideItemCategory;
-                      //             });
-                      //           },
-                      //           child: const Icon(
-                      //             Icons.expand_less,
-                      //             size: 18,
-                      //             color: Colors.grey,
-                      //           ),
-                      //         ),
-                      //         InkWell(
-                      //           onTap: () {
-                      //             setState(() {
-                      //               itemCategorySelected = itemCategory[index];
-                      //             });
-                      //           },
-                      //           child: Container(
-                      //             width: 250,
-                      //             child: Row(
-                      //               children: [
-                      //                 Padding(
-                      //                   padding: EdgeInsets.only(
-                      //                     left: itemCategory[index].isBigCategory
-                      //                         ? 10
-                      //                         : 30,
-                      //                     top: 5,
-                      //                     bottom: 5,
-                      //                   ),
-                      //                   child: Container(
-                      //                     width: 40,
-                      //                     height: 40,
-                      //                     decoration: BoxDecoration(
-                      //                       borderRadius: BorderRadius.circular(20),
-                      //                     ),
-                      //                     child: Icon(
-                      //                       itemCategory[index].icon,
-                      //                       size: 30,
-                      //                       color: Theme.of(context).primaryColor,
-                      //                     ),
-                      //                   ),
-                      //                 ),
-                      //                 Container(
-                      //                   width: 120,
-                      //                   child: Text(
-                      //                     itemCategory[index].title,
-                      //                     style: const TextStyle(
-                      //                       fontSize: 16,
-                      //                       color: Colors.black,
-                      //                     ),
-                      //                   ),
-                      //                 ),
-                      //                 (itemCategory[index].title ==
-                      //                         itemCategorySelected.title)
-                      //                     ? Padding(
-                      //                         padding:
-                      //                             const EdgeInsets.only(left: 10),
-                      //                         child: Icon(
-                      //                           Icons.check,
-                      //                           size: 18,
-                      //                           color: Theme.of(context).primaryColor,
-                      //                         ),
-                      //                       )
-                      //                     : const SizedBox.shrink(),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     );
-                      //   },
-                      // ),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _collectTab() {
-    return Container(
-      color: Colors.blue,
-    );
-  }
-
-  Widget _borrowTab() {
-    return Container(
-      color: Colors.yellow,
-    );
-  }
-
-  Widget _itemSearch() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.grey.withOpacity(0.3),
-      ),
-      child: TextField(
-        textInputAction: TextInputAction.done,
-        controller: _searchController,
-        onChanged: (_) {
-          setState(() {});
-        },
-        maxLines: 1,
-        textAlign: TextAlign.start,
-        textAlignVertical: TextAlignVertical.center,
-        style: const TextStyle(color: Colors.black, fontSize: 14),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          errorBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          prefixIcon: const Icon(
-            Icons.search,
-            size: 24,
-            color: Colors.grey,
-          ),
-          suffix: _showClearSearch
-              ? const Icon(
-                  Icons.cancel,
-                  size: 20,
-                  color: Colors.grey,
-                )
-              : null,
-          hintText: 'Tìm theo tên hạng mục',
-          hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-      ),
-    );
-  }
-}
-
-String formatToLocaleVietnam(DateTime date) {
-  return '${DateFormat.EEEE('vi').format(date)} - ${DateFormat('dd/MM/yyyy').format(date)}';
 }
 
 class ItemCategory {
-  final String title;
-  final IconData icon;
-
-  // final String imageUrl;
-  final bool isBigCategory;
+  final int? categoryId;
+  final String? title;
+  final String? iconLeading;
 
   ItemCategory({
-    required this.title,
-    required this.icon,
-    this.isBigCategory = false,
+    this.categoryId,
+    this.title,
+    this.iconLeading,
   });
 }
 
 class ItemOption {
+  final int itemId;
   final String title;
   final IconData icon;
 
   ItemOption({
+    required this.itemId,
     required this.title,
     required this.icon,
   });
 }
 
-List<ItemOption> itemOption = [
-  ItemOption(title: 'Chi tiền', icon: Icons.remove),
-  ItemOption(title: 'Thu tiền', icon: Icons.add),
-  ItemOption(title: 'Cho vay', icon: Icons.payment),
-  ItemOption(title: 'Đi vay', icon: Icons.currency_exchange),
-  ItemOption(title: 'Chuyển khoản', icon: Icons.swap_horiz_outlined),
-  ItemOption(title: 'Điều chỉnh số dư', icon: Icons.low_priority),
+List<ItemOption> itemsOption = [
+  ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove),
+  ItemOption(itemId: 1, title: 'Thu tiền', icon: Icons.add),
+  // ItemOption(title: 'Cho vay', icon: Icons.payment),
+  // ItemOption(title: 'Đi vay', icon: Icons.currency_exchange),
+  // ItemOption(title: 'Chuyển khoản', icon: Icons.swap_horiz_outlined),
+  // ItemOption(title: 'Điều chỉnh số dư', icon: Icons.low_priority),
 ];

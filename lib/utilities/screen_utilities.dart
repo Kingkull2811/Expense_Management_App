@@ -2,16 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth_android/types/auth_messages_android.dart';
-import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
-import 'package:viet_wallet/screens/main_app/main_app.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/message_dialog.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
+import '../widgets/message_dialog_2_option.dart';
 import 'app_constants.dart';
-import 'database.dart';
 
 void showLoading(BuildContext context) {
   showDialog(
@@ -46,10 +44,10 @@ Future<void> showMessageNoInternetDialog(
           ),
           content: Column(
             children: [
-              Image.asset(
-                'assets/images/ic_no_internet.png',
-                height: 150,
-                width: 150,
+              Icon(
+                Icons.wifi_off,
+                size: 150,
+                color: Colors.grey.withOpacity(0.3),
               ),
               Container(
                 padding: const EdgeInsets.only(top: 16),
@@ -78,7 +76,7 @@ Future<void> showMessageNoInternetDialog(
       });
 }
 
-Future<void> showCupertinoMessageDialog(
+Future<void> showMessage1OptionDialog(
   BuildContext context,
   String? title, {
   String? content,
@@ -95,6 +93,31 @@ Future<void> showCupertinoMessageDialog(
           content: content,
           buttonLabel: buttonLabel,
           onClose: onClose,
+        );
+      });
+}
+
+Future<void> showMessage2OptionDialog(
+  BuildContext context,
+  String? title, {
+  String? content,
+  Function()? onCancel,
+  String? cancelLabel,
+  Function()? onOK,
+  String? okLabel,
+  bool barrierDismiss = false,
+}) async {
+  await showDialog(
+      barrierDismissible: barrierDismiss,
+      context: context,
+      builder: (context) {
+        return MessageDialog2Option(
+          title: title,
+          content: content,
+          okLabel: okLabel,
+          onOk: onOK,
+          onCancel: onCancel,
+          cancelLabel: cancelLabel,
         );
       });
 }
@@ -237,29 +260,6 @@ Future<void> showSuccessBottomSheet(
       ),
     ),
   );
-}
-
-void backToHome(BuildContext context) {
-  Navigator.popUntil(context, (route) => route.isFirst);
-  try {
-    (DatabaseService().homeKey?.currentState as MainAppState).changeTabToHome();
-    (DatabaseService().homeKey?.currentState as MainAppState).reloadPage();
-  } catch (_) {}
-  try {
-    (DatabaseService().homeKey?.currentState as MainAppState).reloadPage();
-  } catch (_) {}
-}
-
-void backToWallet(BuildContext context) {
-  Navigator.popUntil(context, ModalRoute.withName(AppRoutes.myWallet));
-  try {
-    (DatabaseService().mainKey?.currentState as MainAppState)
-        .changeTabToWallet();
-    (DatabaseService().mainKey?.currentState as MainAppState).reloadPage();
-  } catch (_) {}
-  try {
-    (DatabaseService().mainKey?.currentState as MainAppState).reloadPage();
-  } catch (_) {}
 }
 
 ///logout if need

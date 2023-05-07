@@ -16,7 +16,15 @@ class ApiPath{
 
   static const String sendOtp = '$apiDomain/api/auth/send-otp';
 
-  static const String getListCategory = '$apiDomain/api/v1/category';
+  static const String getAllListCategory = '$apiDomain/api/v1/category/all';
+
+  static const String apiCategory = '$apiDomain/api/v1/category';
+
+  static const String apiLogoCategory = '$apiDomain/api/v1/category-logo';
 
   static const String getListWallet = '$apiDomain/api/v1/wallet';
+
+  static const String transaction = '$apiDomain/api/v1/transaction';
+
+  static const String getReportByWalletId = '$apiDomain/api/v1/report/';
 }

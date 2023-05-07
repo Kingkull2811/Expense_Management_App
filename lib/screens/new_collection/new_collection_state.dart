@@ -1,16 +1,16 @@
 import '../../bloc/api_result_state.dart';
-import '../../network/model/category_model.dart';
+import '../../network/model/wallet.dart';
 import '../../utilities/enum/api_error_result.dart';
 
 class NewCollectionState implements ApiResultState {
   final bool isLoading;
   final ApiError _apiError;
-  final List<ContentItem>? listContentCategory;
+  final List<Wallet>? listWallet;
 
   NewCollectionState({
     ApiError apiError = ApiError.noError,
     this.isLoading = false,
-    this.listContentCategory,
+    this.listWallet,
   }) : _apiError = apiError;
 
   @override
@@ -18,14 +18,11 @@ class NewCollectionState implements ApiResultState {
 }
 
 extension NewCollectionStateExtension on NewCollectionState {
-  NewCollectionState copyWith({
-    bool? isLoading,
-    ApiError? apiError,
-    List<ContentItem>? listContentCategory,
-  }) =>
+  NewCollectionState copyWith(
+          {bool? isLoading, ApiError? apiError, List<Wallet>? listWallet}) =>
       NewCollectionState(
         isLoading: isLoading ?? this.isLoading,
         apiError: apiError ?? this.apiError,
-        listContentCategory: listContentCategory ?? this.listContentCategory,
+        listWallet: listWallet ?? this.listWallet,
       );
 }

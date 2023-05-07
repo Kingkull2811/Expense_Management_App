@@ -14,6 +14,13 @@ class AppConstants {
   static const String firstTimeOpenKey = 'FIRST_TIME_OPEN';
   static const String agreedWithTermsKey = 'AGREED_WITH_TERMS';
 
+  static const String itemId = 'ITEM_SELECTED_ID';
+  static const String itemLeading = 'ITEM_SELECTED_LEADING';
+  static const String itemTitle = 'ITEM_SELECTED_TITLE';
+
+  static const String currencyKey = 'CURRENCY';
+  static const String isHiddenAmount = 'HIDDEN_AMOUNT';
+
   //for set options timeOut waiting request dio connect to servers
   static Options options = Options(
     sendTimeout: const Duration(seconds: 3),
@@ -34,6 +41,9 @@ class AppConstants {
   static const String noInternetTitle = 'No Internet Connection';
   static const String noInternetContent =
       'Please check your internet connection again or connect to Wi-fi';
+
+  static const String mathReport =
+      'Ghi chép này sẽ không được thống kê vào báo cáo';
 
   static const String contentDeleteWallet =
       'Nếu bạn xóa tài khoản này, tất cả dữ liệu liên quan cũng sẽ bị xóa. Dữ liệu sau khi xóa sẽ không khôi phục được.';

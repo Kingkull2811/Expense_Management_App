@@ -54,14 +54,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       },
       listener: (context, state) {
         if (state.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'error',
             content: 'internal_server_error',
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'error',
             content: 'no_internet_connection',
@@ -188,7 +188,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   errorMessage: response.errors?.first.errorMessage,
                 ),
               );
-              showCupertinoMessageDialog(
+              showMessage1OptionDialog(
                 context,
                 response.errors?.first.errorMessage,
               );

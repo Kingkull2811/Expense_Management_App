@@ -61,14 +61,14 @@ class _OtpPageState extends State<OtpPage> {
       },
       listener: (context, state) {
         if (state.apiError == ApiError.internalServerError) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'error',
             content: 'internal_server_error',
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
-          showCupertinoMessageDialog(
+          showMessage1OptionDialog(
             context,
             'error',
             content: 'no_internet_connection',
@@ -256,8 +256,6 @@ class _OtpPageState extends State<OtpPage> {
                             // email: 'kulltran281199@gmail.com',
                             otpCode: otpCode,
                           );
-                          //todo:::
-                          print(response.toString());
                           if (response.isOK() && mounted) {
                             _otpBloc.add(OnSuccess());
                             Navigator.push(
@@ -278,7 +276,7 @@ class _OtpPageState extends State<OtpPage> {
                                     response.errors?.first.errorMessage,
                               ),
                             );
-                            showCupertinoMessageDialog(
+                            showMessage1OptionDialog(
                               context,
                               response.errors?.first.errorMessage,
                             );

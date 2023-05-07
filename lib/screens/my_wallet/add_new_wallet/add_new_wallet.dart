@@ -1,19 +1,14 @@
-import 'dart:developer';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/repository/wallet_repository.dart';
-import 'package:viet_wallet/screens/main_app/main_app.dart';
-import 'package:viet_wallet/screens/main_app/tab/tab_bloc.dart';
+import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/widgets/button_switch.dart';
 import 'package:viet_wallet/widgets/no_internet_widget.dart';
 
 import '../../../utilities/enum/wallet_type.dart';
 import '../../../widgets/primary_button.dart';
-import '../../main_app/tab/tab_event.dart';
 
 class AddNewWalletPage extends StatefulWidget {
   const AddNewWalletPage({Key? key}) : super(key: key);
@@ -260,7 +255,6 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                         showCurrencyCode: true,
                         showSearchField: false,
                         onSelect: (Currency value) {
-                          log('${value.name}, ${value.symbol},${value.code}, ${value.decimalDigits},${value.decimalSeparator},${value.flag}, ${value.namePlural}, ${value.thousandsSeparator}');
                           setState(() {
                             currencyName = value.code;
                             currency = value.symbol;
@@ -572,19 +566,10 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
           report: _showOnReport,
         );
         if (mounted) {
-          showCupertinoMessageDialog(context, 'Tạo tài khoản thành công',
+          showMessage1OptionDialog(context, 'Tạo tài khoản thành công',
               onClose: () {
             // backToHome(context);
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider<TabBloc>(
-                  create: (context) => TabBloc(),
-                  child: MainApp(tab: AppTab.myWallet),
-                ),
-              ),
-              (route) => false,
-            );
+            Navigator.pushNamed(context, AppRoutes.myWallet);
           });
         }
       }

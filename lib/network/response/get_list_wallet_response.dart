@@ -36,4 +36,9 @@ class GetListWalletResponse extends BaseGetResponse {
       error: json['error'],
     );
   }
+
+  @override
+  String toString() {
+    return 'GetListWalletResponse{moneyTotal: $moneyTotal, walletList: $walletList}';
+  }
 }
