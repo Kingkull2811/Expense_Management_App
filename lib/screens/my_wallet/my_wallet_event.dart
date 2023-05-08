@@ -10,7 +10,7 @@ class MyWalletPageEvent extends Equatable {
 class GetListWalletEvent extends MyWalletPageEvent {}
 
 class RemoveWalletEvent extends MyWalletPageEvent {
-  final int walletId;
+  final int? walletId;
 
-  const RemoveWalletEvent({required this.walletId});
+  const RemoveWalletEvent({this.walletId});
 }

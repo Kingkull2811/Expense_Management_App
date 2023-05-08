@@ -37,20 +37,20 @@ class _EditWalletPageState extends State<EditWalletPage> {
 
   WalletType itemSelected = listWalletType[0];
 
-  String currency = '₫';
+  String currency = '';
   String currencyName = 'VND';
 
   void initBeforeEdit() {
     setState(() {
       _showOnReport = widget.wallet.report;
       _moneyController.text = widget.wallet.accountBalance.toString();
-      _nameController.text = widget.wallet.name;
-      _noteController.text = widget.wallet.description;
-      currency = isNotNullOrEmpty(widget.wallet.currency.split('/')[0])
-          ? widget.wallet.currency.split('/')[0]
+      _nameController.text = widget.wallet.name ?? '';
+      _noteController.text = widget.wallet.description ?? '';
+      currency = isNotNullOrEmpty(widget.wallet.currency?.split('/')[0])
+          ? widget.wallet.currency?.split('/')[0] ?? '₫'
           : '₫';
-      currencyName = isNotNullOrEmpty(widget.wallet.currency.split('/')[1])
-          ? widget.wallet.currency.split('/')[1]
+      currencyName = isNotNullOrEmpty(widget.wallet.currency?.split('/')[1])
+          ? widget.wallet.currency?.split('/')[1] ?? 'VND'
           : 'VND';
       itemSelected = WalletType(
         walletTypeName:
@@ -167,8 +167,12 @@ class _EditWalletPageState extends State<EditWalletPage> {
                     ),
                     TextButton(
                       onPressed: () async {
+                        if (widget.wallet.id == null) {
+                          showMessage1OptionDialog(context, 'Wallet not found');
+                        }
                         await _walletRepository.removeWalletWithID(
-                            walletId: widget.wallet.id);
+                          walletId: widget.wallet.id!,
+                        );
                         if (mounted) {
                           Navigator.pushNamedAndRemoveUntil(
                               context, AppRoutes.myWallet, (route) => false);
@@ -190,7 +194,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
           PrimaryButton(
             text: 'Lưu',
             onTap: () async {
-              await handleButtonSave();
+              await handleButtonSave(context);
             },
           ),
         ],
@@ -603,7 +607,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
     );
   }
 
-  Future<void> handleButtonSave() async {
+  Future<void> handleButtonSave(BuildContext context) async {
     if (_nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -641,6 +645,9 @@ class _EditWalletPageState extends State<EditWalletPage> {
         await showDialog(
             context: context, builder: (context) => const NoInternetWidget());
       } else {
+        if (widget.wallet.id == null) {
+          showMessage1OptionDialog(this.context, 'Wallet not found');
+        }
         //send request create wallet
         await _walletRepository.updateNewWallet(
           walletId: widget.wallet.id,

@@ -59,11 +59,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
-          showMessage1OptionDialog(
-            context,
-            'error',
-            content: 'no_internet_connection',
-          );
+          showMessageNoInternetDialog(context);
         }
       },
       builder: (context, state) {
@@ -83,7 +79,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).primaryColor,
         leading: InkWell(
           onTap: () {
             Navigator.pop(context);
@@ -91,15 +87,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           child: const Icon(
             Icons.arrow_back_ios_new,
             size: 24,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         title: const Text(
-          'Forgot Password',
+          'Quên mật khẩu',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
       ),
@@ -112,12 +108,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Text(
-                      AppConstants.forgotPassword,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        AppConstants.forgotPassword,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).primaryColor,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                     Padding(
@@ -133,7 +134,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           },
                           onSubmit: (_) => focusNode.requestFocus(),
                           prefixIcon: Icons.mail_outline,
-                          hint: 'Enter your email',
+                          hint: 'Nhập địa chỉ email',
                         ),
                       ),
                     ),
@@ -152,7 +153,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: PrimaryButton(
-        text: 'Send me Code',
+        text: 'Gửi mã OTP',
         // isDisable: _emailController.text.isEmpty,
         onTap:
             //_emailController.text.isEmpty ? null :

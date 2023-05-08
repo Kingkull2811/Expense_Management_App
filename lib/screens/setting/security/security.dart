@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:viet_wallet/screens/authentication/change_password/change_password.dart';
 
 class SecurityPage extends StatefulWidget {
   const SecurityPage({Key? key}) : super(key: key);
@@ -88,7 +89,14 @@ class _SecurityPageState extends State<SecurityPage> {
 
   Widget _changePassword() {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ChangePasswordPage(),
+          ),
+        );
+      },
       child: Column(
         children: [
           Padding(

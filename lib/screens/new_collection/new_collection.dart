@@ -143,16 +143,20 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
           elevation: 0,
           automaticallyImplyLeading: widget.isEdit,
           backgroundColor: Theme.of(context).primaryColor,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(
-              Icons.arrow_back_ios,
-              size: 24,
-              color: Colors.white,
-            ),
-          ),
+          leading: widget.isEdit
+              ? InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(
+                    Icons.arrow_back_ios,
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                )
+              : const SizedBox(
+                  width: 24,
+                ),
           centerTitle: true,
           title: GestureDetector(
             onTap: () async {
@@ -722,7 +726,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Text(
-                                            listWallet[index].name,
+                                            listWallet[index].name ?? '',
                                             style: const TextStyle(
                                               fontSize: 16,
                                               color: Colors.black,

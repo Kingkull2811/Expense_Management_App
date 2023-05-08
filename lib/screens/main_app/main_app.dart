@@ -62,8 +62,8 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
   CupertinoTabBar _tabBar() {
     return CupertinoTabBar(
       currentIndex: widget.currentTab ?? 0,
-      activeColor: Colors.grey[600],
-      inactiveColor: Theme.of(context).primaryColor,
+      activeColor: Theme.of(context).primaryColor,
+      inactiveColor: Colors.grey.withOpacity(0.9),
       backgroundColor: Colors.grey[50],
       iconSize: 30,
       height: 50,
@@ -72,80 +72,79 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
           icon: Icon(
             Icons.home,
             size: 30,
-            color: Theme.of(context).primaryColor,
+            color: Colors.grey.withOpacity(0.9),
           ),
           activeIcon: Icon(
             Icons.home_outlined,
             size: 30,
-            color: Colors.grey[600],
+            color: Theme.of(context).primaryColor,
           ),
-          label: 'Home',
+          label: 'Trang chủ',
         ),
         BottomNavigationBarItem(
           icon: Icon(
             Icons.account_balance_wallet,
             size: 30,
-            color: Theme.of(context).primaryColor,
+            color: Colors.grey.withOpacity(0.9),
           ),
           activeIcon: Icon(
             Icons.account_balance_wallet_outlined,
             size: 30,
-            color: Colors.grey[600],
+            color: Theme.of(context).primaryColor,
           ),
-          label: 'My Wallet',
+          label: 'Tài khoản',
         ),
         BottomNavigationBarItem(
           icon: Container(
-            height: 50,
-            width: 50,
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: Colors.grey.withOpacity(0.9),
+            ),
+            child: const Icon(
+              Icons.add,
+              size: 34,
+              color: Colors.white,
+            ),
+          ),
+          activeIcon: Container(
+            height: 48,
+            width: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               color: Theme.of(context).primaryColor,
             ),
             child: const Icon(
               Icons.add,
-              size: 30,
+              size: 34,
               color: Colors.white,
             ),
           ),
-          activeIcon: Container(
-            height: 50,
-            width: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(25),
-              color: Colors.grey[600],
-            ),
-            child: const Icon(
-              Icons.add,
-              size: 30,
-              color: Colors.white,
-            ),
-          ),
-          label: "New Collection",
         ),
         BottomNavigationBarItem(
           icon: Icon(
             Icons.bar_chart,
             size: 30,
-            color: Theme.of(context).primaryColor,
+            color: Colors.grey.withOpacity(0.9),
           ),
           activeIcon: Icon(
             Icons.bar_chart_outlined,
             size: 30,
-            color: Colors.grey[600],
+            color: Theme.of(context).primaryColor,
           ),
-          label: 'Planning',
+          label: 'Báo cáo',
         ),
         BottomNavigationBarItem(
           icon: Icon(
             Icons.grid_view,
             size: 30,
-            color: Theme.of(context).primaryColor,
+            color: Colors.grey.withOpacity(0.9),
           ),
           activeIcon: Icon(
             Icons.grid_view,
             size: 30,
-            color: Colors.grey[600],
+            color: Theme.of(context).primaryColor,
           ),
           label: 'Menu',
         ),
@@ -222,20 +221,16 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text(
-              'Are you sure exit app?',
+              'Bạn muốn thoát khỏi ứng dụng??',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            content: const Text(
-              'Do you want to exit an App',
-              style: TextStyle(fontSize: 16),
-            ),
             actions: <Widget>[
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: const Text('Hủy'),
               ),
               TextButton(
                 onPressed: () {
@@ -243,7 +238,7 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
                   Navigator.of(context).pop();
                 },
                 child: const Text(
-                  'Exits',
+                  'Thoát',
                   style: TextStyle(color: Color(0xffCA0000)),
                 ),
               ),

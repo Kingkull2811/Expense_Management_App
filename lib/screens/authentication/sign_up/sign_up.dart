@@ -112,7 +112,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 40, bottom: 20),
+                        padding: const EdgeInsets.only(top: 60, bottom: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
@@ -122,28 +122,31 @@ class _SignUpPageState extends State<SignUpPage> {
                               width: 150,
                               color: Theme.of(context).primaryColor,
                             ),
-                            const Padding(
-                              padding: EdgeInsets.only(top: 16),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 32),
                               child: Text(
-                                'Welcome signup to \'app name\'',
+                                'Chào mừng đăng ký ứng dụng \'viet_wallet\'',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.black),
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 20,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
                       _inputTextField(
-                        hintText: 'Username',
+                        hintText: 'Tên đăng nhập',
                         controller: _usernameController,
                         keyboardType: TextInputType.text,
                         prefixIcon: Icons.person_outline,
                         onSubmit: (_) => focusNode.requestFocus(),
                       ),
                       _inputTextField(
-                        hintText: 'Email',
+                        hintText: 'Địa chỉ email',
                         controller: _emailController,
                         keyboardType: TextInputType.text,
                         prefixIcon: Icons.mail_outline,
@@ -163,7 +166,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         isEmailError: errorEmail,
                       ),
                       _passwordField(
-                        hintText: 'Password',
+                        hintText: 'Mật khẩu',
                         controller: _passwordController,
                         obscureText: !_isShowPassword,
                         onSubmit: (value) => focusNode.requestFocus(),
@@ -184,7 +187,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         },
                       ),
                       _passwordField(
-                        hintText: 'Confirm Password',
+                        hintText: 'Xác nhận mật khẩu',
                         controller: _confirmPasswordController,
                         obscureText: !_isShowConfirmPassword,
                         isPasswordError: hasCharacter
@@ -373,7 +376,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: PrimaryButton(
-        text: 'Sign Up',
+        text: 'Đăng ký',
         isDisable: !checkValidate,
         onTap: checkValidate
             ? () async {
@@ -444,7 +447,7 @@ class _SignUpPageState extends State<SignUpPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
-            'Already have an account? ',
+            'Bạn đã có tài khoản? ',
             style: TextStyle(
               fontSize: 14,
             ),
@@ -462,7 +465,7 @@ class _SignUpPageState extends State<SignUpPage> {
               );
             },
             child: Text(
-              'Sign In',
+              'Đăng nhập',
               style: TextStyle(
                 color: Theme.of(context).primaryColor,
                 fontSize: 14,

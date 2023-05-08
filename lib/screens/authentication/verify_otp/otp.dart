@@ -92,7 +92,7 @@ class _OtpPageState extends State<OtpPage> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).primaryColor,
         leading: InkWell(
           onTap: () {
             Navigator.pop(context);
@@ -100,15 +100,15 @@ class _OtpPageState extends State<OtpPage> {
           child: const Icon(
             Icons.arrow_back_ios_new,
             size: 24,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
         title: const Text(
-          'Verify OTP',
+          'Nhập mã OTP',
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.white,
           ),
         ),
       ),
@@ -120,14 +120,27 @@ class _OtpPageState extends State<OtpPage> {
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 100, bottom: 50),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 100),
                       child: Text(
-                        'We will send you onetime OTP code \non your email: ${widget.email}',
+                        'Chúng tôi sẽ gửi một mã OTP đển địa chỉ email mà bạn vừa nhập, vui lòng kiểm tra email của bạn!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16, bottom: 50),
+                      child: Text(
+                        'email: ${widget.email}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 16,
+                          fontStyle: FontStyle.italic,
                           color: Colors.black,
                         ),
                       ),
@@ -146,24 +159,14 @@ class _OtpPageState extends State<OtpPage> {
                       enabledBorderColor: Colors.grey,
                       disabledBorderColor: Colors.blue,
                       focusedBorderColor: Theme.of(context).primaryColor,
-                      //autoFocus: true,
-                      //set to true to show as box or false to show as dash
                       showFieldAsBox: true,
-                      //runs when a code is typed in
-                      onCodeChanged: (String code) {
-                        // print(code);
-                        //handle validation or checks here
-                      },
-                      //runs when every text field is filled
+                      onCodeChanged: (String code) {},
                       onSubmit: (String verificationCode) {
                         setState(() {
                           otpCode = verificationCode;
                           _otpBloc.add(Validate(isValidated: true));
                         });
-                        // focusNode.requestFocus();
-                        //todo:::
-                        // print(otpCode);
-                      }, // end onSubmit
+                      },
                     ),
                   ],
                 ),
@@ -201,7 +204,7 @@ class _OtpPageState extends State<OtpPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'Didn\'t receive code?',
+                  'Không nhận được mã OTP?',
                   style: TextStyle(fontSize: 14, color: Colors.black),
                 ),
                 Padding(
@@ -215,14 +218,15 @@ class _OtpPageState extends State<OtpPage> {
                         showMessageNoInternetDialog(context);
                       } else {
                         final response = _authProvider.forgotPassword(
-                          // email: widget.email,
-                          email: 'kulltran281199@gmail.com',
+                          email: widget.email,
                         );
                         log(response.toString());
                       }
                     },
                     child: Text(
-                      (_timerCounter == 0) ? 'Resend OTP' : '00:$_timerCounter',
+                      (_timerCounter == 0)
+                          ? 'Gửi lại OTP'
+                          : '00:$_timerCounter',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -240,7 +244,7 @@ class _OtpPageState extends State<OtpPage> {
             child: SizedBox(
               height: 50,
               child: PrimaryButton(
-                text: 'Verify',
+                text: 'Xác nhận',
                 isDisable: !(state.isEnable),
                 onTap: state.isEnable
                     ? () async {
@@ -253,7 +257,6 @@ class _OtpPageState extends State<OtpPage> {
                           _otpBloc.add(DisplayLoading());
                           final response = await _authProvider.verifyOtp(
                             email: widget.email,
-                            // email: 'kulltran281199@gmail.com',
                             otpCode: otpCode,
                           );
                           if (response.isOK() && mounted) {

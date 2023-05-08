@@ -52,7 +52,7 @@ class WalletProvider with ProviderMixin {
   }
 
   Future<BaseGetResponse> updateNewWallet({
-    required int walletId,
+    required int? walletId,
     required Object data,
   }) async {
     String apiUpdateWallet = '${ApiPath.getListWallet}/$walletId';

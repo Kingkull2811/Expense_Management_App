@@ -84,7 +84,7 @@ class _WalletDetailsState extends State<WalletDetails> {
         ),
         centerTitle: true,
         title: Text(
-          widget.wallet.name,
+          widget.wallet.name ?? '',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

@@ -251,7 +251,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      wallet.name,
+                      wallet.name ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,

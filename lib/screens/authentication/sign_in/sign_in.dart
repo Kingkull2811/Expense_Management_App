@@ -63,8 +63,7 @@ class _SignInPageState extends State<SignInPage> {
               content: 'Internal_server_error');
         }
         if (curState.apiError == ApiError.noInternetConnection) {
-          showMessage1OptionDialog(context, 'Error!',
-              content: 'No_internet_connection');
+          showMessageNoInternetDialog(context);
         }
       },
       builder: (context, curState) {
@@ -118,14 +117,15 @@ class _SignInPageState extends State<SignInPage> {
               height: 160,
               color: Theme.of(context).primaryColor,
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
               child: Text(
-                'Welcome back',
+                'Chào mừng trở lại!\nVui lòng đăng nhập.',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 22,
+                  fontStyle: FontStyle.italic,
+                  color: Theme.of(context).primaryColor,
+                  fontSize: 20,
                 ),
               ),
             ),
@@ -147,7 +147,7 @@ class _SignInPageState extends State<SignInPage> {
               onChanged: (text) {},
               keyboardType: TextInputType.text,
               onSubmit: (_) => focusNode.requestFocus(),
-              hint: 'Username',
+              hint: 'Tên đăng nhập',
               prefixIcon: Icons.email_outlined,
             ),
           ),
@@ -160,7 +160,7 @@ class _SignInPageState extends State<SignInPage> {
                 onChanged: (text) {},
                 keyboardType: TextInputType.text,
                 onFieldSubmitted: (_) => focusNode.requestFocus(),
-                hint: 'Password',
+                hint: 'Mật khẩu',
                 prefixIcon: Icons.lock_outline,
                 isInputError: false,
                 obscureText: !_isShowPassword,
@@ -192,7 +192,7 @@ class _SignInPageState extends State<SignInPage> {
                       );
                     },
                     child: Text(
-                      'Forgot password?',
+                      'Quên mật khẩu?',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
@@ -215,7 +215,7 @@ class _SignInPageState extends State<SignInPage> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         PrimaryButton(
-          text: 'Sign In',
+          text: 'Đăng nhập',
           onTap: () async {
             ConnectivityResult connectivityResult =
                 await Connectivity().checkConnectivity();
@@ -256,7 +256,7 @@ class _SignInPageState extends State<SignInPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Don\'t have an account? ',
+                'Bạn chưa có tài khoản? ',
                 style: TextStyle(
                   fontSize: 14,
                 ),
@@ -274,7 +274,7 @@ class _SignInPageState extends State<SignInPage> {
                   );
                 },
                 child: Text(
-                  'Sign Up',
+                  'Đăng ký',
                   style: TextStyle(
                     color: Theme.of(context).primaryColor,
                     fontSize: 14,

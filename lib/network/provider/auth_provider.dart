@@ -179,4 +179,31 @@ class AuthProvider with ProviderMixin {
       return BaseResponse();
     }
   }
+
+  Future<BaseResponse> changePassword({
+    required String oldPass,
+    required String newPass,
+    required String confPass,
+  }) async {
+    final data = {
+      "confirm_password": confPass,
+      "current_password": oldPass,
+      "password": newPass
+    };
+    if (await isExpiredToken()) {
+      return ExpiredTokenResponse();
+    }
+    try {
+      final response = await dio.post(
+        ApiPath.changePassword,
+        data: data,
+        options: await defaultOptions(url: ApiPath.changePassword),
+      );
+      // log(response.toString());
+      return BaseResponse.fromJson(response.data);
+    } catch (error, stacktrace) {
+      showErrorLog(error, stacktrace, ApiPath.changePassword);
+      return BaseResponse();
+    }
+  }
 }
