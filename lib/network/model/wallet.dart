@@ -10,15 +10,15 @@ class Wallet {
   final bool report;
 
   Wallet({
-     this.id,
-     this.accountBalance,
-     this.name,
-     this.accountType,
-     this.currency,
-     this.description,
-     this.createdAt,
-     this.createdBy,
-     this.report = false,
+    this.id,
+    this.accountBalance,
+    this.name,
+    this.accountType,
+    this.currency,
+    this.description,
+    this.createdAt,
+    this.createdBy,
+    this.report = false,
   });
 
   factory Wallet.fromJson(Map<String, dynamic> json) {
@@ -27,11 +27,11 @@ class Wallet {
       accountBalance: json['accountBalance'],
       name: json['name'],
       accountType: json['accountType'],
-      currency: json['currency'],
+      currency: json['currency'] ?? '\$/USD',
       description: json['description'],
       createdAt: json['createdAt'],
       createdBy: json['createdBy'],
-      report: json['report']?? false,
+      report: json['report'] ?? false,
     );
   }
 

@@ -7,12 +7,12 @@ abstract class WalletDetailsEvent extends Equatable {
 }
 
 class WalletDetailInit extends WalletDetailsEvent {
-  final int walletId;
+  final int? walletId;
   final String? fromDate;
   final String? toDate;
 
   const WalletDetailInit({
-    required this.walletId,
+    this.walletId,
     this.fromDate,
     this.toDate,
   });

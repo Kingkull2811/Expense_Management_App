@@ -27,7 +27,7 @@ class WalletRepository {
   }
 
   Future<BaseGetResponse> updateNewWallet({
-    required int walletId,
+    required int? walletId,
     required int accountBalance,
     required String accountType,
     required String currency,

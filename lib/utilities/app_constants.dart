@@ -37,10 +37,10 @@ class AppConstants {
       'Thiết lập mật khẩu mới thành công.\nVui lòng đăng nhập lại với mật khẩu mới.';
 
   static const String forgotPassword =
-      'If you don\'t remember your password.\nEnter your email below, we will send a code to your email for reset your password.';
-  static const String noInternetTitle = 'No Internet Connection';
+      'Nếu bạn không nhớ mật khẩu tài khoản của mình.\nNhập địa chỉ email mà bạn đã đăng ký tài khoản vào ô bên dưới, chúng tôi sẽ gửi một mã OTP đến địa chỉ email đó giúp bạn khôi phục lại mật khẩu tài khoản của mình.';
+  static const String noInternetTitle = 'Opss!, Không có kết nối mạng';
   static const String noInternetContent =
-      'Please check your internet connection again or connect to Wi-fi';
+      'Vui lòng kiểm tra lại đường truyền mạng của bạn hoặc kết hối với wi-fi';
 
   static const String mathReport =
       'Ghi chép này sẽ không được thống kê vào báo cáo';

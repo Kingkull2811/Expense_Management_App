@@ -371,7 +371,7 @@ class _HomePageState extends State<HomePage>
               ),
               child: Icon(
                 isNotNullOrEmpty(wallet?.accountType)
-                    ? getIconWallet(walletType: wallet!.accountType??'')
+                    ? getIconWallet(walletType: wallet?.accountType ?? '')
                     : Icons.help_outline,
                 size: 24,
                 color: Theme.of(context).primaryColor,

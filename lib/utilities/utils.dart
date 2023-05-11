@@ -14,7 +14,10 @@ String formatterDouble(double value) {
   return formatter.format(value);
 }
 
-String formatterInt(int value) {
+String formatterInt(int? value) {
+  if (value == null) {
+    return '0';
+  }
   final formatter = NumberFormat("#,##0.00", "en_US");
   return formatter.format(value);
 }
@@ -30,7 +33,10 @@ String formatterBalance(String str) {
   return result;
 }
 
-IconData getIconWallet({required String walletType}) {
+IconData getIconWallet({String? walletType}) {
+  if (walletType == null) {
+    return Icons.help_outline;
+  }
   if (walletType == WalletAccountType.wallet.name) {
     return Icons.wallet;
   }
@@ -43,7 +49,7 @@ IconData getIconWallet({required String walletType}) {
   return Icons.payment;
 }
 
-String getNameWalletType({required String walletType}) {
+String getNameWalletType({String? walletType}) {
   if (walletType == WalletAccountType.wallet.name) {
     return 'Ví tiền mặt';
   }

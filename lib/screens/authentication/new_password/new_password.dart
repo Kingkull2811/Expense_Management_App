@@ -68,11 +68,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
           );
         }
         if (state.apiError == ApiError.noInternetConnection) {
-          showMessage1OptionDialog(
-            context,
-            'error',
-            content: 'no_internet_connection',
-          );
+          showMessageNoInternetDialog(context);
         }
       },
       builder: (context, state) {
@@ -88,149 +84,163 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   }
 
   Widget _body(NewPasswordState state) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 24,
-            color: Colors.black,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          elevation: 0.5,
+          centerTitle: true,
+          backgroundColor: Theme.of(context).primaryColor,
+          leading: InkWell(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: const Icon(
+              Icons.arrow_back_ios_new,
+              size: 24,
+              color: Colors.white,
+            ),
+          ),
+          title: const Text(
+            'Mật khẩu mới',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
-        title: const Text(
-          'Set new Password',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 70, 16, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const Text(
-                      'sett a new password',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        top: 80,
-                        right: 16,
-                      ),
-                      child: SizedBox(
-                        height: 50,
-                        child: InputPasswordField(
-                          controller: _passwordController,
-                          onChanged: (text) {},
-                          keyboardType: TextInputType.text,
-                          onFieldSubmitted: (_) => focusNode.requestFocus(),
-                          hint: 'Password',
-                          prefixIcon: Icons.lock_outline,
-                          isInputError: false,
-                          obscureText: !_isShowPassword,
-                          onTapSuffixIcon: () {
-                            setState(() {
-                              _isShowPassword = !_isShowPassword;
-                            });
-                          },
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 50, 16, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Icon(
+                          Icons.password_outlined,
+                          size: 100,
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 16, top: 20, right: 16),
-                      child: SizedBox(
-                        height: 50,
-                        child: InputPasswordField(
-                          controller: _confirmPasswordController,
-                          onChanged: (text) {},
-                          keyboardType: TextInputType.text,
-                          onFieldSubmitted: (_) {
-                            focusNode.requestFocus();
-                            setState(() {
-                              hasCharacter = true;
-                              checkValidatePassword = _validatePassword();
-                            });
-                          },
-                          hint: 'Password',
-                          prefixIcon: Icons.lock_outline,
-                          isInputError: false,
-                          obscureText: !_isShowConfirmPassword,
-                          onTapSuffixIcon: () {
-                            setState(() {
-                              _isShowConfirmPassword = !_isShowConfirmPassword;
-                            });
-                          },
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'Thiết lập mật khẩu mới để hoàn tất khôi phục tài khoản của bạn',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(left: 16, top: 16, right: 16),
-                      child: !hasCharacter
-                          ? const SizedBox()
-                          : checkValidatePassword
-                              ? Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: const [
-                                    Icon(
-                                      Icons.task_alt,
-                                      size: 20,
-                                      color: Colors.green,
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    const Icon(
-                                      Icons.cancel_outlined,
-                                      size: 20,
-                                      color: Colors.red,
-                                    ),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width -
-                                          16 * 4 -
-                                          20 -
-                                          10,
-                                      padding: const EdgeInsets.only(left: 10),
-                                      child: Text(
-                                        messageValidate,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          top: 40,
+                          right: 16,
+                        ),
+                        child: SizedBox(
+                          height: 50,
+                          child: InputPasswordField(
+                            controller: _passwordController,
+                            onChanged: (text) {},
+                            keyboardType: TextInputType.text,
+                            onFieldSubmitted: (_) {},
+                            hint: 'Mật khẩu mới',
+                            prefixIcon: Icons.lock_outline,
+                            isInputError: false,
+                            obscureText: !_isShowPassword,
+                            onTapSuffixIcon: () {
+                              setState(() {
+                                _isShowPassword = !_isShowPassword;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 16, top: 20, right: 16),
+                        child: SizedBox(
+                          height: 50,
+                          child: InputPasswordField(
+                            controller: _confirmPasswordController,
+                            onChanged: (text) {},
+                            keyboardType: TextInputType.text,
+                            onFieldSubmitted: (_) {},
+                            hint: 'Xác nhận mật khẩu mới',
+                            prefixIcon: Icons.lock_outline,
+                            isInputError: false,
+                            obscureText: !_isShowConfirmPassword,
+                            onTapSuffixIcon: () {
+                              setState(() {
+                                _isShowConfirmPassword =
+                                    !_isShowConfirmPassword;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      // Padding(
+                      //   padding:
+                      //       const EdgeInsets.only(left: 16, top: 16, right: 16),
+                      //   child: !hasCharacter
+                      //       ? const SizedBox()
+                      //       : checkValidatePassword
+                      //           ? Row(
+                      //               crossAxisAlignment: CrossAxisAlignment.center,
+                      //               mainAxisAlignment: MainAxisAlignment.start,
+                      //               children: const [
+                      //                 Icon(
+                      //                   Icons.task_alt,
+                      //                   size: 20,
+                      //                   color: Colors.green,
+                      //                 ),
+                      //               ],
+                      //             )
+                      //           : Row(
+                      //               crossAxisAlignment: CrossAxisAlignment.start,
+                      //               mainAxisAlignment: MainAxisAlignment.start,
+                      //               children: [
+                      //                 const Icon(
+                      //                   Icons.cancel_outlined,
+                      //                   size: 20,
+                      //                   color: Colors.red,
+                      //                 ),
+                      //                 Container(
+                      //                   width: MediaQuery.of(context).size.width -
+                      //                       16 * 4 -
+                      //                       20 -
+                      //                       10,
+                      //                   padding: const EdgeInsets.only(left: 10),
+                      //                   child: Text(
+                      //                     messageValidate,
+                      //                     style: const TextStyle(
+                      //                       fontSize: 16,
+                      //                       color: Colors.red,
+                      //                     ),
+                      //                   ),
+                      //                 )
+                      //               ],
+                      //             ),
+                      // ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buttonSendCode()
-          ],
+              _buttonSendCode()
+            ],
+          ),
         ),
       ),
     );
@@ -240,46 +250,53 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 32),
       child: PrimaryButton(
-        text: 'Set a new password',
-        isDisable: !checkValidatePassword,
-        onTap: checkValidatePassword
-            ? () async {
-                ConnectivityResult connectivityResult =
-                    await Connectivity().checkConnectivity();
-                if (connectivityResult == ConnectivityResult.none && mounted) {
-                  showMessageNoInternetDialog(context);
-                } else {
-                  _newPasswordBloc.add(DisplayLoading());
-                  final response = await _authProvider.newPassword(
-                    email: widget.email,
-                    // email: 'kulltran281199@gmail.com',
-                    password: _passwordController.text.trim(),
-                    confirmPassword: _confirmPasswordController.text.trim(),
-                  );
-                  log(response.toString());
-                  if (response.isOK() && mounted) {
-                    _newPasswordBloc.add(OnSuccess());
-                    await showCupertinoAlertDialog(
+        text: 'Thiết lập',
+        onTap: () async {
+          if (_passwordController.text.isEmpty) {
+            showMessage1OptionDialog(context, 'Mật khẩu không được trống');
+          } else if (_confirmPasswordController.text.isEmpty) {
+            showMessage1OptionDialog(
+                context, 'Xác nhận mật khẩu không được trống');
+          } else if (_confirmPasswordController.text !=
+              _passwordController.text) {
+            showMessage1OptionDialog(
+                context, 'Mật khẩu và xác nhận mật khẩu không khớp');
+          } else {
+            final connectivityResult = await Connectivity().checkConnectivity();
+            if (connectivityResult == ConnectivityResult.none && mounted) {
+              showMessageNoInternetDialog(context);
+            } else {
+              _newPasswordBloc.add(DisplayLoading());
+              final response = await _authProvider.newPassword(
+                email: widget.email,
+                // email: 'kulltran281199@gmail.com',
+                password: _passwordController.text.trim(),
+                confirmPassword: _confirmPasswordController.text.trim(),
+              );
+              log(response.toString());
+              if (response.isOK() && mounted) {
+                _newPasswordBloc.add(OnSuccess());
+                await showCupertinoAlertDialog(
+                  context,
+                  content: AppConstants.set_new_password_success,
+                  barrierDismiss: false,
+                  buttonLabel: 'Đăng nhập',
+                  onClose: () {
+                    Navigator.pushReplacement(
                       context,
-                      content: AppConstants.set_new_password_success,
-                      barrierDismiss: false,
-                      buttonLabel: 'Đăng nhập',
-                      onClose: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (context) => SignInBloc(context),
-                              child: const SignInPage(),
-                            ),
-                          ),
-                        );
-                      },
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) => SignInBloc(context),
+                          child: const SignInPage(),
+                        ),
+                      ),
                     );
-                  }
-                }
+                  },
+                );
               }
-            : null,
+            }
+          }
+        },
       ),
     );
   }

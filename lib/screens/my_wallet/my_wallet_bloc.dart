@@ -35,8 +35,7 @@ class MyWalletPageBloc extends Bloc<MyWalletPageEvent, MyWalletPageState> {
       }
       if (event is RemoveWalletEvent) {
         emit(state.copyWith(isLoading: true));
-        ConnectivityResult networkStatus =
-            await Connectivity().checkConnectivity();
+        final networkStatus = await Connectivity().checkConnectivity();
         if (networkStatus == ConnectivityResult.none) {
           emit(state.copyWith(
             isLoading: false,
@@ -44,7 +43,10 @@ class MyWalletPageBloc extends Bloc<MyWalletPageEvent, MyWalletPageState> {
           ));
           return;
         }
-        await _walletRepository.removeWalletWithID(walletId: event.walletId);
+        if (event.walletId == null) {
+          return;
+        }
+        await _walletRepository.removeWalletWithID(walletId: event.walletId!);
       }
     });
   }
