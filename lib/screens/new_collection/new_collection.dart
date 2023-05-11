@@ -707,7 +707,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                                                 listWallet[index].accountType)
                                             ? getIconWallet(
                                                 walletType: listWallet[index]
-                                                    .accountType,
+                                                    .accountType??'',
                                               )
                                             : Icons.help,
                                         size: 30,
@@ -722,7 +722,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Text(
-                                            listWallet[index].name,
+                                            listWallet[index].name??'',
                                             style: const TextStyle(
                                               fontSize: 16,
                                               color: Colors.black,

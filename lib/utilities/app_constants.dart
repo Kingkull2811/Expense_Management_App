@@ -24,7 +24,7 @@ class AppConstants {
   //for set options timeOut waiting request dio connect to servers
   static Options options = Options(
     sendTimeout: const Duration(seconds: 3),
-    receiveTimeout: const Duration(seconds: 3),
+    receiveTimeout: const Duration(seconds: 10),
     receiveDataWhenStatusError: true,
   );
   static RegExp emailExp =

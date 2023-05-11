@@ -44,18 +44,18 @@ class _EditWalletPageState extends State<EditWalletPage> {
     setState(() {
       _showOnReport = widget.wallet.report;
       _moneyController.text = widget.wallet.accountBalance.toString();
-      _nameController.text = widget.wallet.name;
-      _noteController.text = widget.wallet.description;
-      currency = isNotNullOrEmpty(widget.wallet.currency.split('/')[0])
-          ? widget.wallet.currency.split('/')[0]
+      _nameController.text = widget.wallet.name??'';
+      _noteController.text = widget.wallet.description??'';
+      currency = isNotNullOrEmpty(widget.wallet.currency?.split('/')[0])
+          ? widget.wallet.currency?.split('/')[0]??''
           : '₫';
-      currencyName = isNotNullOrEmpty(widget.wallet.currency.split('/')[1])
-          ? widget.wallet.currency.split('/')[1]
+      currencyName = isNotNullOrEmpty(widget.wallet.currency?.split('/')[1])
+          ? widget.wallet.currency?.split('/')[1] ??''
           : 'VND';
       itemSelected = WalletType(
         walletTypeName:
-            getNameWalletType(walletType: widget.wallet.accountType),
-        walletTypeIcon: getIconWallet(walletType: widget.wallet.accountType),
+            getNameWalletType(walletType: widget.wallet.accountType??""),
+        walletTypeIcon: getIconWallet(walletType: widget.wallet.accountType??''),
       );
     });
   }
@@ -168,7 +168,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
                     TextButton(
                       onPressed: () async {
                         await _walletRepository.removeWalletWithID(
-                            walletId: widget.wallet.id);
+                            walletId: widget.wallet.id!);
                         if (mounted) {
                           Navigator.pushNamedAndRemoveUntil(
                               context, AppRoutes.myWallet, (route) => false);
@@ -643,7 +643,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
       } else {
         //send request create wallet
         await _walletRepository.updateNewWallet(
-          walletId: widget.wallet.id,
+          walletId: widget.wallet.id!,
           accountBalance: int.parse(_moneyController.text.trim()),
           accountType: walletType(itemSelected.walletTypeIcon).name,
           currency: currency,

@@ -207,7 +207,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           MaterialPageRoute(
             builder: (context) => BlocProvider(
               create: (context) => WalletDetailsBloc(context)
-                ..add(WalletDetailInit(walletId: wallet.id)),
+                ..add(WalletDetailInit(walletId: wallet.id!)),
               child: WalletDetails(wallet: wallet),
             ),
           ),
@@ -239,7 +239,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     color: Colors.grey.withOpacity(0.2),
                   ),
                   child: Icon(
-                    getIconWallet(walletType: wallet.accountType),
+                    getIconWallet(walletType: wallet.accountType!),
                     size: 30,
                     color: Theme.of(context).primaryColor,
                   ),
@@ -251,14 +251,14 @@ class _MyWalletPageState extends State<MyWalletPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      wallet.name,
+                      wallet.name??'',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
                       ),
                     ),
                     Text(
-                      '${formatterInt(wallet.accountBalance)} ${wallet.currency}',
+                      '${formatterInt(wallet.accountBalance??0)} ${wallet.currency}',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.grey,
@@ -394,7 +394,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                         onPressed: () async {
                           setState(() {
                             _myWalletPageBloc.add(
-                              RemoveWalletEvent(walletId: wallet.id),
+                              RemoveWalletEvent(walletId: wallet.id!),
                             );
                           });
                           Navigator.pop(context);

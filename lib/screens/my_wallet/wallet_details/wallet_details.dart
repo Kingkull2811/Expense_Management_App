@@ -40,7 +40,7 @@ class _WalletDetailsState extends State<WalletDetails> {
   @override
   void initState() {
     _walletDetailsBloc = BlocProvider.of<WalletDetailsBloc>(context)
-      ..add(WalletDetailInit(walletId: widget.wallet.id));
+      ..add(WalletDetailInit(walletId: widget.wallet.id!));
     super.initState();
   }
 
@@ -84,7 +84,7 @@ class _WalletDetailsState extends State<WalletDetails> {
         ),
         centerTitle: true,
         title: Text(
-          widget.wallet.name,
+          widget.wallet.name??'',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -274,7 +274,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                     },
                   ).whenComplete(() {
                     _walletDetailsBloc.add(WalletDetailInit(
-                      walletId: widget.wallet.id,
+                      walletId: widget.wallet.id!,
                       fromDate: fromDate,
                       toDate: toDate,
                     ));
@@ -418,7 +418,7 @@ class _WalletDetailsState extends State<WalletDetails> {
           );
           if (result == 'refresh') {
             _walletDetailsBloc
-                .add(WalletDetailInit(walletId: widget.wallet.id));
+                .add(WalletDetailInit(walletId: widget.wallet.id!));
             setState(() {});
           }
         },
