@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -172,14 +171,14 @@ class _OtpPageState extends State<OtpPage> {
                 ),
               ),
             ),
-            _buttonVerify(state),
+            _buttonVerify(context, state),
           ],
         ),
       ),
     );
   }
 
-  Widget _buttonVerify(OtpState state) {
+  Widget _buttonVerify(BuildContext context, OtpState state) {
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (timer) {
@@ -211,16 +210,17 @@ class _OtpPageState extends State<OtpPage> {
                   padding: const EdgeInsets.only(left: 10),
                   child: InkWell(
                     onTap: () async {
-                      ConnectivityResult connectivityResult =
-                          await Connectivity().checkConnectivity();
-                      if (connectivityResult == ConnectivityResult.none &&
-                          mounted) {
-                        showMessageNoInternetDialog(context);
+                      _otpBloc.add(DisplayLoading());
+                      final response = await _authProvider.forgotPassword(
+                        email: widget.email,
+                      );
+                      if (response.isOK()) {
+                        _otpBloc.add(Validate());
+                        setState(() {});
                       } else {
-                        final response = _authProvider.forgotPassword(
-                          email: widget.email,
-                        );
-                        log(response.toString());
+                        _otpBloc.add(Validate());
+                        showMessage1OptionDialog(
+                            this.context, response.errors?.first.errorMessage);
                       }
                     },
                     child: Text(
@@ -248,7 +248,7 @@ class _OtpPageState extends State<OtpPage> {
                 isDisable: !(state.isEnable),
                 onTap: state.isEnable
                     ? () async {
-                        ConnectivityResult connectivityResult =
+                        final connectivityResult =
                             await Connectivity().checkConnectivity();
                         if (connectivityResult == ConnectivityResult.none &&
                             mounted) {
@@ -273,20 +273,10 @@ class _OtpPageState extends State<OtpPage> {
                               ),
                             );
                           } else {
-                            _otpBloc.add(
-                              OnFailure(
-                                errorMessage:
-                                    response.errors?.first.errorMessage,
-                              ),
-                            );
+                            _otpBloc.add(OnFailure());
                             showMessage1OptionDialog(
                               context,
                               response.errors?.first.errorMessage,
-                            );
-                            _otpBloc.add(
-                              Validate(
-                                isValidated: false,
-                              ),
                             );
                           }
                         }

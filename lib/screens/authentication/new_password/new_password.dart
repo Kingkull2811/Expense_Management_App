@@ -1,12 +1,9 @@
-import 'dart:developer';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
-import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
@@ -39,6 +36,8 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   late NewPasswordBloc _newPasswordBloc;
 
   final _authProvider = AuthProvider();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -118,123 +117,86 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
             children: <Widget>[
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(32),
-                        child: Icon(
-                          Icons.password_outlined,
-                          size: 100,
-                          color: Theme.of(context).primaryColor,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                          child: Icon(
+                            Icons.password_outlined,
+                            size: 100,
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: const Text(
-                            'Thiết lập mật khẩu mới để hoàn tất khôi phục tài khoản của bạn',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Thiết lập mật khẩu mới để hoàn tất khôi phục tài khoản của bạn',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          top: 40,
-                          right: 16,
-                        ),
-                        child: SizedBox(
-                          height: 50,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                           child: InputPasswordField(
                             controller: _passwordController,
-                            onChanged: (text) {},
                             keyboardType: TextInputType.text,
-                            onFieldSubmitted: (_) {},
                             hint: 'Mật khẩu mới',
-                            prefixIcon: Icons.lock_outline,
-                            isInputError: false,
                             obscureText: !_isShowPassword,
                             onTapSuffixIcon: () {
                               setState(() {
                                 _isShowPassword = !_isShowPassword;
                               });
                             },
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 16, top: 20, right: 16),
-                        child: SizedBox(
-                          height: 50,
-                          child: InputPasswordField(
-                            controller: _confirmPasswordController,
-                            onChanged: (text) {},
-                            keyboardType: TextInputType.text,
-                            onFieldSubmitted: (_) {},
-                            hint: 'Xác nhận mật khẩu mới',
-                            prefixIcon: Icons.lock_outline,
-                            isInputError: false,
-                            obscureText: !_isShowConfirmPassword,
-                            onTapSuffixIcon: () {
-                              setState(() {
-                                _isShowConfirmPassword =
-                                    !_isShowConfirmPassword;
-                              });
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng nhập mật khẩu';
+                              }
+                              if (value.isNotEmpty && value.length < 6) {
+                                return 'Mật khẩu phải có ít nhất 6 ký tự';
+                              } else if (value.length > 40) {
+                                return 'Mật khẩu không được quá 40 ký tự';
+                              }
+                              return null;
                             },
                           ),
                         ),
-                      ),
-                      // Padding(
-                      //   padding:
-                      //       const EdgeInsets.only(left: 16, top: 16, right: 16),
-                      //   child: !hasCharacter
-                      //       ? const SizedBox()
-                      //       : checkValidatePassword
-                      //           ? Row(
-                      //               crossAxisAlignment: CrossAxisAlignment.center,
-                      //               mainAxisAlignment: MainAxisAlignment.start,
-                      //               children: const [
-                      //                 Icon(
-                      //                   Icons.task_alt,
-                      //                   size: 20,
-                      //                   color: Colors.green,
-                      //                 ),
-                      //               ],
-                      //             )
-                      //           : Row(
-                      //               crossAxisAlignment: CrossAxisAlignment.start,
-                      //               mainAxisAlignment: MainAxisAlignment.start,
-                      //               children: [
-                      //                 const Icon(
-                      //                   Icons.cancel_outlined,
-                      //                   size: 20,
-                      //                   color: Colors.red,
-                      //                 ),
-                      //                 Container(
-                      //                   width: MediaQuery.of(context).size.width -
-                      //                       16 * 4 -
-                      //                       20 -
-                      //                       10,
-                      //                   padding: const EdgeInsets.only(left: 10),
-                      //                   child: Text(
-                      //                     messageValidate,
-                      //                     style: const TextStyle(
-                      //                       fontSize: 16,
-                      //                       color: Colors.red,
-                      //                     ),
-                      //                   ),
-                      //                 )
-                      //               ],
-                      //             ),
-                      // ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: InputPasswordField(
+                            controller: _confirmPasswordController,
+                            keyboardType: TextInputType.text,
+                            hint: 'Xác nhận mật khẩu mới',
+                            obscureText: !_isShowConfirmPassword,
+                            onTapSuffixIcon: () {
+                              setState(() => _isShowConfirmPassword =
+                                  !_isShowConfirmPassword);
+                            },
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng nhập xác nhận mật khẩu';
+                              }
+                              if (value.isNotEmpty && value.length < 6) {
+                                return 'Mật khẩu phải có ít nhất 6 ký tự';
+                              } else if (value.length > 40) {
+                                return 'Mật khẩu không được quá 40 ký tự';
+                              } else if (value != _passwordController.text) {
+                                return 'Mật khẩu và xác nhận mật khẩu phải giống nhau';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -252,16 +214,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
       child: PrimaryButton(
         text: 'Thiết lập',
         onTap: () async {
-          if (_passwordController.text.isEmpty) {
-            showMessage1OptionDialog(context, 'Mật khẩu không được trống');
-          } else if (_confirmPasswordController.text.isEmpty) {
-            showMessage1OptionDialog(
-                context, 'Xác nhận mật khẩu không được trống');
-          } else if (_confirmPasswordController.text !=
-              _passwordController.text) {
-            showMessage1OptionDialog(
-                context, 'Mật khẩu và xác nhận mật khẩu không khớp');
-          } else {
+          if (_formKey.currentState!.validate()) {
             final connectivityResult = await Connectivity().checkConnectivity();
             if (connectivityResult == ConnectivityResult.none && mounted) {
               showMessageNoInternetDialog(context);
@@ -269,17 +222,15 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
               _newPasswordBloc.add(DisplayLoading());
               final response = await _authProvider.newPassword(
                 email: widget.email,
-                // email: 'kulltran281199@gmail.com',
                 password: _passwordController.text.trim(),
                 confirmPassword: _confirmPasswordController.text.trim(),
               );
-              log(response.toString());
               if (response.isOK() && mounted) {
                 _newPasswordBloc.add(OnSuccess());
-                await showCupertinoAlertDialog(
+                showMessage1OptionDialog(
                   context,
-                  content: AppConstants.set_new_password_success,
-                  barrierDismiss: false,
+                  'Thiết lập mật khẩu mới thành công',
+                  content: 'Vui lòng đăng nhập lại với mật khẩu mới.',
                   buttonLabel: 'Đăng nhập',
                   onClose: () {
                     Navigator.pushReplacement(
@@ -293,38 +244,17 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                     );
                   },
                 );
+              } else {
+                _newPasswordBloc.add(OnFailure());
+                showMessage1OptionDialog(
+                  context,
+                  response.errors?.first.errorMessage,
+                );
               }
             }
           }
         },
       ),
     );
-  }
-
-  bool _validatePassword() {
-    // RegExp passwordExp =
-    //     RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$');
-    if (_passwordController.text.isEmpty &&
-        _confirmPasswordController.text.isEmpty) {
-      messageValidate = 'Mật khẩu không được trống';
-      return false;
-    }
-    if (_passwordController.text.length < 6 &&
-        _confirmPasswordController.text.length < 6 &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty) {
-      messageValidate = 'Mật khẩu phải ≥ 6 ký tự';
-      return false;
-    }
-
-    if (_passwordController.text.trim() !=
-            _confirmPasswordController.text.trim() &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty) {
-      messageValidate = 'Mật khẩu và xác nhận mật khẩu không khớp';
-      return false;
-    }
-
-    return true;
   }
 }
