@@ -120,7 +120,8 @@ class _SignInPageState extends State<SignInPage> {
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: Text(
-                'Chào mừng trở lại!\nVui lòng đăng nhập.',
+                'Chào mừng trở lại!\nVui lòng đăng nhập',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontStyle: FontStyle.italic,
