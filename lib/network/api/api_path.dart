@@ -27,4 +27,6 @@ class ApiPath {
   static const String transaction = '$apiDomain/api/v1/transaction';
 
   static const String getReportByWalletId = '$apiDomain/api/v1/report/';
+
+  static const String expenseLimit = '$apiDomain/api/v1/expense-limit';
 }

@@ -12,6 +12,7 @@ class CategoryModel {
   final String? createdAt;
   final int? createdBy;
   final bool pay;
+  bool isChecked;
 
   CategoryModel({
     this.id,
@@ -25,6 +26,7 @@ class CategoryModel {
     this.createdAt,
     this.createdBy,
     this.pay = false,
+    this.isChecked = false,
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
