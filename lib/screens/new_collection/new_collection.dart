@@ -38,6 +38,8 @@ class NewCollectionPage extends StatefulWidget {
 class _NewCollectionPageState extends State<NewCollectionPage> {
   final _collectionProvider = CollectionProvider();
 
+  final String _currency = SharedPreferencesStorage().getCurrency() ?? 'VND';
+
   final _moneyController = TextEditingController();
   final _noteController = TextEditingController();
   bool _showIconClear = false;
@@ -831,7 +833,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      '.00 VND',
+                      '.00 $_currency',
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,

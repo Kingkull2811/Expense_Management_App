@@ -9,6 +9,9 @@ import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 
+import 'limit_expenditure/limit.dart';
+import 'limit_expenditure/limit_bloc.dart';
+
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
 
@@ -112,9 +115,19 @@ class _SettingPageState extends State<SettingPage> {
               ),
             ),
             _itemOption(
-              title: 'Hạn mức chi',
-              imagePath: 'images/ic_spending_limit.png',
-            ),
+                title: 'Hạn mức chi',
+                imagePath: 'images/ic_spending_limit.png',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider<LimitBloc>(
+                        create: (context) => LimitBloc(context),
+                        child: const LimitPage(),
+                      ),
+                    ),
+                  );
+                }),
             _itemOption(
               title: 'Hạng mục thu/chi',
               icon: Icons.list_alt_outlined,
@@ -122,7 +135,7 @@ class _SettingPageState extends State<SettingPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BlocProvider(
+                    builder: (context) => BlocProvider<CategoryItemBloc>(
                       create: (context) => CategoryItemBloc(context),
                       child: const CategoryItem(),
                     ),

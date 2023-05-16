@@ -23,7 +23,7 @@ class AppConstants {
 
   //for set options timeOut waiting request dio connect to servers
   static Options options = Options(
-    sendTimeout: const Duration(seconds: 3),
+    sendTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
     receiveDataWhenStatusError: true,
   );
@@ -31,10 +31,6 @@ class AppConstants {
       RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
   static RegExp passwordExp =
       RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$');
-
-  // ignore: constant_identifier_names
-  static const String set_new_password_success =
-      'Thiết lập mật khẩu mới thành công.\nVui lòng đăng nhập lại với mật khẩu mới.';
 
   static const String forgotPassword =
       'Nếu bạn không nhớ mật khẩu tài khoản của mình.\nNhập địa chỉ email mà bạn đã đăng ký tài khoản vào ô bên dưới, chúng tôi sẽ gửi một mã OTP đến địa chỉ email đó giúp bạn khôi phục lại mật khẩu tài khoản của mình.';

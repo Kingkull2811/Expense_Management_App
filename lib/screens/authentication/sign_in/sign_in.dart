@@ -37,6 +37,8 @@ class _SignInPageState extends State<SignInPage> {
   late SignInBloc _signInBloc;
   final _authProvider = AuthProvider();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     _signInBloc = BlocProvider.of<SignInBloc>(context);
@@ -99,7 +101,7 @@ class _SignInPageState extends State<SignInPage> {
                 ],
               ),
             ),
-            _buttonSignIn(state),
+            _buttonSignIn(context, state),
             // _goToSignUp(),
           ],
         ),
@@ -136,51 +138,57 @@ class _SignInPageState extends State<SignInPage> {
 
   Widget _signInForm() {
     return Container(
-      height: 200,
-      padding: const EdgeInsets.only(top: 30, left: 16.0, right: 16),
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 50,
-            child: Input(
-              textInputAction: TextInputAction.next,
-              controller: _usernameController,
-              onChanged: (text) {},
-              keyboardType: TextInputType.text,
-              onSubmit: (_) => focusNode.requestFocus(),
-              hint: 'Tên đăng nhập',
-              prefixIcon: Icons.email_outlined,
+      height: 220,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Input(
+                textInputAction: TextInputAction.next,
+                controller: _usernameController,
+                onChanged: (text) {},
+                keyboardType: TextInputType.text,
+                onSubmit: (_) => focusNode.requestFocus(),
+                hint: 'Tên đăng nhập',
+                prefixIcon: Icons.email_outlined,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: SizedBox(
-              height: 50,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: InputPasswordField(
                 controller: _passwordController,
                 onChanged: (text) {},
                 keyboardType: TextInputType.text,
                 onFieldSubmitted: (_) => focusNode.requestFocus(),
                 hint: 'Mật khẩu',
-                prefixIcon: Icons.lock_outline,
-                isInputError: false,
                 obscureText: !_isShowPassword,
                 onTapSuffixIcon: () {
                   setState(() {
                     _isShowPassword = !_isShowPassword;
                   });
                 },
+                validator: (String? value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập mật khẩu';
+                  }
+                  if (value.isNotEmpty && value.length < 6) {
+                    return 'Mật khẩu phải có ít nhất 6 ký tự';
+                  } else if (value.length > 40) {
+                    return 'Mật khẩu không được quá 40 ký tự';
+                  }
+                  return null;
+                },
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0, bottom: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 5),
-                  child: GestureDetector(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
@@ -195,53 +203,53 @@ class _SignInPageState extends State<SignInPage> {
                     child: Text(
                       'Quên mật khẩu?',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w300,
                         fontStyle: FontStyle.italic,
                         color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buttonSignIn(SignInState state) {
+  Widget _buttonSignIn(BuildContext context, SignInState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         PrimaryButton(
           text: 'Đăng nhập',
           onTap: () async {
-            ConnectivityResult connectivityResult =
-                await Connectivity().checkConnectivity();
-            if (connectivityResult == ConnectivityResult.none && mounted) {
-              showMessageNoInternetDialog(context);
-            } else {
-              _signInBloc.add(DisplayLoading());
-
-              SignInResponse signInResponse = await _authProvider.signIn(
-                username: _usernameController.text.trim(),
-                password: _passwordController.text.trim(),
-              );
-              if (signInResponse.httpStatus == 200) {
-                await SharedPreferencesStorage().setLoggedOutStatus(false);
-                await _saveUserInfo(signInResponse.data);
-                if (mounted) {
-                  Navigator.pushReplacementNamed(context, AppRoutes.home);
-                }
+            if (_formKey.currentState!.validate()) {
+              final connectivityResult =
+                  await Connectivity().checkConnectivity();
+              if (connectivityResult == ConnectivityResult.none && mounted) {
+                showMessageNoInternetDialog(context);
               } else {
-                _signInBloc.add(SignInFailure(
-                  errorMessage: signInResponse.errors?.first.errorMessage,
-                ));
-                if (mounted) {
+                _signInBloc.add(DisplayLoading());
+                SignInResponse signInResponse = await _authProvider.signIn(
+                  username: _usernameController.text.trim(),
+                  password: _passwordController.text.trim(),
+                );
+                if (signInResponse.httpStatus == 200) {
+                  showLoading(this.context);
+                  _signInBloc.add(SignInSuccess());
+                  await SharedPreferencesStorage().setLoggedOutStatus(false);
+                  await _saveUserInfo(signInResponse.data);
+                  if (mounted) {
+                    Navigator.pushReplacementNamed(context, AppRoutes.home);
+                  }
+                } else {
+                  _signInBloc.add(SignInFailure());
+
                   showMessage1OptionDialog(
-                    context,
+                    this.context,
                     signInResponse.errors?.first.errorMessage,
                     content: 'Vui lòng nhập lại',
                     buttonLabel: 'OK',

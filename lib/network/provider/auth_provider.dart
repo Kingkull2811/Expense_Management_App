@@ -40,22 +40,12 @@ class AuthProvider with ProviderMixin {
     return true;
   }
 
-  Future<SignUpResponse> signUp({
-    required String email,
-    required String username,
-    required String password,
-  }) async {
+  Future<SignUpResponse> signUp({required Map<String, dynamic> data}) async {
     try {
-      final data = {
-        "email": email,
-        "password": password,
-        "username": username,
-      };
-      // print(data);
       final response = await dio.post(
         ApiPath.signup,
         data: data,
-        options: AppConstants.options,
+        // options: AppConstants.options,
       );
 
       return SignUpResponse.fromJson(response.data);
@@ -119,13 +109,9 @@ class AuthProvider with ProviderMixin {
       final response = await dio.post(
         ApiPath.forgotPassword,
         data: {"email": email},
-        //options: AppConstants.options,
       );
-      // log('provider: ${response.data}');
-
       return ForgotPasswordResponse.fromJson(response.data);
     } catch (error) {
-      // showErrorLog(error, stacktrace, ApiPath.forgotPassword);
       if (error is DioError) {
         return ForgotPasswordResponse.fromJson(error.response?.data);
       }

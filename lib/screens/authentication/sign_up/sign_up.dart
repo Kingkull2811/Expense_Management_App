@@ -2,13 +2,11 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
-import 'package:viet_wallet/network/response/error_response.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_event.dart';
 import 'package:viet_wallet/screens/authentication/sign_up/sign_up_state.dart';
-import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 import 'package:viet_wallet/widgets/input_password_field.dart';
@@ -43,6 +41,8 @@ class _SignUpPageState extends State<SignUpPage> {
   late SignUpBloc _signUpBloc;
 
   final _authProvider = AuthProvider();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -84,7 +84,10 @@ class _SignUpPageState extends State<SignUpPage> {
           body = _body(curState);
         }
 
-        return Scaffold(body: body);
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(body: body),
+        );
       },
     );
   }
@@ -109,204 +112,129 @@ class _SignUpPageState extends State<SignUpPage> {
               children: <Widget>[
                 SizedBox(
                   height: height - 120,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 60, bottom: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Image.asset(
-                              'images/logo_app.png',
-                              height: 150,
-                              width: 150,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 32),
-                              child: Text(
-                                'Chào mừng đăng ký ứng dụng \'viet_wallet\'',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 20,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 60, bottom: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Image.asset(
+                                'images/logo_app.png',
+                                height: 150,
+                                width: 150,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 32),
+                                child: Text(
+                                  'Chào mừng đăng ký ứng dụng \'viet_wallet\'',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 20,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      _inputTextField(
-                        hintText: 'Tên đăng nhập',
-                        controller: _usernameController,
-                        keyboardType: TextInputType.text,
-                        prefixIcon: Icons.person_outline,
-                        onSubmit: (_) => focusNode.requestFocus(),
-                      ),
-                      _inputTextField(
-                        hintText: 'Địa chỉ email',
-                        controller: _emailController,
-                        keyboardType: TextInputType.text,
-                        prefixIcon: Icons.mail_outline,
-                        onSubmit: (value) {
-                          focusNode.requestFocus();
-                          if (_emailController.text.isNotEmpty &&
-                              !(AppConstants.emailExp)
-                                  .hasMatch(_emailController.text.trim())) {
-                            setState(() {
-                              errorEmail = true;
-                              hasCharacter = true;
-                              messageValidateEmail =
-                                  'Địa chỉ email không đúng đinh dạng';
-                            });
-                          }
-                        },
-                        isEmailError: errorEmail,
-                      ),
-                      _passwordField(
-                        hintText: 'Mật khẩu',
-                        controller: _passwordController,
-                        obscureText: !_isShowPassword,
-                        onSubmit: (value) => focusNode.requestFocus(),
-                        //   // setState(() {
-                        //   //   hasCharacter = true;
-                        //   //   errorPassword = !checkValidate;
-                        //   // });
-                        // },
-                        isPasswordError: hasCharacter
-                            ? errorPassword
-                                ? true
-                                : false
-                            : false,
-                        onTapSuffixIcon: () {
-                          setState(() {
-                            _isShowPassword = !_isShowPassword;
-                          });
-                        },
-                      ),
-                      _passwordField(
-                        hintText: 'Xác nhận mật khẩu',
-                        controller: _confirmPasswordController,
-                        obscureText: !_isShowConfirmPassword,
-                        isPasswordError: hasCharacter
-                            ? errorPassword
-                                ? true
-                                : false
-                            : false,
-                        onTapSuffixIcon: () {
-                          setState(() {
-                            _isShowConfirmPassword = !_isShowConfirmPassword;
-                          });
-                        },
-                        onSubmit: (value) {
-                          focusNode.requestFocus();
-                          setState(() {
-                            hasCharacter = true;
-                            checkValidate = _validatePassword();
-                            errorPassword = !checkValidate;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 16, top: 16, right: 16),
-                        child: !hasCharacter
-                            ? const SizedBox()
-                            : !errorEmail
-                                ? Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: const [
-                                      Icon(
-                                        Icons.task_alt,
-                                        size: 20,
-                                        color: Colors.green,
-                                      ),
-                                    ],
-                                  )
-                                : Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const Icon(
-                                        Icons.cancel_outlined,
-                                        size: 20,
-                                        color: Colors.red,
-                                      ),
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                16 * 4 -
-                                                20 -
-                                                10,
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Text(
-                                          messageValidateEmail,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 16, top: 16, right: 16),
-                        child: !hasCharacter
-                            ? const SizedBox()
-                            : checkValidate
-                                ? Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: const [
-                                      Icon(
-                                        Icons.task_alt,
-                                        size: 20,
-                                        color: Colors.green,
-                                      ),
-                                    ],
-                                  )
-                                : Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const Icon(
-                                        Icons.cancel_outlined,
-                                        size: 20,
-                                        color: Colors.red,
-                                      ),
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                16 * 4 -
-                                                20 -
-                                                10,
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
-                                        child: Text(
-                                          messageValidate,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: Input(
+                            hint: 'Tên đăng nhập',
+                            controller: _usernameController,
+                            keyboardType: TextInputType.text,
+                            prefixIcon: Icons.person_outline,
+                            onSubmit: (_) => focusNode.requestFocus(),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng nhập tên đăng nhập';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: Input(
+                            hint: 'Địa chỉ email',
+                            controller: _emailController,
+                            keyboardType: TextInputType.text,
+                            prefixIcon: Icons.mail_outline,
+                            onSubmit: (value) {
+                              focusNode.requestFocus();
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng nhập địa chỉ email';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: InputPasswordField(
+                            hint: 'Mật khẩu',
+                            controller: _passwordController,
+                            obscureText: !_isShowPassword,
+                            onFieldSubmitted: (_) => focusNode.requestFocus(),
+                            onTapSuffixIcon: () {
+                              setState(() {
+                                _isShowPassword = !_isShowPassword;
+                              });
+                            },
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng nhập mật khẩu';
+                              }
+                              if (value.isNotEmpty && value.length < 6) {
+                                return 'Mật khẩu phải có ít nhất 6 ký tự';
+                              } else if (value.length > 40) {
+                                return 'Mật khẩu không được quá 40 ký tự';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          child: InputPasswordField(
+                            hint: 'Xác nhận mật khẩu',
+                            controller: _confirmPasswordController,
+                            obscureText: !_isShowConfirmPassword,
+                            onFieldSubmitted: (_) => focusNode.requestFocus(),
+                            onTapSuffixIcon: () {
+                              setState(() {
+                                _isShowConfirmPassword =
+                                    !_isShowConfirmPassword;
+                              });
+                            },
+                            validator: (String? value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Vui lòng nhập xác nhận mật khẩu';
+                              }
+                              if (value.isNotEmpty && value.length < 6) {
+                                return 'Mật khẩu phải có ít nhất 6 ký tự';
+                              } else if (value.length > 40) {
+                                return 'Mật khẩu không được quá 40 ký tự';
+                              } else if (value != _passwordController.text) {
+                                return 'Mật khẩu và xác nhận mật khẩu phải giống nhau';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                _buttonSignUp(state)
+                _buttonSignUp(context, state)
               ],
             ),
           ),
@@ -316,126 +244,59 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget _inputTextField({
-    required String hintText,
-    required TextEditingController controller,
-    required TextInputType keyboardType,
-    IconData? prefixIcon,
-    Function(String)? onSubmit,
-    bool isEmailError = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
-      child: SizedBox(
-        height: 50,
-        child: Input(
-          isInputError: isEmailError,
-          keyboardType: keyboardType,
-          controller: controller,
-          onChanged: (text) {},
-          textInputAction: TextInputAction.next,
-          onSubmit: onSubmit,
-          hint: hintText,
-          prefixIcon: prefixIcon,
-        ),
-      ),
-    );
-  }
-
-  Widget _passwordField({
-    String? hintText,
-    Function? onTapSuffixIcon,
-    required TextEditingController controller,
-    bool obscureText = false,
-    Function(String)? onSubmit,
-    Function? validator,
-    bool isPasswordError = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 24, right: 16),
-      child: SizedBox(
-        height: 50,
-        child: InputPasswordField(
-          validator: validator,
-          controller: controller,
-          onChanged: (text) {},
-          obscureText: obscureText,
-          isInputError: isPasswordError,
-          onTapSuffixIcon: onTapSuffixIcon,
-          onFieldSubmitted: onSubmit,
-          hint: hintText,
-          textInputAction: TextInputAction.next,
-          keyboardType: TextInputType.text,
-          prefixIcon: Icons.lock_outline,
-        ),
-      ),
-    );
-  }
-
-  Widget _buttonSignUp(SignUpState currentState) {
+  Widget _buttonSignUp(BuildContext context, SignUpState currentState) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: PrimaryButton(
         text: 'Đăng ký',
-        isDisable: !checkValidate,
-        onTap: checkValidate
-            ? () async {
-                ConnectivityResult connectivityResult =
-                    await Connectivity().checkConnectivity();
-                if (connectivityResult == ConnectivityResult.none && mounted) {
-                  showMessageNoInternetDialog(context);
-                } else {
-                  _signUpBloc.add(SignUpLoading());
+        onTap: () async {
+          if (_formKey.currentState!.validate()) {
+            final connectivityResult = await Connectivity().checkConnectivity();
+            if (connectivityResult == ConnectivityResult.none) {
+              showMessageNoInternetDialog(this.context);
+            } else {
+              _signUpBloc.add(SignUpLoading());
+              final Map<String, dynamic> data = {
+                "email": _emailController.text.trim(),
+                // "fullName": "string",
+                "password": _passwordController.text.trim(),
+                // "phone": "string",
+                // "roles": ["string"],
+                "username": _usernameController.text.trim()
+              };
 
-                  final response = await _authProvider.signUp(
-                    // email: 'truong4@gmail.com',
-                    // password: '123456',
-                    // username: 'truong4',
-                    email: _emailController.text.trim(),
-                    username: _usernameController.text.trim(),
-                    password: _passwordController.text.trim(),
-                  );
-                  if (response.isOK() && mounted) {
-                    // _signUpBloc.add(
-                    //   SignUpSuccess(message: response.message ?? ''),
-                    // );
-                    showSuccessBottomSheet(
+              final response = await _authProvider.signUp(data: data);
+              if (response.isOK()) {
+                _signUpBloc.add(Validate());
+                showSuccessBottomSheet(
+                  this.context,
+                  isDismissible: true,
+                  enableDrag: true,
+                  titleMessage: response.message,
+                  contentMessage: 'Vui lòng đăng nhập lại',
+                  buttonLabel: 'Đăng nhập',
+                  onTap: () {
+                    Navigator.push(
                       context,
-                      isDismissible: true,
-                      enableDrag: true,
-                      titleMessage: response.message,
-                      contentMessage: 'Vui lòng đăng nhập lại',
-                      buttonLabel: 'Đăng nhập',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (context) => SignInBloc(context),
-                              child: const SignInPage(),
-                            ),
-                          ),
-                        );
-                      },
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) => SignInBloc(context),
+                          child: const SignInPage(),
+                        ),
+                      ),
                     );
-                  } else {
-                    // _signUpBloc.add(
-                    //   SignUpFailure(errors: response.errors),
-                    // );
-
-                    String? errorMessage = '';
-                    List<Errors>? errors = response.errors;
-                    for (var error in errors!) {
-                      errorMessage = '$errorMessage\n${error.errorMessage}';
-                    }
-                    showMessage1OptionDialog(
-                      context,
-                      errorMessage,
-                    );
-                  }
-                }
+                  },
+                );
+              } else {
+                _signUpBloc.add(Validate());
+                showMessage1OptionDialog(
+                  this.context,
+                  response.errors?.first.errorMessage,
+                );
               }
-            : null,
+            }
+          }
+        },
       ),
     );
   }
@@ -476,29 +337,5 @@ class _SignUpPageState extends State<SignUpPage> {
         ],
       ),
     );
-  }
-
-  bool _validatePassword() {
-    if (_passwordController.text.isEmpty &&
-        _confirmPasswordController.text.isEmpty) {
-      messageValidate = 'Mật khẩu không được trống';
-      return false;
-    }
-    if (_passwordController.text.length < 6 &&
-        _confirmPasswordController.text.length < 6 &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty) {
-      messageValidate = 'Mật khẩu phải ≥ 6 ký tự';
-      return false;
-    }
-
-    if (_passwordController.text.trim() !=
-            _confirmPasswordController.text.trim() &&
-        _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty) {
-      messageValidate = 'Mật khẩu và xác nhận mật khẩu không khớp';
-      return false;
-    }
-    return true;
   }
 }

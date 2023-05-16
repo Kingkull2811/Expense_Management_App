@@ -3,23 +3,23 @@ import 'package:viet_wallet/utilities/utils.dart';
 
 import 'error_response.dart';
 
-class ForgotPasswordResponse extends BaseResponse{
-
+class ForgotPasswordResponse extends BaseResponse {
   ForgotPasswordResponse({
     httpStatus,
     String? message,
     List<Errors>? errors,
   }) : super(
-    httpStatus: httpStatus,
-    message: message,
-    errors: errors,
-  );
+          httpStatus: httpStatus,
+          message: message,
+          errors: errors,
+        );
 
   factory ForgotPasswordResponse.fromJson(Map<String, dynamic> json) {
     List<Errors> errors = [];
-    if(isNotNullOrEmpty(json["errors"])){
+    if (isNotNullOrEmpty(json["errors"])) {
       final List<dynamic> errorsJson = json["errors"];
-      errors = errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
+      errors =
+          errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
     }
 
     return ForgotPasswordResponse(
@@ -27,10 +27,5 @@ class ForgotPasswordResponse extends BaseResponse{
       message: json['message'],
       errors: errors,
     );
-  }
-
-  @override
-  String toString() {
-    return 'ForgotPasswordResponse{httpStatus: $httpStatus, message: $message, error: $errors}';
   }
 }
