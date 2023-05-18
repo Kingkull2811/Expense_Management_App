@@ -9,6 +9,9 @@ class Wallet {
   final int? createdBy;
   final bool report;
 
+  ///using for checkList in select category in limit_expenditure
+  bool isChecked;
+
   Wallet({
     this.id,
     this.accountBalance,
@@ -19,6 +22,7 @@ class Wallet {
     this.createdAt,
     this.createdBy,
     this.report = false,
+    this.isChecked = false,
   });
 
   factory Wallet.fromJson(Map<String, dynamic> json) {
@@ -37,6 +41,6 @@ class Wallet {
 
   @override
   String toString() {
-    return 'Wallet{id: $id, accountBalance: $accountBalance, name: $name, accountType: $accountType, currency: $currency, description: $description, createdAt: $createdAt, createdBy: $createdBy, report: $report}';
+    return 'Wallet{id: $id, name: $name, isChecked: $isChecked}';
   }
 }

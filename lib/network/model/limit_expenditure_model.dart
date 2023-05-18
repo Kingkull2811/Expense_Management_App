@@ -22,8 +22,8 @@ class LimitModel {
   factory LimitModel.fromJson(Map<String, dynamic> json) {
     return LimitModel(
       id: json['id'],
-      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
-      actualAmount: double.tryParse(json['actualAmount'].toString()) ?? 0.0,
+      amount: double.parse(json['amount'].toString()),
+      actualAmount: double.parse(json['actualAmount'].toString()),
       limitName: json['limitName'],
       categoryIds: List<String>.from(json['categoryIds']),
       walletIds: List<String>.from(json['walletIds']),
@@ -31,6 +31,17 @@ class LimitModel {
       toDate: DateTime.parse(json['toDate']),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'amount': amount,
+        'actualAmount': actualAmount,
+        'limitName': limitName,
+        'categoryIds': categoryIds,
+        'walletIds': walletIds,
+        'fromDate': fromDate,
+        'toDate': toDate,
+      };
 
   @override
   String toString() {

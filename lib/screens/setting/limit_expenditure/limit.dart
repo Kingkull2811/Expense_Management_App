@@ -26,14 +26,17 @@ class LimitPage extends StatefulWidget {
 class _LimitPageState extends State<LimitPage> {
   final String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
 
+  late LimitBloc _limitBloc;
+
   @override
   void initState() {
-    BlocProvider.of<LimitBloc>(context).add(GetListLimitEvent());
+    _limitBloc = BlocProvider.of<LimitBloc>(context)..add(GetListLimitEvent());
     super.initState();
   }
 
   @override
   void dispose() {
+    _limitBloc.close();
     super.dispose();
   }
 
@@ -77,15 +80,22 @@ class _LimitPageState extends State<LimitPage> {
             ),
             actions: [
               IconButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => BlocProvider<LimitInfoBloc>(
-                                create: (context) => LimitInfoBloc(context)
-                                  ..add(LimitInfoInitEvent()),
-                                child: const LimitInfoPage(),
-                              )));
+                onPressed: () async {
+                  final bool result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider<LimitInfoBloc>(
+                        create: (context) =>
+                            LimitInfoBloc(context)..add(LimitInfoInitEvent()),
+                        child: const LimitInfoPage(),
+                      ),
+                    ),
+                  );
+
+                  if (result) {
+                    _limitBloc.add(GetListLimitEvent());
+                    setState(() {});
+                  }
                 },
                 icon: const Icon(
                   Icons.add,
@@ -131,8 +141,8 @@ class _LimitPageState extends State<LimitPage> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
             child: InkWell(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final bool result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ReportLimit(
@@ -140,6 +150,10 @@ class _LimitPageState extends State<LimitPage> {
                     ),
                   ),
                 );
+                if (result) {
+                  _limitBloc.add(GetListLimitEvent());
+                  setState(() {});
+                }
               },
               child: Container(
                 decoration: BoxDecoration(

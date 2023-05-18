@@ -42,8 +42,8 @@ class ReportLimit extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => BlocProvider<LimitInfoBloc>(
