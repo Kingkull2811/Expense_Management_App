@@ -1,13 +1,9 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
+import 'package:viet_wallet/network/model/limit_expenditure_model.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
-import 'package:viet_wallet/network/response/get_list_wallet_response.dart';
 import 'package:viet_wallet/network/response/list_limit_response.dart';
 
 import '../api/api_path.dart';
-import '../model/limit_post_data.dart';
 import '../response/base_get_response.dart';
 
 class LimitProvider with ProviderMixin {
@@ -21,7 +17,6 @@ class LimitProvider with ProviderMixin {
         ApiPath.expenseLimit,
         options: await defaultOptions(url: ApiPath.expenseLimit),
       );
-      log('response: ${jsonDecode(response.toString())}');
 
       return ListLimitResponse.fromJson(response.data);
     } catch (error, stacktrace) {
@@ -46,17 +41,17 @@ class LimitProvider with ProviderMixin {
         options: options,
       );
 
-      return LimitData.fromJson(response.data);
+      return LimitModel.fromJson(response.data);
     } catch (error, stacktrace) {
       return errorGetResponse(error, stacktrace, ApiPath.getListWallet);
     }
   }
 
-  Future<BaseGetResponse> updateNewWallet({
-    required int? walletId,
+  Future<Object> editLimit({
+    required int? limitId,
     required Object data,
   }) async {
-    String apiUpdateWallet = '${ApiPath.getListWallet}/$walletId';
+    String apiUpdateWallet = '${ApiPath.expenseLimit}/$limitId';
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
     }
@@ -69,16 +64,16 @@ class LimitProvider with ProviderMixin {
         options: options,
       );
 
-      return GetListWalletResponse.fromJson(response.data);
+      return LimitModel.fromJson(response.data);
     } catch (error, stacktrace) {
       return errorGetResponse(error, stacktrace, apiUpdateWallet);
     }
   }
 
-  Future<Object> removeWalletWithId({
-    required int walletId,
+  Future<Object> deleteLimit({
+    required int limitId,
   }) async {
-    String apiRemoveWallet = '${ApiPath.getListWallet}/$walletId';
+    String apiRemoveWallet = '${ApiPath.expenseLimit}/$limitId';
 
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();

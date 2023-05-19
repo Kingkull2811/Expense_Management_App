@@ -12,6 +12,8 @@ class CategoryModel {
   final String? createdAt;
   final int? createdBy;
   final bool pay;
+
+  ///using for checkList in select category in limit_expenditure
   bool isChecked;
 
   CategoryModel({
@@ -52,6 +54,6 @@ class CategoryModel {
 
   @override
   String toString() {
-    return 'CategoryModel{id: $id, name: $name, parentId: $parentId, description: $description, logoImageID: $logoImageID, logoImageUrl: $logoImageUrl, childCategory: $childCategory, categoryType: $categoryType, createdAt: $createdAt, createdBy: $createdBy, pay: $pay}';
+    return 'CategoryModel{id: $id, name: $name, childCategory: $childCategory, isChecked: $isChecked}';
   }
 }

@@ -12,7 +12,6 @@ import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/category_model.dart';
-import '../../../../network/model/limit_post_data.dart';
 import '../../../../network/model/wallet.dart';
 import '../../../../network/provider/limit_provider.dart';
 import '../../../../network/response/base_get_response.dart';
@@ -62,6 +61,14 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
       ..add(LimitInfoInitEvent());
     _nameLimitController.addListener(() =>
         setState(() => _showIconClear = _nameLimitController.text.isNotEmpty));
+    _moneyController.text = widget.limitData?.amount.toString() ?? '';
+    _nameLimitController.text = widget.limitData?.limitName ?? '';
+
+    dateStart = DateFormat('yyyy-MM-dd')
+        .format(widget.limitData?.fromDate ?? DateTime.now());
+    dateEnd = (widget.limitData?.toDate == null)
+        ? null
+        : DateFormat('yyyy-MM-dd').format((widget.limitData?.toDate)!);
 
     super.initState();
   }
@@ -82,7 +89,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).pop(true);
           },
           icon: const Icon(
             Icons.close,
@@ -91,9 +98,9 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
           ),
         ),
         centerTitle: true,
-        title: const Text(
-          'Thêm hạn mức chi',
-          style: TextStyle(
+        title: Text(
+          widget.isEdit ? 'Sửa hạn mức chi' : 'Thêm hạn mức chi',
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
             color: Colors.white,
@@ -133,7 +140,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
           children: <Widget>[
             _money(),
             _select(state),
-            _buttonSave(context),
+            widget.isEdit ? _buttonDeleteUpdate(context) : _buttonSave(context),
           ],
         ),
       ),
@@ -165,7 +172,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
             }
 
             final Map<String, dynamic> data = {
-              "amount": int.tryParse(_moneyController.text.trim()),
+              "amount": double.parse(_moneyController.text.trim()),
               "categoryIds": listCategoryIdSelected,
               "fromDate": dateStart,
               "limitName": _nameLimitController.text.trim(),
@@ -173,7 +180,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
               "walletIds": listWalledIdSelected
             };
             final response = await _limitProvider.addLimit(data: data);
-            if (response is LimitData) {
+            if (response is LimitModel) {
               showMessage1OptionDialog(
                 this.context,
                 'Thêm hạn mức thành công',
@@ -194,6 +201,96 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
             }
           }
         },
+      ),
+    );
+  }
+
+  Widget _buttonDeleteUpdate(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          PrimaryButton(
+            text: 'Xóa',
+            onTap: () async {
+              showMessage2OptionDialog(
+                context,
+                'Bạn có muốn xóa hạn mức chi này?',
+                okLabel: 'Xóa',
+                onOK: () async {
+                  if (widget.limitData?.id == null) {
+                    showMessage1OptionDialog(
+                        context, 'Không tìm thấy hạn mức này');
+                  } else {
+                    await _limitProvider.deleteLimit(
+                        limitId: (widget.limitData?.id)!);
+                    Navigator.pop(this.context);
+                    Navigator.of(this.context).pop(true);
+                  }
+                },
+              );
+            },
+          ),
+          PrimaryButton(
+            text: 'Cập nhật',
+            onTap: () async {
+              if (_moneyController.text.isEmpty) {
+                showMessage1OptionDialog(context, 'Bạn chưa nhập số tiền');
+              } else if (_nameLimitController.text.isEmpty) {
+                showMessage1OptionDialog(context, 'Chưa nhập tên hạn mức');
+              } else if (isNullOrEmpty(listWalletSelected)) {
+                showMessage1OptionDialog(
+                    context, 'Phải chọn ít nhất 1 tài khoản');
+              } else if (isNullOrEmpty(dateEnd)) {
+                showMessage1OptionDialog(
+                    context, 'Bạn chưa chọn ngày kết thúc');
+              } else {
+                List<int> listWalledIdSelected = [];
+
+                for (var wallet in listWalletSelected) {
+                  listWalledIdSelected.add(wallet.id!);
+                }
+
+                final Map<String, dynamic> data = {
+                  "amount": double.parse(_moneyController.text.trim()),
+                  "categoryIds": isNotNullOrEmpty(listCategoryIdSelected)
+                      ? listCategoryIdSelected
+                      : widget.limitData?.categoryIds,
+                  "fromDate": dateStart,
+                  "limitName": _nameLimitController.text.trim(),
+                  "toDate": dateEnd,
+                  "walletIds": isNotNullOrEmpty(listWalledIdSelected)
+                      ? listWalledIdSelected
+                      : widget.limitData?.walletIds
+                };
+                if (widget.limitData?.id == null) {
+                  showMessage1OptionDialog(
+                      context, 'Không tìm thấy hạn mức này');
+                } else {
+                  final response = await _limitProvider.editLimit(
+                      limitId: widget.limitData?.id, data: data);
+                  if (response is LimitModel) {
+                    showMessage1OptionDialog(
+                      this.context,
+                      'Cập nhật hạn mức thành công',
+                      onClose: () {
+                        Navigator.of(this.context).pop(true);
+                        Navigator.of(this.context).pop(true);
+                      },
+                    );
+                  } else if (response is ExpiredTokenGetResponse) {
+                    logoutIfNeed(this.context);
+                  } else {
+                    showMessage1OptionDialog(
+                        this.context, 'Cập nhật hạn mức thất bại');
+                  }
+                }
+              }
+            },
+          )
+        ],
       ),
     );
   }
@@ -238,12 +335,20 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
   }
 
   Widget _selectWallet(LimitInfoState state) {
+    List<Wallet> listWalled = state.listWallet ?? [];
+    listWalled.forEach(updateCheckedStatusWallet);
+
     String walletsName = '';
+    if (widget.isEdit) {
+      listWalletSelected =
+          listWalled.where((wallet) => wallet.isChecked == true).toList();
+    }
+
     for (var wallet in listWalletSelected) {
       if (listWalletSelected.length == 1) {
         walletsName = '${wallet.name}';
       } else {
-        walletsName = '$walletsName, ${wallet.name}';
+        walletsName = '$walletsName ${wallet.name},';
       }
     }
 
@@ -253,7 +358,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
           context,
           MaterialPageRoute(
             builder: (context) => SelectWalletsPage(
-              listWallet: state.listWallet,
+              listWallet: widget.isEdit ? listWalled : state.listWallet,
             ),
           ),
         );
@@ -304,14 +409,34 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
     });
   }
 
+  void updateCheckedStatusWallet(Wallet wallet) {
+    final List<String> listWalletId = widget.limitData?.walletIds ?? [];
+
+    if (listWalletId.contains(wallet.id.toString())) {
+      wallet.isChecked = true;
+    }
+  }
+
+  void updateCheckedStatusCategory(CategoryModel category) {
+    final List<String> listCategoryId = widget.limitData?.categoryIds ?? [];
+
+    if (listCategoryId.contains(category.id.toString())) {
+      category.isChecked = true;
+    }
+    category.childCategory?.forEach(updateCheckedStatusCategory);
+  }
+
   Widget _selectCategory(LimitInfoState state) {
+    List<CategoryModel> listCate = state.listExCategory ?? [];
+    listCate.forEach(updateCheckedStatusCategory);
+
     return ListTile(
       onTap: () async {
         final List<int>? result = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SelectCategory(
-              listCategory: state.listExCategory,
+              listCategory: widget.isEdit ? listCate : state.listExCategory,
             ),
           ),
         );
@@ -327,14 +452,18 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
         color: Colors.grey,
       ),
       title: Text(
-        isNullOrEmpty(listCategoryIdSelected)
-            ? 'Chọn hạng mục'
-            : '${listCategoryIdSelected!.length} hạng mục',
+        (widget.isEdit && isNullOrEmpty(listCategoryIdSelected))
+            ? '${widget.limitData?.categoryIds!.length} hạng mục'
+            : isNullOrEmpty(listCategoryIdSelected)
+                ? 'Chọn hạng mục'
+                : '${listCategoryIdSelected!.length} hạng mục',
         style: TextStyle(
           fontSize: 16,
-          color: isNotNullOrEmpty(listCategoryIdSelected)
+          color: widget.isEdit
               ? Colors.black
-              : Colors.grey,
+              : isNotNullOrEmpty(listCategoryIdSelected)
+                  ? Colors.black
+                  : Colors.grey,
         ),
       ),
       trailing: const Icon(
@@ -360,7 +489,6 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
             currentTime: DateTime.now(),
             onConfirm: (date) {
               setState(() {
-                // dateStart = DateFormat('dd/MM/yyyy').format(date);
                 dateStart = DateFormat('yyyy-MM-dd').format(date);
               });
             },
@@ -564,7 +692,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      '.00 $_currency',
+                      _currency,
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,

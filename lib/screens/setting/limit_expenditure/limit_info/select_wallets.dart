@@ -8,7 +8,10 @@ import '../../../../widgets/search_box.dart';
 class SelectWalletsPage extends StatefulWidget {
   final List<Wallet>? listWallet;
 
-  const SelectWalletsPage({Key? key, this.listWallet}) : super(key: key);
+  const SelectWalletsPage({
+    Key? key,
+    this.listWallet,
+  }) : super(key: key);
 
   @override
   State<SelectWalletsPage> createState() => _SelectWalletsPageState();
@@ -20,14 +23,13 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
   bool _showClearSearch = false;
   bool _showExSearchResult = false;
 
-  List<WalletState>? listWalletState = [];
-  List<WalletState> listSearchState = [];
+  List<Wallet>? listWallet = [];
+  List<Wallet> listSearchState = [];
 
-  final WalletState checkAll = WalletState(
-      wallet: Wallet(
+  final Wallet checkAll = Wallet(
     id: null,
     name: 'Chọn tẩt cả',
-  ));
+  );
 
   @override
   void initState() {
@@ -35,10 +37,7 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
           _showClearSearch = _searchController.text.isNotEmpty;
           _showExSearchResult = _searchController.text.isNotEmpty;
         }));
-    listWalletState = widget.listWallet
-            ?.map((wallet) => WalletState(wallet: wallet))
-            .toList() ??
-        [];
+    listWallet = widget.listWallet ?? [];
     super.initState();
   }
 
@@ -68,9 +67,8 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
           actions: [
             IconButton(
               onPressed: () {
-                List<Wallet>? listWalletSelected = listWalletState
-                    ?.where((walletState) => walletState.value == true)
-                    .map((walletState) => walletState.wallet)
+                List<Wallet>? listWalletSelected = listWallet
+                    ?.where((wallet) => wallet.isChecked == true)
                     .toList();
                 if (isNullOrEmpty(listWalletSelected)) {
                   showMessage1OptionDialog(
@@ -91,7 +89,7 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
         ),
         body: Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: isNullOrEmpty(listWalletState)
+          child: isNullOrEmpty(listWallet)
               ? Center(
                   child: Text(
                     'Bạn chưa có tài khoản nào.\nVui lòng tạo tài khoản.',
@@ -121,7 +119,7 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
                         height: MediaQuery.of(context).size.height - 170,
                         child: _showExSearchResult
                             ? _resultSearch(listSearchState)
-                            : _listWalletView(listWalletState!),
+                            : _listWalletView(listWallet!),
                       ),
                     ],
                   ),
@@ -131,59 +129,57 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
     );
   }
 
-  Widget _resultSearch(List<WalletState> listSearchState) {
+  Widget _resultSearch(List<Wallet> listSearch) {
     return Container();
   }
 
-  Widget _listWalletView(List<WalletState> listState) {
+  Widget _listWalletView(List<Wallet> listState) {
     return ListView(
       scrollDirection: Axis.vertical,
       physics: const BouncingScrollPhysics(),
       children: [
         _buildAllCheck(checkAll),
         Divider(height: 0.5, color: Colors.grey.withOpacity(0.2)),
-        ...listWalletState!
-            .map((walletState) => _buildSingleCheckbox(walletState))
-            .toList(),
+        ...listWallet!.map((wallet) => _buildSingleCheckbox(wallet)).toList(),
       ],
     );
   }
 
-  Widget _buildSingleCheckbox(WalletState walletState) => _buildCheckbox(
-        walletState: walletState,
+  Widget _buildSingleCheckbox(Wallet wallet) => _buildCheckbox(
+        wallet: wallet,
         onClicked: () {
           setState(() {
-            final newValue = !walletState.value;
-            walletState.value = newValue;
+            final newValue = !wallet.isChecked;
+            wallet.isChecked = newValue;
 
             if (!newValue) {
-              checkAll.value = false;
+              checkAll.isChecked = false;
             } else {
-              final allow = listWalletState?.every(
-                (walletState) => walletState.value,
+              final allow = listWallet?.every(
+                (wallet) => wallet.isChecked,
               );
-              checkAll.value = allow ?? false;
+              checkAll.isChecked = allow ?? false;
             }
           });
         },
       );
 
-  Widget _buildAllCheck(WalletState walletState) => _buildCheckbox(
+  Widget _buildAllCheck(Wallet wallet) => _buildCheckbox(
       isAll: true,
-      walletState: walletState,
+      wallet: wallet,
       onClicked: () {
-        final newValue = !walletState.value;
+        final newValue = !wallet.isChecked;
 
         setState(() {
-          checkAll.value = newValue;
-          listWalletState?.forEach((notification) {
-            notification.value = newValue;
+          checkAll.isChecked = newValue;
+          listWallet?.forEach((notification) {
+            notification.isChecked = newValue;
           });
         });
       });
 
   Widget _buildCheckbox({
-    required WalletState walletState,
+    required Wallet wallet,
     required VoidCallback onClicked,
     bool isAll = false,
   }) =>
@@ -207,7 +203,7 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
                     color: Colors.grey.withOpacity(0.1),
                   ),
                   child: Icon(
-                    getIconWallet(walletType: walletState.wallet.accountType),
+                    getIconWallet(walletType: wallet.accountType),
                     size: 24,
                     color: Theme.of(context).primaryColor,
                   ),
@@ -218,15 +214,15 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
                   color: Colors.grey,
                 ),
           title: Text(
-            walletState.wallet.name ?? '',
+            wallet.name ?? '',
             style: TextStyle(
               fontSize: 18,
               fontWeight: isAll ? FontWeight.normal : FontWeight.bold,
             ),
           ),
-          subtitle: isNotNullOrEmpty(walletState.wallet.accountBalance)
+          subtitle: isNotNullOrEmpty(wallet.accountBalance)
               ? Text(
-                  '${walletState.wallet.accountBalance} ${walletState.wallet.currency}',
+                  '${wallet.accountBalance} ${wallet.currency}',
                   style: TextStyle(
                       fontSize: 14, color: Colors.grey.withOpacity(0.6)),
                 )
@@ -237,22 +233,10 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
             ),
             child: Checkbox(
               activeColor: Theme.of(context).primaryColor,
-              value: walletState.value,
+              value: wallet.isChecked,
               onChanged: (value) => onClicked(),
             ),
           ),
         ),
       );
-}
-
-class WalletState {
-  Wallet wallet;
-  bool value;
-
-  WalletState({required this.wallet, this.value = false});
-
-  @override
-  String toString() {
-    return 'WalletState{wallet: $wallet, value: $value}';
-  }
 }
