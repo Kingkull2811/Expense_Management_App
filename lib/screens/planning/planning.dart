@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'balance_payments/payments.position.bloc.dart';
 import 'balance_payments/payments.position.page.dart';
+import 'expenditure_analysis/expenditure_analysis.dart';
+import 'expenditure_analysis/expenditure_analysis_bloc.dart';
 
 class PlanningPage extends StatefulWidget {
   const PlanningPage({Key? key}) : super(key: key);
@@ -85,32 +87,49 @@ class _PlanningPageState extends State<PlanningPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width: 170,
-                  height: 150,
-                  decoration: const BoxDecoration(
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider<ExpenditureBloc>(
+                          create: (context) => ExpenditureBloc(context),
+                          child: const Expenditure(),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 170,
+                    height: 150,
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.horizontal(
-                          left: Radius.circular(10),
-                          right: Radius.circular(10))),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      SizedBox(width: 4),
-                      Text(
-                        'Phân tích chi tiêu',
-                      )
-                    ],
+                        left: Radius.circular(10),
+                        right: Radius.circular(10),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        SizedBox(width: 4),
+                        Text(
+                          'Phân tích chi tiêu',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Container(
                   width: 170,
                   height: 150,
                   decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.horizontal(
-                          left: Radius.circular(10),
-                          right: Radius.circular(10))),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.horizontal(
+                      left: Radius.circular(10),
+                      right: Radius.circular(10),
+                    ),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [

@@ -49,81 +49,86 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Theme.of(context).primaryColor,
-          centerTitle: true,
-          title: const Text(
-            'Chọn tài khoản',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-              color: Colors.white,
-            ),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                List<Wallet>? listWalletSelected = listWallet
-                    ?.where((wallet) => wallet.isChecked == true)
-                    .toList();
-                if (isNullOrEmpty(listWalletSelected)) {
-                  showMessage1OptionDialog(
-                    context,
-                    'Bạn cần chọn ít nhất một tài khoản',
-                  );
-                } else {
-                  Navigator.of(context).pop(listWalletSelected);
-                }
-              },
-              icon: const Icon(
-                Icons.check,
-                size: 24,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Theme.of(context).primaryColor,
+            centerTitle: true,
+            title: const Text(
+              'Chọn tài khoản',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
                 color: Colors.white,
               ),
             ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: isNullOrEmpty(listWallet)
-              ? Center(
-                  child: Text(
-                    'Bạn chưa có tài khoản nào.\nVui lòng tạo tài khoản.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).primaryColor,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  List<Wallet>? listWalletSelected = listWallet
+                      ?.where((wallet) => wallet.isChecked == true)
+                      .toList();
+                  if (isNullOrEmpty(listWalletSelected)) {
+                    showMessage1OptionDialog(
+                      context,
+                      'Bạn cần chọn ít nhất một tài khoản',
+                    );
+                  } else {
+                    Navigator.of(context).pop(listWalletSelected);
+                  }
+                },
+                icon: const Icon(
+                  Icons.check,
+                  size: 24,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: isNullOrEmpty(listWallet)
+                ? Center(
+                    child: Text(
+                      'Bạn chưa có tài khoản nào.\nVui lòng tạo tài khoản.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SearchBox(
+                          hinText: 'Tìm theo tên tài khoản',
+                          controller: _searchController,
+                          showClear: _showClearSearch,
+                          onChanged: (value) {
+                            // search(value, listWalletState);
+                          },
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(top: 16),
+                          height: MediaQuery.of(context).size.height - 170,
+                          child: _showExSearchResult
+                              ? _resultSearch(listSearchState)
+                              : _listWalletView(listWallet!),
+                        ),
+                      ],
                     ),
                   ),
-                )
-              : SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SearchBox(
-                        hinText: 'Tìm theo tên tài khoản',
-                        controller: _searchController,
-                        showClear: _showClearSearch,
-                        onChanged: (value) {
-                          // search(value, listWalletState);
-                        },
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(top: 16),
-                        height: MediaQuery.of(context).size.height - 170,
-                        child: _showExSearchResult
-                            ? _resultSearch(listSearchState)
-                            : _listWalletView(listWallet!),
-                      ),
-                    ],
-                  ),
-                ),
+          ),
         ),
       ),
     );
