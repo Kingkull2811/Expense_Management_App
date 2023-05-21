@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viet_wallet/network/response/auth_response.dart';
 import 'package:viet_wallet/network/response/user_response.dart';
-import 'package:viet_wallet/screens/new_collection/new_collection.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
 
@@ -104,29 +103,5 @@ class SharedPreferencesStorage {
     _secureStorage.deleteSecureData(AppConstants.emailKey);
     _secureStorage.deleteSecureData(AppConstants.accessTokenKey);
     _secureStorage.deleteSecureData(AppConstants.refreshTokenKey);
-  }
-
-  ///item category selected
-  Future<void> setItemCategorySelected({
-    int? categoryId,
-    String? leading,
-    String? title,
-  }) async {
-    await _preferences.setInt(AppConstants.itemId, categoryId ?? 0);
-    await _preferences.setString(AppConstants.itemLeading, leading ?? '');
-    await _preferences.setString(AppConstants.itemTitle, title ?? '');
-  }
-
-  ItemCategory getItemCategorySelected() {
-    return ItemCategory(
-        categoryId: _preferences.getInt(AppConstants.itemId),
-        iconLeading: _preferences.getString(AppConstants.itemLeading) ?? '',
-        title: _preferences.getString(AppConstants.itemTitle) ?? '');
-  }
-
-  Future<void> removeItemCategorySelected() async {
-    await _preferences.remove(AppConstants.itemId);
-    await _preferences.remove(AppConstants.itemLeading);
-    await _preferences.remove(AppConstants.itemTitle);
   }
 }

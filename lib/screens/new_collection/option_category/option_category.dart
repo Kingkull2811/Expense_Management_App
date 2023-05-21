@@ -3,15 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/screens/new_collection/option_category/option_category_bloc.dart';
 import 'package:viet_wallet/screens/new_collection/option_category/option_category_event.dart';
 import 'package:viet_wallet/screens/new_collection/option_category/option_category_state.dart';
-import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../network/model/category_model.dart';
 import '../../../utilities/enum/api_error_result.dart';
+import '../../../utilities/enum/enum.dart';
 import '../../../utilities/screen_utilities.dart';
+import '../../../utilities/utils.dart';
 import '../../../widgets/app_image.dart';
 import '../../setting/category_item/category_item.dart';
 import '../../setting/category_item/category_item_bloc.dart';
+import '../new_collection.dart';
 
 class OptionCategoryPage extends StatefulWidget {
   final int? categoryIdSelected;
@@ -27,22 +29,33 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final _searchController = TextEditingController();
-  bool _showClearSearch = false;
+  final _expenditureSearch = TextEditingController();
+  bool _showClearExSearch = false;
+  bool _showExSearchResult = false;
+
+  final _collectedSearch = TextEditingController();
+  bool _showClearCoSearch = false;
+  bool _showCoSearchResult = false;
+
+  List<CategoryModel>? listSearchResult = [];
 
   final Map<int, bool> _isExpandedMapEx = {};
-  final Map<int, bool> _isExpandedMapIn = {};
-
-  // final _categoryIdSelected =
-  //     SharedPreferencesStorage().getItemCategorySelected().categoryId;
+  final Map<int, bool> _isExpandedMapCo = {};
 
   @override
   void initState() {
     BlocProvider.of<OptionCategoryBloc>(context).add(GetOptionCategoryEvent());
     _tabController = TabController(length: 2, vsync: this);
-    _searchController.addListener(() {
+    _expenditureSearch.addListener(() {
       setState(() {
-        _showClearSearch = _searchController.text.isNotEmpty;
+        _showClearExSearch = _expenditureSearch.text.isNotEmpty;
+        _showExSearchResult = _expenditureSearch.text.isNotEmpty;
+      });
+    });
+    _collectedSearch.addListener(() {
+      setState(() {
+        _showClearCoSearch = _collectedSearch.text.isNotEmpty;
+        _showCoSearchResult = _collectedSearch.text.isNotEmpty;
       });
     });
     super.initState();
@@ -51,7 +64,8 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
   @override
   void dispose() {
     _tabController.dispose();
-    _searchController.dispose();
+    _collectedSearch.dispose();
+    _expenditureSearch.dispose();
     super.dispose();
   }
 
@@ -114,8 +128,10 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
                     return TabBarView(
                       controller: _tabController,
                       children: [
-                        _payTab(state), //expense
-                        _collectTab(state), //income
+                        // _payTab(state), //expense
+                        // _collectTab(state), //income
+                        _expenditureTab(state.listExpenseCategory), //expense
+                        _collectedTab(state.listIncomeCategory), //income
                       ],
                     );
                   }
@@ -128,118 +144,47 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
     );
   }
 
-  Widget _payTab(OptionCategoryState state) {
+  Widget _expenditureTab(List<CategoryModel>? listExCategory) {
+    if (isNullOrEmpty(listExCategory)) {
+      return Center(
+        child: Text(
+          'Không có dữ liệu hạng mục chi',
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(10, 16, 10, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _itemSearch(),
+          _itemSearch(
+            controller: _expenditureSearch,
+            showClear: _showClearExSearch,
+            onChanged: (value) {
+              search(value, listExCategory!);
+            },
+          ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: ListView.builder(
-                itemCount: state.listExpenseCategory?.length,
-                itemBuilder: (context, index) {
-                  final isExpanded = _isExpandedMapEx[index] ?? true;
-                  return Column(
-                    children: [
-                      ListTile(
-                        minLeadingWidth: 0,
-                        leading: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isExpandedMapEx[index] = !isExpanded;
-                            });
-                          },
-                          child: Icon(
-                            isExpanded ? Icons.expand_more : Icons.expand_less,
-                            size: 24,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        title: InkWell(
-                          onTap: () async {
-                            await SharedPreferencesStorage()
-                                .setItemCategorySelected(
-                              categoryId: state.listExpenseCategory?[index].id,
-                              leading: state
-                                  .listExpenseCategory?[index].logoImageUrl,
-                              title: state.listExpenseCategory?[index].name,
-                            );
-                            if (mounted) {
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.grey.withOpacity(0.3),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: AppImage(
-                                    localPathOrUrl: state
-                                        .listExpenseCategory?[index]
-                                        .logoImageUrl,
-                                    errorWidget: const SizedBox.shrink(),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    state.listExpenseCategory?[index].name ??
-                                        '',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: (widget.categoryIdSelected ==
-                                        state.listExpenseCategory?[index].id)
-                                    ? Icon(
-                                        Icons.check,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 16,
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      if (isExpanded)
-                        SizedBox(
-                          height: 50 *
-                              (state.listExpenseCategory?[index].childCategory
-                                      ?.length)!
-                                  .toDouble(),
-                          child: ListView.builder(
-                            itemCount: state.listExpenseCategory?[index]
-                                .childCategory?.length,
-                            itemBuilder: (context, indexx) =>
-                                _itemChildCategory(
-                              context,
-                              state.listExpenseCategory?[index]
-                                  .childCategory?[indexx],
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
+              padding: const EdgeInsets.only(top: 10.0),
+              child: _showExSearchResult
+                  ? _resultSearch(listSearchResult)
+                  : ListView.builder(
+                      itemCount: listExCategory!.length,
+                      itemBuilder: (context, index) {
+                        final isExpanded = _isExpandedMapEx[index] ?? true;
+                        return _itemListCategoryEx(
+                          listExCategory[index],
+                          isExpanded,
+                          index,
+                        );
+                      },
+                    ),
             ),
           ),
         ],
@@ -247,117 +192,261 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
     );
   }
 
-  Widget _collectTab(OptionCategoryState state) {
+  Widget _itemListCategoryEx(
+    CategoryModel category,
+    bool isExpanded,
+    int index,
+  ) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: InkWell(
+            onTap: () {
+              ItemCategory itemSelected = ItemCategory(
+                categoryId: category.id,
+                title: category.name,
+                iconLeading: category.logoImageUrl,
+                type: TransactionType.expense,
+              );
+              Navigator.of(context).pop(itemSelected);
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                isNotNullOrEmpty(category.childCategory)
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isExpandedMapEx[index] = !isExpanded;
+                          });
+                        },
+                        child: Icon(
+                          isExpanded ? Icons.expand_more : Icons.expand_less,
+                          size: 24,
+                          color: Colors.grey,
+                        ),
+                      )
+                    : const SizedBox(width: 24),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 16),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.grey.withOpacity(0.2),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: AppImage(
+                        localPathOrUrl: category.logoImageUrl,
+                        errorWidget: const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      category.name ?? '',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: (widget.categoryIdSelected == category.id)
+                      ? Icon(
+                          Icons.check,
+                          color: Theme.of(context).primaryColor,
+                          size: 16,
+                        )
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 80),
+          child: Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+        ),
+        if (isExpanded)
+          SizedBox(
+            height: 50 * (category.childCategory?.length ?? 0).toDouble(),
+            child: ListView.builder(
+              itemCount: category.childCategory?.length,
+              itemBuilder: (context, indexx) => _itemChildCategory(
+                context,
+                category.childCategory?[indexx],
+                parentName: category.name,
+                iconParentUrl: category.logoImageUrl,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _collectedTab(List<CategoryModel>? listCoCategory) {
+    if (isNullOrEmpty(listCoCategory)) {
+      return Center(
+        child: Text(
+          'Không có dữ liệu hạng mục thu',
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(10, 16, 10, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _itemSearch(),
+          _itemSearch(
+            controller: _collectedSearch,
+            showClear: _showClearCoSearch,
+            onChanged: (value) {
+              search(value, listCoCategory!);
+            },
+          ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: ListView.builder(
-                itemCount: state.listIncomeCategory?.length,
-                itemBuilder: (context, index) {
-                  final isExpanded = _isExpandedMapIn[index] ?? true;
-                  return Column(
-                    children: [
-                      ListTile(
-                        minLeadingWidth: 0,
-                        leading: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isExpandedMapIn[index] = !isExpanded;
-                            });
-                          },
-                          child: Icon(
-                            isExpanded ? Icons.expand_more : Icons.expand_less,
-                            size: 24,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        title: InkWell(
-                          onTap: () async {
-                            await SharedPreferencesStorage()
-                                .setItemCategorySelected(
-                              categoryId: state.listIncomeCategory?[index].id,
-                              leading:
-                                  state.listIncomeCategory?[index].logoImageUrl,
-                              title: state.listIncomeCategory?[index].name,
-                            );
-                            if (mounted) {
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: Colors.grey.withOpacity(0.3),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: AppImage(
-                                    localPathOrUrl: state
-                                        .listIncomeCategory?[index]
-                                        .logoImageUrl,
-                                    errorWidget: const SizedBox.shrink(),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Text(
-                                    state.listIncomeCategory?[index].name ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
+              padding: const EdgeInsets.only(top: 10),
+              child: _showCoSearchResult
+                  ? _resultSearch(listSearchResult)
+                  : ListView.builder(
+                      itemCount: listCoCategory!.length,
+                      itemBuilder: (context, index) {
+                        final isExpanded = _isExpandedMapCo[index] ?? true;
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: InkWell(
+                                onTap: () {
+                                  ItemCategory itemSelected = ItemCategory(
+                                    categoryId: listCoCategory[index].id,
+                                    title: listCoCategory[index].name,
+                                    iconLeading:
+                                        listCoCategory[index].logoImageUrl,
+                                    type: TransactionType.income,
+                                  );
+                                  Navigator.of(context).pop(itemSelected);
+                                },
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    isNotNullOrEmpty(
+                                            listCoCategory[index].childCategory)
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                _isExpandedMapCo[index] =
+                                                    !isExpanded;
+                                              });
+                                            },
+                                            child: Icon(
+                                              isExpanded
+                                                  ? Icons.expand_more
+                                                  : Icons.expand_less,
+                                              size: 24,
+                                              color: Colors.grey,
+                                            ),
+                                          )
+                                        : const SizedBox(width: 24),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10, right: 16),
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Colors.grey.withOpacity(0.2),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          child: AppImage(
+                                            localPathOrUrl:
+                                                listCoCategory[index]
+                                                    .logoImageUrl,
+                                            errorWidget:
+                                                const SizedBox.shrink(),
+                                          ),
+                                        ),
+                                      ),
                                     ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        child: Text(
+                                          listCoCategory[index].name ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      child: (widget.categoryIdSelected ==
+                                              listCoCategory[index].id)
+                                          ? Icon(
+                                              Icons.check,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              size: 16,
+                                            )
+                                          : null,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 80),
+                              child: Divider(
+                                height: 1,
+                                color: Colors.grey.withOpacity(0.3),
+                              ),
+                            ),
+                            if (isExpanded)
+                              SizedBox(
+                                height: 50 *
+                                    (listCoCategory[index]
+                                                .childCategory
+                                                ?.length ??
+                                            0)
+                                        .toDouble(),
+                                child: ListView.builder(
+                                  itemCount: listCoCategory[index]
+                                      .childCategory
+                                      ?.length,
+                                  itemBuilder: (context, indexx) =>
+                                      _itemChildCategory(
+                                    context,
+                                    listCoCategory[index]
+                                        .childCategory?[indexx],
+                                    parentName: listCoCategory[index].name,
+                                    iconParentUrl:
+                                        listCoCategory[index].logoImageUrl,
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: (widget.categoryIdSelected ==
-                                        state.listIncomeCategory?[index].id)
-                                    ? Icon(
-                                        Icons.check,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 16,
-                                      )
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      if (isExpanded)
-                        SizedBox(
-                          height: 50 *
-                              (state.listIncomeCategory?[index].childCategory
-                                      ?.length)!
-                                  .toDouble(),
-                          child: ListView.builder(
-                            itemCount: state.listIncomeCategory?[index]
-                                .childCategory?.length,
-                            itemBuilder: (context, indexx) =>
-                                _itemChildCategory(
-                              context,
-                              state.listIncomeCategory?[index]
-                                  .childCategory?[indexx],
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
+                          ],
+                        );
+                      },
+                    ),
             ),
           ),
         ],
@@ -365,125 +454,272 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
     );
   }
 
-  Widget _itemChildCategory(BuildContext context, CategoryModel? item) {
-    return InkWell(
-      onTap: () async {
-        await SharedPreferencesStorage().setItemCategorySelected(
-          categoryId: item?.id,
-          leading: item?.logoImageUrl,
-          title: item?.name,
-        );
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(80, 6, 0, 0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+  Widget _itemChildCategory(
+    BuildContext context,
+    CategoryModel? item, {
+    String? parentName,
+    String? iconParentUrl,
+  }) {
+    return SizedBox(
+      height: 50,
+      child: Column(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                ItemCategory itemSelected = ItemCategory(
+                  categoryId: item?.id,
+                  title: item?.name,
+                  iconLeading: item?.logoImageUrl,
+                  type: item?.categoryType?.toUpperCase() == 'EXPENSE'
+                      ? TransactionType.expense
+                      : TransactionType.income,
+                );
+                Navigator.of(context).pop(itemSelected);
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 60, top: 4, bottom: 4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: AppImage(
+                          localPathOrUrl: item?.logoImageUrl,
+                          errorWidget: const SizedBox.shrink(),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Text(
+                          item?.name ?? '',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: (widget.categoryIdSelected == item?.id)
+                          ? Icon(
+                              Icons.check,
+                              color: Theme.of(context).primaryColor,
+                              size: 16,
+                            )
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 80),
+            child: Divider(
+              height: 1,
+              color: Colors.grey.withOpacity(0.3),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _resultSearch(List<CategoryModel>? listCategory) {
+    return ListView.builder(
+      itemCount: listCategory!.length,
+      itemBuilder: (context, index) {
+        final isExpanded = _isExpandedMapEx[index] ?? true;
+        return Column(
           children: [
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: InkWell(
+                onTap: () {
+                  ItemCategory itemSelected = ItemCategory(
+                    categoryId: listCategory[index].id,
+                    title: listCategory[index].name,
+                    iconLeading: listCategory[index].logoImageUrl,
+                    type: listCategory[index].categoryType?.toUpperCase() ==
+                            'EXPENSE'
+                        ? TransactionType.expense
+                        : TransactionType.income,
+                  );
+                  Navigator.of(context).pop(itemSelected);
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    isNotNullOrEmpty(listCategory[index].childCategory)
+                        ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isExpandedMapEx[index] = !isExpanded;
+                              });
+                            },
+                            child: Icon(
+                              isExpanded
+                                  ? Icons.expand_more
+                                  : Icons.expand_less,
+                              size: 24,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : const SizedBox(width: 24),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10, right: 16),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.grey.withOpacity(0.2),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: AppImage(
+                            localPathOrUrl: listCategory[index].logoImageUrl,
+                            errorWidget: const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          listCategory[index].name ?? '',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 80),
+              child: Divider(
+                height: 1,
                 color: Colors.grey.withOpacity(0.3),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: AppImage(
-                  localPathOrUrl: item?.logoImageUrl,
-                  errorWidget: Container(
-                    color: Colors.grey.withOpacity(0.3),
+            ),
+            if (isExpanded)
+              SizedBox(
+                height: 50 *
+                    (listCategory[index].childCategory?.length ?? 0).toDouble(),
+                child: ListView.builder(
+                  itemCount: listCategory[index].childCategory?.length,
+                  itemBuilder: (context, indexx) => _itemChildCategory(
+                    context,
+                    listCategory[index].childCategory?[indexx],
+                    parentName: listCategory[index].name,
+                    iconParentUrl: listCategory[index].logoImageUrl,
                   ),
                 ),
               ),
-            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _itemSearch({
+    required TextEditingController controller,
+    required Function(String)? onChanged,
+    bool showClear = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Container(
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.grey.withOpacity(0.2),
+        ),
+        child: Row(
+          children: [
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(
-                  item?.name ?? '',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
+              child: TextFormField(
+                textInputAction: TextInputAction.done,
+                controller: controller,
+                onChanged: onChanged,
+                maxLines: 1,
+                textAlign: TextAlign.start,
+                textAlignVertical: TextAlignVertical.center,
+                style: const TextStyle(color: Colors.black, fontSize: 14),
+                decoration: const InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                  border: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 24,
+                    color: Colors.grey,
                   ),
+                  hintText: 'Tìm theo tên hạng mục',
+                  hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
             ),
-            (widget.categoryIdSelected == item?.id)
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Icon(
-                      Icons.check,
-                      color: Theme.of(context).primaryColor,
-                      size: 16,
-                    ),
-                  )
-                : const SizedBox.shrink(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 0),
+              child: showClear
+                  ? IconButton(
+                      onPressed: () {
+                        controller.clear();
+                      },
+                      icon: const Icon(
+                        Icons.cancel,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : null,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _itemSearch() {
-    return Container(
-      height: 40,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.grey.withOpacity(0.2),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              textInputAction: TextInputAction.done,
-              controller: _searchController,
-              onChanged: (_) {
-                setState(() {});
-              },
-              maxLines: 1,
-              textAlign: TextAlign.start,
-              textAlignVertical: TextAlignVertical.center,
-              style: const TextStyle(color: Colors.black, fontSize: 14),
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.search,
-                  size: 24,
-                  color: Colors.grey,
-                ),
-                hintText: 'Tìm theo tên hạng mục',
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 0),
-            child: _showClearSearch
-                ? InkWell(
-                    onTap: () {
-                      _searchController.clear();
-                    },
-                    child: const Icon(
-                      Icons.cancel,
-                      size: 20,
-                      color: Colors.grey,
-                    ),
-                  )
-                : null,
-          ),
-        ],
-      ),
-    );
+  void search(String query, List<CategoryModel> listCate) {
+    if (query.isEmpty) {
+      setState(() {
+        listSearchResult = listCate;
+      });
+    } else {
+      listSearchResult = listCate.where((category) {
+        bool matchesCategoryName =
+            category.name?.toLowerCase().contains(query.toLowerCase()) ?? false;
+
+        bool matchesChildCategoryName = category.childCategory?.any((child) =>
+                child.name?.toLowerCase().contains(query.toLowerCase()) ??
+                false) ??
+            false;
+
+        return matchesCategoryName || matchesChildCategoryName;
+      }).toList();
+    }
   }
 
   PreferredSizeWidget _appBar() {

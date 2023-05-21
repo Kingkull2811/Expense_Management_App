@@ -1,16 +1,10 @@
 import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-import 'package:viet_wallet/screens/setting/category_item/category_item.dart';
-import 'package:viet_wallet/screens/setting/category_item/category_item_bloc.dart';
-import 'package:viet_wallet/screens/setting/security/security.dart';
+import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
-
-import 'limit_expenditure/limit.dart';
-import 'limit_expenditure/limit_bloc.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -78,12 +72,7 @@ class _SettingPageState extends State<SettingPage> {
                 icon: Icons.lock_outline,
                 title: 'Bảo mật',
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SecurityPage(),
-                    ),
-                  );
+                  Navigator.pushNamed(context, AppRoutes.security);
                 },
               ),
               Divider(height: 0.5, color: Colors.grey.withOpacity(0.2)),
@@ -118,39 +107,27 @@ class _SettingPageState extends State<SettingPage> {
                 title: 'Hạn mức chi',
                 imagePath: 'images/ic_spending_limit.png',
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider<LimitBloc>(
-                        create: (context) => LimitBloc(context),
-                        child: const LimitPage(),
-                      ),
-                    ),
-                  );
+                  Navigator.pushNamed(context, AppRoutes.limit);
                 }),
             _itemOption(
               title: 'Hạng mục thu/chi',
               icon: Icons.list_alt_outlined,
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider<CategoryItemBloc>(
-                      create: (context) => CategoryItemBloc(context),
-                      child: const CategoryItem(),
-                    ),
-                  ),
-                );
+                Navigator.pushNamed(context, AppRoutes.category);
               },
             ),
             _itemOption(
-              title: 'Ghi chép định kỳ',
-              icon: Icons.edit_calendar_outlined,
-            ),
+                title: 'Ghi chép định kỳ',
+                icon: Icons.edit_calendar_outlined,
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.recurring);
+                }),
             _itemOption(
-              title: 'Xuất file excel',
-              imagePath: 'images/ic_excel_file.png',
-            ),
+                title: 'Xuất file excel',
+                imagePath: 'images/ic_excel_file.png',
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.exportFile);
+                }),
             _itemOption(
               title: 'Tra cứu tỷ giá',
               imagePath: 'images/ic_currency_search.png',

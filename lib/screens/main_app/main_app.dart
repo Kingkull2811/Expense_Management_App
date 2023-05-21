@@ -15,7 +15,6 @@ import '../../utilities/database.dart';
 import '../my_wallet/my_wallet.dart';
 import '../my_wallet/my_wallet_bloc.dart';
 import '../setting/setting.dart';
-import '../setting/setting_bloc.dart';
 
 class MainApp extends StatefulWidget {
   final int? currentTab;
@@ -188,12 +187,7 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
         );
         break;
       case 4:
-        currentTab = BlocProvider<SettingBloc>(
-          create: (context) => SettingBloc(context),
-          child: SettingPage(
-            key: DatabaseService().accountKey,
-          ),
-        );
+        currentTab = SettingPage(key: DatabaseService().menuKey);
         break;
       default:
         currentTab = BlocProvider(
