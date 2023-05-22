@@ -232,7 +232,10 @@ class _RecurringInfoState extends State<RecurringInfo> {
   }
 
   Widget _buttonDeleteUpdate(
-      BuildContext context, int? walletID, int? categoryID) {
+    BuildContext context,
+    int? walletID,
+    int? categoryID,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -320,7 +323,10 @@ class _RecurringInfoState extends State<RecurringInfo> {
   }
 
   Future handleButtonSave(
-      BuildContext context, int? walletID, int? categoryID) async {
+    BuildContext context,
+    int? walletID,
+    int? categoryID,
+  ) async {
     if (_moneyController.text.isEmpty) {
       showMessage1OptionDialog(context, 'Bạn chưa nhập số tiền');
     } else if (isNullOrEmpty(walletID)) {
@@ -399,7 +405,7 @@ class _RecurringInfoState extends State<RecurringInfo> {
               height: 0.5,
               color: Colors.grey.withOpacity(0.3),
             ),
-            _selectCategory(),
+            _selectCategory(context),
             Divider(
               height: 0.5,
               color: Colors.grey.withOpacity(0.3),
@@ -454,10 +460,10 @@ class _RecurringInfoState extends State<RecurringInfo> {
     );
   }
 
-  Widget _selectCategory() {
+  Widget _selectCategory(BuildContext context) {
     return ListTile(
       onTap: () async {
-        final ItemCategory itemCategory = await Navigator.push(
+        final ItemCategory? itemCategory = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider(
@@ -468,9 +474,14 @@ class _RecurringInfoState extends State<RecurringInfo> {
             ),
           ),
         );
-        setState(() {
-          itemCategorySelected = itemCategory;
-        });
+        if (itemCategory != null) {
+          setState(() {
+            itemCategorySelected = itemCategory;
+          });
+        } else {
+          showMessage1OptionDialog(this.context, 'Vui lòng chọn hạng mục');
+          return;
+        }
       },
       dense: false,
       horizontalTitleGap: 6,
@@ -755,7 +766,9 @@ class _RecurringInfoState extends State<RecurringInfo> {
     String timeF = 'Lúc ${result.time}';
     setState(() {
       optionTitle = isNullOrEmpty(toDateF)
-          ? [frequencyName, fromDateF, timeF].join('. ')
+          ? isNullOrEmpty(time)
+              ? [frequencyName, fromDateF].join('. ')
+              : [frequencyName, fromDateF, timeF].join('. ')
           : [frequencyName, fromDateF, toDateF, timeF].join('. ');
       listDay = result.dayOfWeeks;
       frequencyType = result.frequency.frequencyType;

@@ -5,25 +5,24 @@ import 'package:viet_wallet/network/provider/provider_mixin.dart';
 import 'package:viet_wallet/network/response/base_get_response.dart';
 
 class ExportProvider with ProviderMixin {
-  Future<Object> getFileReport(
-    Map<String, dynamic> queryParameters,
-    List<int> walletIDs,
-  ) async {
+  Future<Object> getFileReport({
+    required List<int> walletIDs,
+    required String fromDate,
+    toDate,
+  }) async {
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
     }
-    // try {
-    // String savePath = 'storage/emulated/0/Download/viet-wallet/';
+
+    /// like: export?fromDate=2023-04-01&toDate=2023-05-01
+    final String apiExportFile =
+        '${ApiPath.exportData}?fromDate=$fromDate&toDate=$toDate';
 
     final response = await dio.put(
-      ApiPath.exportData,
-      // savePath,
-      data: {'walletIds': walletIDs.toString()},
-      queryParameters: queryParameters,
-      options: await defaultOptions(url: ApiPath.exportData),
+      apiExportFile,
+      data: {'walletIds': walletIDs},
+      options: await defaultOptions(url: apiExportFile),
     );
-
-    log('query: $queryParameters, listint: ${walletIDs.toString()}');
     log('response: ${response.toString()}');
 
     return response;

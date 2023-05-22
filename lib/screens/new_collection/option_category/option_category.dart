@@ -728,7 +728,7 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
       backgroundColor: Theme.of(context).primaryColor,
       leading: IconButton(
         onPressed: () {
-          Navigator.pop(context);
+          Navigator.of(context).pop(null);
         },
         icon: const Icon(
           Icons.arrow_back_ios,
@@ -740,7 +740,10 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
       title: const Text(
         'Chọn hạng mục',
         style: TextStyle(
-            fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+          fontSize: 20,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       actions: [
         IconButton(

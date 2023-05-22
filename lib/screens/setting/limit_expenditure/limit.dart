@@ -7,6 +7,8 @@ import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/limit_i
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/limit_info_event.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit_state.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/report_limit/report_limit.dart';
+import 'package:viet_wallet/screens/setting/limit_expenditure/report_limit/report_limit_bloc.dart';
+import 'package:viet_wallet/screens/setting/limit_expenditure/report_limit/report_limit_event.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
@@ -27,6 +29,11 @@ class _LimitPageState extends State<LimitPage> {
   final String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
 
   late LimitBloc _limitBloc;
+
+  void _reloadPage() {
+    _limitBloc.add(GetListLimitEvent());
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -142,17 +149,26 @@ class _LimitPageState extends State<LimitPage> {
             padding: const EdgeInsets.only(bottom: 16.0),
             child: InkWell(
               onTap: () async {
-                final bool result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReportLimit(
-                      limitData: listLimit[index],
+                if (listLimit[index].id != null) {
+                  final bool result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider<ReportLimitBloc>(
+                        create: (context) => ReportLimitBloc(context)
+                          ..add(
+                            Initial(reportLimitId: listLimit[index].id!),
+                          ),
+                        child: ReportLimit(
+                          limitID: listLimit[index].id!,
+                        ),
+                      ),
                     ),
-                  ),
-                );
-                if (result) {
-                  _limitBloc.add(GetListLimitEvent());
-                  setState(() {});
+                  );
+                  if (result) {
+                    _reloadPage();
+                  } else {
+                    return;
+                  }
                 }
               },
               child: Container(
@@ -190,7 +206,9 @@ class _LimitPageState extends State<LimitPage> {
                                   child: Text(
                                     '${formatDate(listLimit[index].fromDate)} - ${formatDate(listLimit[index].toDate)}',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.grey),
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -203,13 +221,17 @@ class _LimitPageState extends State<LimitPage> {
                               Text(
                                 'Chi: ${listLimit[index].actualAmount} $currency',
                                 style: const TextStyle(
-                                    fontSize: 14, color: Colors.red),
+                                  fontSize: 14,
+                                  color: Colors.red,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Hạn mức: ${listLimit[index].amount} $currency',
                                 style: const TextStyle(
-                                    fontSize: 14, color: Colors.black),
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
                               ),
                             ],
                           )
@@ -237,12 +259,16 @@ class _LimitPageState extends State<LimitPage> {
                                 ? Text(
                                     'Vượt hạn mức: ${overAmount(listLimit[index].actualAmount!, listLimit[index].amount!)} $currency',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.red),
+                                      fontSize: 14,
+                                      color: Colors.red,
+                                    ),
                                   )
                                 : Text(
                                     'Vượt hạn mức: --- $currency',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.red),
+                                      fontSize: 14,
+                                      color: Colors.red,
+                                    ),
                                   ),
                           ],
                         ),

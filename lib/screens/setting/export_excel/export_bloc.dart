@@ -34,16 +34,12 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
         }
       }
       if (event is GetExport) {
-        final Map<String, dynamic> query = {
-          'fromDate': event.formDate,
-          'toDate': event.toDate
-        };
-
         print('listInt: ${event.walletIDs.toString()}');
 
         final response = await _exportProvider.getFileReport(
-          query,
-          event.walletIDs,
+          fromDate: event.formDate,
+          toDate: event.toDate,
+          walletIDs: event.walletIDs,
         );
         log(response.toString());
       }
