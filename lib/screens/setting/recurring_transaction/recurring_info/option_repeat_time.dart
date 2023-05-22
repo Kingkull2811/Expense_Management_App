@@ -257,7 +257,7 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
           currentTime: DateTime.now(),
           onConfirm: (date) {
             setState(() {
-              time = DateFormat('HH:mm').format(date);
+              time = DateFormat('HH:mm:ss').format(date);
             });
           },
           onCancel: () {
@@ -306,7 +306,10 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const FrequencyPickerScreen(),
+            builder: (context) => FrequencyPickerScreen(
+              frequency: frequency,
+              listDay: listDay,
+            ),
           ),
         );
         if (result is Frequency) {
@@ -319,7 +322,9 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
 
           setState(() {
             frequency = Frequency(
-                title: 'Ngày trong tuần', frequencyType: FrequencyType.weekday);
+              title: 'Ngày trong tuần',
+              frequencyType: FrequencyType.weekday,
+            );
             listDay = result;
             nameDayOfWeek = titles.join(', ');
           });

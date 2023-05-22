@@ -185,5 +185,5 @@ String getListDayName(List<DayOfWeek>? listDayOfWeek) {
 }
 
 String getDateTimeFormat(DateTime date) {
-  return DateFormat('dd/MM/yyyy').format(date);
+  return DateFormat('yyyy-MM-dd').format(date);
 }

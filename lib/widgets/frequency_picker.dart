@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 
@@ -6,7 +5,10 @@ import '../network/model/frequency_model.dart';
 import '../utilities/enum/enum.dart';
 
 class FrequencyPickerScreen extends StatefulWidget {
-  const FrequencyPickerScreen({super.key});
+  final Frequency? frequency;
+  final List<DayOfWeek>? listDay;
+
+  const FrequencyPickerScreen({super.key, this.frequency, this.listDay});
 
   @override
   State<FrequencyPickerScreen> createState() => _FrequencyPickerScreenState();
@@ -20,6 +22,24 @@ class _FrequencyPickerScreenState extends State<FrequencyPickerScreen> {
     title: 'Hàng ngày',
     frequencyType: FrequencyType.daily,
   );
+
+  void initWhenEdit() {
+    setState(() {
+      frequencySelected = widget.frequency ??
+          Frequency(
+            title: 'Hàng ngày',
+            frequencyType: FrequencyType.daily,
+          );
+      listDay = widget.listDay ?? [];
+      sortedTitles = getListDayName(listDay);
+    });
+  }
+
+  @override
+  void initState() {
+    initWhenEdit();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +62,7 @@ class _FrequencyPickerScreenState extends State<FrequencyPickerScreen> {
         ),
         centerTitle: true,
         title: const Text(
-          'Pick Frequency',
+          'Chọn tần suất lặp',
           style: TextStyle(
             fontSize: 20,
             color: Colors.white,
@@ -54,14 +74,6 @@ class _FrequencyPickerScreenState extends State<FrequencyPickerScreen> {
         itemCount: listFrequency.length,
         itemBuilder: (context, index) {
           final frequency = listFrequency[index];
-          listDay.sort((a, b) => a.index.compareTo(b.index));
-          List<String> titles = listDay.map((day) => day.title).toList();
-
-          if (const ListEquality().equals(listDay, listDayOfWeek)) {
-            sortedTitles = 'Tất cả các ngày trong tuần';
-          } else {
-            sortedTitles = titles.join(', ');
-          }
 
           return Container(
             decoration: BoxDecoration(
@@ -105,6 +117,7 @@ class _FrequencyPickerScreenState extends State<FrequencyPickerScreen> {
                   );
                   setState(() {
                     listDay = result ?? [];
+                    sortedTitles = getListDayName(listDay);
                   });
                 } else {
                   // Handle other frequency types
@@ -177,7 +190,7 @@ class DayOfWeekPickerScreenState extends State<DayOfWeekPickerScreen> {
           ),
           centerTitle: true,
           title: const Text(
-            'Pick Day of Week',
+            'Chọn ngày trong tuần',
             style: TextStyle(
               fontSize: 20,
               color: Colors.white,

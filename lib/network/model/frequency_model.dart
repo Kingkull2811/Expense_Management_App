@@ -40,8 +40,8 @@ List<DayOfWeek> listDayOfWeek = [
 
 List<Frequency> listFrequency = [
   Frequency(title: 'Hàng ngày', frequencyType: FrequencyType.daily),
-  Frequency(title: 'Hàng tuần', frequencyType: FrequencyType.monthly),
-  Frequency(title: 'Hàng tháng', frequencyType: FrequencyType.quarterly),
+  Frequency(title: 'Hàng tuần', frequencyType: FrequencyType.week),
+  Frequency(title: 'Hàng tháng', frequencyType: FrequencyType.monthly),
   Frequency(title: 'Hàng quý', frequencyType: FrequencyType.quarterly),
   Frequency(title: 'Hàng năm', frequencyType: FrequencyType.yearly),
   Frequency(title: 'Ngày trong tuần', frequencyType: FrequencyType.weekday),

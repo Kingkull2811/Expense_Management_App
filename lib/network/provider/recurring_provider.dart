@@ -50,6 +50,7 @@ class RecurringProvider with ProviderMixin {
         data: data,
         options: await defaultOptions(url: apiUpdate),
       );
+
       return RecurringPost.fromJson(response.data);
     } catch (error, stacktrace) {
       return errorGetResponse(error, stacktrace, apiUpdate);
@@ -62,8 +63,9 @@ class RecurringProvider with ProviderMixin {
     }
     String apiDelete = '${ApiPath.recurring}/${recurringID.toString()}';
     try {
-      return await dio.delete(apiDelete,
+      final response = await dio.delete(apiDelete,
           options: await defaultOptions(url: apiDelete));
+      return response;
     } catch (error, stacktrace) {
       return errorGetResponse(error, stacktrace, apiDelete);
     }

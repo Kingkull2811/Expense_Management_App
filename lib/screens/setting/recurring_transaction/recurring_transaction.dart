@@ -220,6 +220,8 @@ class _RecurringPageState extends State<RecurringPage> {
             );
             if (result) {
               reloadPage();
+            } else {
+              return;
             }
           },
           leading: Container(

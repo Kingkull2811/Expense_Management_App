@@ -243,15 +243,19 @@ class _RecurringInfoState extends State<RecurringInfo> {
             text: 'Xóa',
             onTap: () async {
               showMessage2OptionDialog(
-                  context, 'Bạn có muốn xóa giao dịch định kỳ này?',
-                  cancelLabel: 'Huỷ', okLabel: 'Xóa', onOK: () async {
-                if (widget.recurringListModel?.id != null) {
-                  await _recurringRepository.deleteRecurring(
-                    recurringID: (widget.recurringListModel?.id)!,
-                  );
-                  Navigator.of(this.context).pop(true);
-                }
-              });
+                context,
+                'Bạn có muốn xóa giao dịch định kỳ này?',
+                cancelLabel: 'Huỷ',
+                okLabel: 'Xóa',
+                onOK: () async {
+                  if (widget.recurringListModel?.id != null) {
+                    await _recurringRepository.deleteRecurring(
+                      recurringID: (widget.recurringListModel?.id)!,
+                    );
+                    Navigator.of(this.context).pop(true);
+                  }
+                },
+              );
             },
           ),
           PrimaryButton(
@@ -272,7 +276,8 @@ class _RecurringInfoState extends State<RecurringInfo> {
 
                 final Map<String, dynamic> data = {
                   "addToReport": _isMathReport,
-                  "amount": int.parse(_moneyController.text.trim()),
+                  "amount":
+                      double.parse(_moneyController.text.trim().toString()),
                   "categoryId": categoryID!.toString(),
                   "dayInWeeks":
                       frequencyType == FrequencyType.weekday ? enList : [],
@@ -291,13 +296,11 @@ class _RecurringInfoState extends State<RecurringInfo> {
                     data: data,
                   );
 
-                  log(response.toString());
                   if (response is RecurringPost) {
                     showMessage1OptionDialog(
                       this.context,
                       'Cập nhật giao dịch định kỳ thành công',
                       onClose: () {
-                        Navigator.pop(context);
                         Navigator.of(context).pop(true);
                       },
                     );
@@ -332,7 +335,7 @@ class _RecurringInfoState extends State<RecurringInfo> {
 
       final Map<String, dynamic> data = {
         "addToReport": _isMathReport,
-        "amount": int.parse(_moneyController.text.trim()),
+        "amount": double.parse(_moneyController.text.trim().toString()),
         "categoryId": categoryID!.toString(),
         "dayInWeeks": frequencyType == FrequencyType.weekday ? enList : [],
         "description": _noteController.text.trim(),
