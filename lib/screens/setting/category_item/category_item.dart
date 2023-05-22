@@ -59,6 +59,8 @@ class _CategoryItemState extends State<CategoryItem>
   @override
   void dispose() {
     _tabController.dispose();
+    _expenditureSearch.dispose();
+    _collectedSearch.dispose();
     super.dispose();
   }
 
@@ -733,15 +735,18 @@ class _CategoryItemState extends State<CategoryItem>
       setState(() {
         listSearchResult = listCate;
       });
+    } else {
+      listSearchResult = listCate.where((category) {
+        bool matchesCategoryName =
+            category.name?.toLowerCase().contains(query.toLowerCase()) ?? false;
+
+        bool matchesChildCategoryName = category.childCategory?.any((child) =>
+                child.name?.toLowerCase().contains(query.toLowerCase()) ??
+                false) ??
+            false;
+
+        return matchesCategoryName || matchesChildCategoryName;
+      }).toList();
     }
-    final suggestion = listCate
-        .where(
-          (category) =>
-              category.name!.toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
-    setState(() {
-      listSearchResult = suggestion;
-    });
   }
 }

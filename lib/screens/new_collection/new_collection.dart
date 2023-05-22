@@ -14,6 +14,7 @@ import '../../network/model/collection_model.dart';
 import '../../network/model/wallet.dart';
 import '../../network/provider/collection_provider.dart';
 import '../../utilities/enum/api_error_result.dart';
+import '../../utilities/enum/enum.dart';
 import '../../utilities/screen_utilities.dart';
 import '../../utilities/shared_preferences_storage.dart';
 import '../../utilities/utils.dart';
@@ -53,6 +54,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
     categoryId: null,
     title: "Chọn hạng mục",
     iconLeading: '',
+    type: TransactionType.expense,
   );
 
   String datePicker = formatToLocaleVietnam(DateTime.now());
@@ -467,22 +469,20 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
 
   Widget _selectCategory() {
     return ListTile(
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => BlocProvider(
-            create: (context) => OptionCategoryBloc(context),
-            child: OptionCategoryPage(
-              categoryIdSelected: itemCategorySelected.categoryId,
+      onTap: () async {
+        final ItemCategory itemCategory = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => OptionCategoryBloc(context),
+              child: OptionCategoryPage(
+                categoryIdSelected: itemCategorySelected.categoryId,
+              ),
             ),
           ),
-        ).whenComplete(() {
-          setState(() {
-            itemCategorySelected =
-                SharedPreferencesStorage().getItemCategorySelected();
-          });
+        );
+        setState(() {
+          itemCategorySelected = itemCategory;
         });
       },
       dense: false,
@@ -936,11 +936,13 @@ class ItemCategory {
   final int? categoryId;
   final String? title;
   final String? iconLeading;
+  final TransactionType? type;
 
   ItemCategory({
     this.categoryId,
     this.title,
     this.iconLeading,
+    this.type,
   });
 }
 
@@ -957,7 +959,11 @@ class ItemOption {
 }
 
 List<ItemOption> itemsOption = [
-  ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove),
+  ItemOption(
+    itemId: 0,
+    title: 'Chi tiền',
+    icon: Icons.remove,
+  ),
   ItemOption(itemId: 1, title: 'Thu tiền', icon: Icons.add),
   // ItemOption(title: 'Cho vay', icon: Icons.payment),
   // ItemOption(title: 'Đi vay', icon: Icons.currency_exchange),

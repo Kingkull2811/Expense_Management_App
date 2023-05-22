@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +40,6 @@ class WalletDetailsBloc extends Bloc<WalletDetailsEvent, WalletDetailsState> {
           queryParam: queryParam,
         );
 
-        log(response.toString());
         if (response is WalletReport) {
           emit(state.copyWith(
             isLoading: false,

@@ -4,6 +4,20 @@ import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
 import 'package:viet_wallet/screens/my_wallet/add_new_wallet/add_new_wallet.dart';
+import 'package:viet_wallet/screens/setting/category_item/category_item.dart';
+import 'package:viet_wallet/screens/setting/category_item/category_item_bloc.dart';
+import 'package:viet_wallet/screens/setting/export_excel/export.dart';
+import 'package:viet_wallet/screens/setting/export_excel/export_bloc.dart';
+import 'package:viet_wallet/screens/setting/limit_expenditure/limit.dart';
+import 'package:viet_wallet/screens/setting/limit_expenditure/limit_bloc.dart';
+import 'package:viet_wallet/screens/setting/recurring_transaction/recurring_transaction.dart';
+import 'package:viet_wallet/screens/setting/recurring_transaction/recurring_transaction_bloc.dart';
+import 'package:viet_wallet/screens/setting/security/security.dart';
+
+import 'screens/planning/balance_payments/payments.position.bloc.dart';
+import 'screens/planning/balance_payments/payments.position.page.dart';
+import 'screens/planning/expenditure_analysis/expenditure_analysis.dart';
+import 'screens/planning/expenditure_analysis/expenditure_analysis_bloc.dart';
 
 class AppRoutes {
   static const mainApp = '/';
@@ -15,10 +29,18 @@ class AppRoutes {
   static const walletDetails = '/myWallet/walletDetails';
 
   static const report = '/report';
+  static const reportPayment = '/report/payment';
+  static const reportExpenditure = '/report/expenditure';
   static const newCollection = '/new';
-  static const profile = '/profile';
 
   static const login = '/login';
+
+  static const settings = '/settings';
+  static const security = '/settings/security';
+  static const category = '/settings/category';
+  static const limit = '/settings/limit';
+  static const recurring = '/settings/recurring';
+  static const exportFile = '/settings/export';
 
   Map<String, Widget Function(BuildContext)> routes(BuildContext context,
       {required bool isLoggedIn}) {
@@ -41,7 +63,7 @@ class AppRoutes {
       AppRoutes.report: (context) {
         return MainApp(currentTab: 3);
       },
-      AppRoutes.profile: (context) {
+      AppRoutes.settings: (context) {
         return MainApp(currentTab: 4);
       },
       AppRoutes.login: (context) {
@@ -52,6 +74,45 @@ class AppRoutes {
       },
       AppRoutes.addWallet: (context) {
         return const AddNewWalletPage();
+      },
+      AppRoutes.security: (context) {
+        return const SecurityPage();
+      },
+      AppRoutes.reportPayment: (context) {
+        return BlocProvider<PaymentsPositionBloc>(
+          create: (context) => PaymentsPositionBloc(context),
+          child: const PaymentPosition(),
+        );
+      },
+      AppRoutes.reportExpenditure: (context) {
+        return BlocProvider<ExpenditureBloc>(
+          create: (context) => ExpenditureBloc(context),
+          child: const Expenditure(),
+        );
+      },
+      AppRoutes.category: (context) {
+        return BlocProvider<CategoryItemBloc>(
+          create: (context) => CategoryItemBloc(context),
+          child: const CategoryItem(),
+        );
+      },
+      AppRoutes.limit: (context) {
+        return BlocProvider<LimitBloc>(
+          create: (context) => LimitBloc(context),
+          child: const LimitPage(),
+        );
+      },
+      AppRoutes.recurring: (context) {
+        return BlocProvider<RecurringTransactionBloc>(
+          create: (context) => RecurringTransactionBloc(context),
+          child: const RecurringPage(),
+        );
+      },
+      AppRoutes.exportFile: (context) {
+        return BlocProvider<ExportBloc>(
+          create: (context) => ExportBloc(context),
+          child: const ExportPage(),
+        );
       },
     };
   }

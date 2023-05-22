@@ -63,18 +63,19 @@ class _MyWalletPageState extends State<MyWalletPage> {
         elevation: 0,
         backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(30),
-            onTap: () {},
-            child: const Icon(
-              Icons.search,
-              size: 24,
-              color: Colors.white,
-            ),
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        // leading: Padding(
+        //   padding: const EdgeInsets.all(10.0),
+        //   child: InkWell(
+        //     borderRadius: BorderRadius.circular(30),
+        //     onTap: () {},
+        //     child: const Icon(
+        //       Icons.search,
+        //       size: 24,
+        //       color: Colors.white,
+        //     ),
+        //   ),
+        // ),
         title: const Text(
           'Tài khoản',
           style: TextStyle(

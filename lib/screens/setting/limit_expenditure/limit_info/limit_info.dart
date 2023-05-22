@@ -6,7 +6,7 @@ import 'package:viet_wallet/network/model/limit_expenditure_model.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/limit_info_bloc.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/limit_info_event.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/limit_info_state.dart';
-import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/seclect_category.dart';
+import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/select_category.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit_info/select_wallets.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
@@ -243,9 +243,9 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
               } else if (isNullOrEmpty(listWalletSelected)) {
                 showMessage1OptionDialog(
                     context, 'Phải chọn ít nhất 1 tài khoản');
-              } else if (isNullOrEmpty(dateEnd)) {
-                showMessage1OptionDialog(
-                    context, 'Bạn chưa chọn ngày kết thúc');
+                // } else if (isNullOrEmpty(dateEnd)) {
+                //   showMessage1OptionDialog(
+                //       context, 'Bạn chưa chọn ngày kết thúc');
               } else {
                 List<int> listWalledIdSelected = [];
 
@@ -336,21 +336,9 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
 
   Widget _selectWallet(LimitInfoState state) {
     List<Wallet> listWalled = state.listWallet ?? [];
-    listWalled.forEach(updateCheckedStatusWallet);
-
-    String walletsName = '';
-    if (widget.isEdit) {
-      listWalletSelected =
-          listWalled.where((wallet) => wallet.isChecked == true).toList();
-    }
-
-    for (var wallet in listWalletSelected) {
-      if (listWalletSelected.length == 1) {
-        walletsName = '${wallet.name}';
-      } else {
-        walletsName = '$walletsName ${wallet.name},';
-      }
-    }
+    List<String> titles =
+        listWalled.map((wallet) => wallet.name ?? '').toList();
+    String walletsName = titles.join(', ');
 
     return ListTile(
       onTap: () async {
@@ -614,7 +602,6 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
           enabledBorder: InputBorder.none,
           errorBorder: InputBorder.none,
           disabledBorder: InputBorder.none,
-          // contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
           hintText: 'Tên hạn mức',
           hintStyle: const TextStyle(
             fontSize: 16,
@@ -685,7 +672,6 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
                           fontSize: 20,
                           color: Theme.of(context).primaryColor,
                         ),
-                        // inputFormatters: [InputFormatter()],
                       ),
                     ),
                   ),
