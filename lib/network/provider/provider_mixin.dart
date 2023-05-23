@@ -54,6 +54,8 @@ mixin ProviderMixin {
 
   Future<Options> defaultOptions({
     String? url,
+    String? contentType,
+    String? accept,
   }) async {
     String token =
         await SecureStorage().readSecureData(AppConstants.accessTokenKey);
@@ -61,10 +63,13 @@ mixin ProviderMixin {
       if (isNotNullOrEmpty(url)) {
         print('URL: $url');
       }
-      // log('TOKEN - ${AppConstants.buildRegion.toUpperCase()}: $token');
     }
     return Options(
-      headers: {'Authorization': token},
+      headers: {
+        'Authorization': token,
+        if (contentType != null) 'Content-Type': contentType,
+        if (accept != null) 'Accept': accept,
+      },
     );
   }
 
