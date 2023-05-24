@@ -104,4 +104,11 @@ class SharedPreferencesStorage {
     _secureStorage.deleteSecureData(AppConstants.accessTokenKey);
     _secureStorage.deleteSecureData(AppConstants.refreshTokenKey);
   }
+
+  ///save fcm_token
+  Future<void> setFCMToken(String token) async =>
+      await _preferences.setString(AppConstants.fcmTokenKey, token);
+
+  String getFCMToken() =>
+      _preferences.getString(AppConstants.fcmTokenKey) ?? '';
 }

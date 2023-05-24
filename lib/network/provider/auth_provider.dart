@@ -10,6 +10,9 @@ import 'package:viet_wallet/network/response/verify_otp_response.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
+import 'package:viet_wallet/utilities/utils.dart';
+
+import '../../services/notification_service.dart';
 
 class AuthProvider with ProviderMixin {
   final SecureStorage _secureStorage = SecureStorage();
@@ -63,7 +66,13 @@ class AuthProvider with ProviderMixin {
     required String password,
   }) async {
     try {
+      String fcmToken = SharedPreferencesStorage().getFCMToken();
+      if (isNullOrEmpty(fcmToken)) {
+        fcmToken = await NotificationServices().getDeviceToken();
+      }
+
       final data = {
+        'deviceToken': fcmToken,
         "password": password,
         "username": username,
       };

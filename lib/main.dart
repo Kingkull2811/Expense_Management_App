@@ -1,26 +1,34 @@
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viet_wallet/routes.dart';
+import 'package:viet_wallet/services/notification_service.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // _removeBadgeWhenOpenApp();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  //init global key for tabs
-  // DatabaseService().homeKey = GlobalKey<HomePageState>();
-  // DatabaseService().myWalletKey = GlobalKey<MyWalletPageState>();
-  // DatabaseService().newCollectionKey = GlobalKey<NewCollectionPageState>();
-  // DatabaseService().reportKey = GlobalKey<ReportPageState>();
-  // DatabaseService().otherKey = GlobalKey<OtherPageState>();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   // Init SharedPreferences storage
   await SharedPreferencesStorage.init();
 
   runApp(MyApp());
+}
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  print('Handling a background message ${message.messageId}');
 }
 
 _removeBadgeWhenOpenApp() async {
@@ -45,6 +53,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     _checkAuthenticationState();
+    NotificationServices().requestNotificationPermission();
     super.initState();
   }
 

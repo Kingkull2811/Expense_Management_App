@@ -19,23 +19,16 @@ class ExportProvider with ProviderMixin {
       final savePath = await getApplicationDocumentsDirectory();
 
       String tempPath = savePath.path;
-      var filePath = '$tempPath/report_${fromDate}_$toDate';
-
-      String url = '${ApiPath.exportData}?fromDate=$fromDate&toDate=$toDate';
-      walletIDs.forEach((walletId) {
-        url += '&walletIds=$walletId';
-      });
-
-      print('url:$url');
+      var filePath = '$tempPath/report_${fromDate}_$toDate.xlsx';
 
       final response = await dio.get(
-        // ApiPath.exportData,
-        url,
-        // queryParameters: {
-        //   'fromDate': fromDate,
-        //   'toDate': toDate,
-        //   'walletIds': walletIDs.map((item) => item.toString()).toList(),
-        // },
+        ApiPath.exportData,
+        // url,
+        queryParameters: {
+          'fromDate': fromDate,
+          'toDate': toDate,
+          'walletIds': walletIDs.map((item) => item.toString()).toList(),
+        },
         // onReceiveProgress: (received, total) {
         //   if (total != -1) {
         //     if (kDebugMode) {

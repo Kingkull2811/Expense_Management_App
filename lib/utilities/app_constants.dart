@@ -21,6 +21,8 @@ class AppConstants {
   static const String currencyKey = 'CURRENCY';
   static const String isHiddenAmount = 'HIDDEN_AMOUNT';
 
+  static const String fcmTokenKey = 'FCM_TOKEN_KEY';
+
   //for set options timeOut waiting request dio connect to servers
   static Options options = Options(
     sendTimeout: const Duration(seconds: 10),
