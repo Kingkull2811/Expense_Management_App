@@ -32,5 +32,5 @@ class ApiPath {
 
   static const String recurring = '$apiDomain/api/v1/recurring-transaction';
 
-  static const String exportData = '$apiDomain/api/v1/transaction/export';
+  static const String exportData = '$apiDomain/api/v1/export';
 }

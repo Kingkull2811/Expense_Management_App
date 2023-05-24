@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
@@ -19,6 +20,7 @@ import 'package:viet_wallet/widgets/animation_loading.dart';
 import 'package:viet_wallet/widgets/input_field.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
+import '../../../services/notification_service.dart';
 import '../../../widgets/input_password_field.dart';
 
 class SignInPage extends StatefulWidget {
@@ -39,10 +41,23 @@ class _SignInPageState extends State<SignInPage> {
 
   final _formKey = GlobalKey<FormState>();
 
+  NotificationServices notificationServices = NotificationServices();
+
   @override
   void initState() {
     _signInBloc = BlocProvider.of<SignInBloc>(context);
     super.initState();
+    notificationServices.requestNotificationPermission();
+    notificationServices.foregroundMessage();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    notificationServices.isTokenRefresh();
+
+    notificationServices.getDeviceToken().then((value) {
+      if (kDebugMode) {
+        print('device token: $value');
+      }
+    });
   }
 
   @override
