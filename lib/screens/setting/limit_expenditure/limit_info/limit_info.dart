@@ -162,8 +162,8 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
                 context, 'Phải chọn ít nhất 1 hạng mục chi');
           } else if (isNullOrEmpty(listWalletSelected)) {
             showMessage1OptionDialog(context, 'Phải chọn ít nhất 1 tài khoản');
-          } else if (isNullOrEmpty(dateEnd)) {
-            showMessage1OptionDialog(context, 'Bạn chưa chọn ngày kết thúc');
+            // } else if (isNullOrEmpty(dateEnd)) {
+            //   showMessage1OptionDialog(context, 'Bạn chưa chọn ngày kết thúc');
           } else {
             List<int> listWalledIdSelected = [];
 
