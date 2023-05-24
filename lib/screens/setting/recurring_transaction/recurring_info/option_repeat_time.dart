@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:viet_wallet/network/model/frequency_model.dart';
+import 'package:viet_wallet/utilities/screen_utilities.dart';
 
 import '../../../../network/model/recurring_post_model.dart';
 import '../../../../utilities/enum/enum.dart';
@@ -66,14 +67,18 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
           backgroundColor: Theme.of(context).primaryColor,
           leading: IconButton(
             onPressed: () {
-              OptionRepeatData optionRepeatData = OptionRepeatData(
-                dayOfWeeks: listDay,
-                frequency: frequency,
-                fromDate: dateStart,
-                toDate: dateEnd ?? '',
-                time: time,
-              );
-              Navigator.of(context).pop(optionRepeatData);
+              if (isNullOrEmpty(time)) {
+                showMessage1OptionDialog(context, 'Vui lòng chọn thời gian');
+              } else {
+                OptionRepeatData optionRepeatData = OptionRepeatData(
+                  dayOfWeeks: listDay,
+                  frequency: frequency,
+                  fromDate: dateStart,
+                  toDate: dateEnd ?? '',
+                  time: time,
+                );
+                Navigator.of(context).pop(optionRepeatData);
+              }
             },
             icon: const Icon(
               Icons.done,

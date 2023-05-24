@@ -428,9 +428,13 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
             ),
           ),
         );
-        setState(() {
-          listCategoryIdSelected = result ?? [];
-        });
+        if (isNotNullOrEmpty(result)) {
+          setState(() {
+            listCategoryIdSelected = result ?? [];
+          });
+        } else {
+          return;
+        }
       },
       dense: false,
       horizontalTitleGap: 10,

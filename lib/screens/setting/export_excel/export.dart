@@ -10,6 +10,7 @@ import '../../../network/model/wallet.dart';
 import '../../../utilities/screen_utilities.dart';
 import '../../../utilities/utils.dart';
 import '../../../widgets/primary_button.dart';
+import '../limit_expenditure/limit_info/select_wallets.dart';
 import 'export_event.dart';
 
 class ExportPage extends StatefulWidget {
@@ -25,9 +26,7 @@ class _ExportPageState extends State<ExportPage> {
   String dateStart = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String? dateEnd;
 
-  int? walletId;
-  String? walletName;
-  String? walletType;
+  List<Wallet> listWalletSelected = [];
 
   @override
   void initState() {
@@ -75,7 +74,7 @@ class _ExportPageState extends State<ExportPage> {
         },
         builder: (context, state) {
           if (state is LoadingState) {
-            return AnimationLoading();
+            return const AnimationLoading();
           } else {
             return _body(state);
           }
@@ -105,23 +104,33 @@ class _ExportPageState extends State<ExportPage> {
           height: 0.5,
           color: Colors.grey.withOpacity(0.3),
         ),
-        _selectWallet(listWallet),
+        _selectWallets(listWallet),
         Divider(
           height: 0.5,
           color: Colors.grey.withOpacity(0.3),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 32),
+          padding: const EdgeInsets.only(top: 32),
           child: PrimaryButton(
             text: 'Xuất file',
             onTap: () {
-              if (walletId != null) {
+              if (isNullOrEmpty(dateEnd)) {
+                showMessage1OptionDialog(
+                  context,
+                  'Vui lòng chọn ngày kết thúc trước khi xuất file',
+                );
+              } else if (isNullOrEmpty(listWalletSelected)) {
+                showMessage1OptionDialog(
+                  context,
+                  'Vui lòng chọn tài khoản/ví trước khi xuất file',
+                );
+              } else {
                 List<int> walletIDs = [];
-                walletIDs.add(walletId!);
+                listWalletSelected.map((e) => walletIDs.add(e.id!)).toList();
                 _exportBloc.add(GetExport(
                   walletIDs: walletIDs,
                   formDate: dateStart,
-                  toDate: dateEnd ?? '',
+                  toDate: dateEnd!,
                 ));
               }
             },
@@ -131,25 +140,42 @@ class _ExportPageState extends State<ExportPage> {
     );
   }
 
-  Widget _selectWallet(List<Wallet>? listWallet) {
+  Widget _selectWallets(List<Wallet>? listWallet) {
+    List<Wallet> listWalled = listWallet ?? [];
+    List<String> titles =
+        listWalled.map((wallet) => wallet.name ?? '').toList();
+    String walletsName = titles.join(', ');
+
     return ListTile(
       onTap: () async {
-        await _getWallet(listWallet);
+        final List<Wallet>? result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectWalletsPage(
+              listWallet: listWalled,
+            ),
+          ),
+        );
+        setState(() {
+          listWalletSelected = result ?? [];
+        });
       },
       dense: false,
-      horizontalTitleGap: 6,
-      leading: Icon(
-        isNotNullOrEmpty(walletType)
-            ? getIconWallet(walletType: walletType!)
-            : Icons.help_outline,
+      horizontalTitleGap: 10,
+      leading: const Icon(
+        Icons.wallet,
         size: 30,
         color: Colors.grey,
       ),
       title: Text(
-        walletName ?? 'Chọn tài khoản/ ví',
+        isNullOrEmpty(listWalletSelected)
+            ? 'Chọn tài khoản/ví'
+            : listWalletSelected.length == listWallet?.length
+                ? 'Tất cả tài khoản'
+                : walletsName,
         style: TextStyle(
           fontSize: 16,
-          color: isNotNullOrEmpty(walletName) ? Colors.black : Colors.grey,
+          color: isNullOrEmpty(listWalletSelected) ? Colors.grey : Colors.black,
         ),
       ),
       trailing: const Icon(
@@ -213,134 +239,6 @@ class _ExportPageState extends State<ExportPage> {
         color: Colors.grey,
       ),
     );
-  }
-
-  Future _getWallet(List<Wallet>? listWallet) async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.6,
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).primaryColor,
-            elevation: 0,
-            leading: InkWell(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            centerTitle: true,
-            title: const Text(
-              'Chọn tài khoản',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: isNullOrEmpty(listWallet)
-                ? Text(
-                    'Không có dữ liệu tài khoản, vui lòng thêm tài khoản mới.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: listWallet!.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              walletId = listWallet[index].id;
-                              walletName = listWallet[index].name;
-                              walletType = listWallet[index].accountType;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            height: 60,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Theme.of(context).backgroundColor,
-                            ),
-                            alignment: Alignment.center,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Icon(
-                                    isNotNullOrEmpty(
-                                            listWallet[index].accountType)
-                                        ? getIconWallet(
-                                            walletType:
-                                                listWallet[index].accountType,
-                                          )
-                                        : Icons.help,
-                                    size: 30,
-                                    color: Colors.grey.withOpacity(0.6),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Text(
-                                        listWallet[index].name ?? '',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${listWallet[index].accountBalance} ${listWallet[index].currency}',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (walletId == listWallet[index].id)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Icon(
-                                      Icons.check_circle_outline,
-                                      color: Theme.of(context).primaryColor,
-                                      size: 24,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-          ),
-        ),
-      ),
-    ).whenComplete(() {
-      setState(() {});
-    });
   }
 
   Widget _selectDateEnd() {
