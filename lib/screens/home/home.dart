@@ -193,71 +193,82 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _myWallet(List<Wallet>? listWallet) {
-    return SizedBox(
-      height: 60 * ((listWallet?.length ?? 0) + 1).toDouble() + 15,
-      child: ListView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: (listWallet?.length ?? 0) + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return Container(
-                height: 47,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    topLeft: Radius.circular(15),
-                  ),
-                  color: Colors.white,
-                ),
-                child: Column(
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Container(
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          color: Colors.white,
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              child: SizedBox(
+                height: 20,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-                      child: SizedBox(
-                        height: 20,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Ví của tôi',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, AppRoutes.myWallet);
-                              },
-                              child: Text(
-                                'Xem tất cả',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
+                    const Text(
+                      'Ví của tôi',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Divider(height: 1, color: Colors.grey),
-                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.myWallet);
+                      },
+                      child: Text(
+                        'Xem tất cả',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    )
                   ],
                 ),
-              );
-            }
-            return _createItemWallet(
-              context,
-              listWallet?[index - 1],
-              thisIndex: index - 1,
-              endIndex: (listWallet?.length ?? 0) - 1,
-            );
-          }),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 10.0),
+              child: Divider(height: 1, color: Colors.grey),
+            ),
+            isNullOrEmpty(listWallet)
+                ? Container(
+                    height: 60,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Bạn chưa có tài khoản/ví.\nVui lòng tạo mới tài khoản/ví.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 60 * (listWallet!.length).toDouble() + 15,
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: listWallet.length,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {}
+                        return _createItemWallet(
+                          context,
+                          listWallet[index - 1],
+                          thisIndex: index - 1,
+                          endIndex: listWallet.length,
+                        );
+                      },
+                    ),
+                  ),
+          ],
+        ),
+      ),
     );
   }
 

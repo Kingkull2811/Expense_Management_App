@@ -1,9 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
-import '../../utilities/app_constants.dart';
-import '../../utilities/secure_storage.dart';
 import '../../utilities/utils.dart';
 import '../response/base_get_response.dart';
 import '../response/base_response.dart';
@@ -57,11 +56,17 @@ mixin ProviderMixin {
     String? contentType,
     String? accept,
   }) async {
-    String token =
-        await SecureStorage().readSecureData(AppConstants.accessTokenKey);
+    String? token = SharedPreferencesStorage().getAccessToken();
+    // await SecureStorage().readSecureData(AppConstants.accessTokenKey);
+
+    if (isNullOrEmpty(token)) {
+      print('****token null*****');
+      return Options();
+    }
     if (kDebugMode) {
       if (isNotNullOrEmpty(url)) {
         print('URL: $url');
+        // log('accessToke: $token');
       }
     }
     return Options(

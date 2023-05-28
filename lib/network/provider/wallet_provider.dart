@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
 import 'package:viet_wallet/network/response/get_list_wallet_response.dart';
@@ -12,18 +14,15 @@ class WalletProvider with ProviderMixin {
     }
 
     try {
-      Options options = await defaultOptions(
-        url: ApiPath.getListWallet,
-      );
-
       final response = await dio.get(
         ApiPath.getListWallet,
-        options: options,
+        options: await defaultOptions(url: ApiPath.getListWallet),
       );
       // log('response: ${response.toString()}');
 
       return GetListWalletResponse.fromJson(response.data);
     } catch (error, stacktrace) {
+      log('error: $error');
       return errorGetResponse(error, stacktrace, ApiPath.getListWallet);
     }
   }
