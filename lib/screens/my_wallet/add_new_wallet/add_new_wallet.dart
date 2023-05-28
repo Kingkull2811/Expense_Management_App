@@ -259,6 +259,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                             currencyName = value.code;
                             currency = value.symbol;
                           });
+                          print('code: ${value.code}, symbol: ${value.symbol}');
                         },
                         favorite: ['VND']);
                   },
