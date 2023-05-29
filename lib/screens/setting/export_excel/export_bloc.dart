@@ -1,11 +1,13 @@
-import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:viet_wallet/network/provider/export_file_provider.dart';
 import 'package:viet_wallet/network/provider/wallet_provider.dart';
 import 'package:viet_wallet/network/response/base_get_response.dart';
+import 'package:viet_wallet/network/response/base_response.dart';
 
 import '../../../network/response/get_list_wallet_response.dart';
 import '../../../utilities/screen_utilities.dart';
@@ -35,15 +37,26 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
         }
       }
       if (event is GetExport) {
-        print('listInt: ${event.walletIDs.toString()}');
-
         if (await Permission.storage.isGranted) {
+          emit(LoadingState());
+          final Map<String, dynamic> query = {
+            'fromDate': event.fromDate,
+            'toDate': event.toDate,
+            'walletIds':
+                event.walletIDs.map((item) => item.toString()).toList(),
+          };
+          final savePath =
+              '${(await getApplicationDocumentsDirectory()).path}/report_${event.fromDate}_${event.toDate}.xlsx';
+
           final response = await _exportProvider.getFileReport(
-            fromDate: event.formDate,
-            toDate: event.toDate,
-            walletIDs: event.walletIDs,
+            query: query,
+            savePath: savePath,
           );
-          log('$response');
+          if (response is File) {
+            emit(ExportDone(file: response));
+          } else if (response is ExpiredTokenResponse) {
+            logoutIfNeed(this.context);
+          } else {}
         } else {
           await Permission.storage.request();
         }

@@ -20,11 +20,13 @@ class Expenditure extends StatefulWidget {
 class _ExpenditureState extends State<Expenditure>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late TooltipBehavior _tooltipBehavior;
 
   @override
   void initState() {
     BlocProvider.of<ExpenditureBloc>(context).add(ExpenditureInit());
     _tabController = TabController(length: 3, vsync: this);
+    _tooltipBehavior = TooltipBehavior(enable: true);
     super.initState();
   }
 
@@ -189,9 +191,6 @@ class _ExpenditureState extends State<Expenditure>
           ),
           SfCartesianChart(
               primaryXAxis: CategoryAxis(),
-              // Chart title
-              // Enable legend
-              // Enable tooltip
               tooltipBehavior: TooltipBehavior(enable: true),
               series: <ChartSeries<_SalesData, String>>[
                 LineSeries<_SalesData, String>(

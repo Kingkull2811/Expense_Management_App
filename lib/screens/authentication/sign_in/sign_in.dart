@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -255,6 +257,10 @@ class _SignInPageState extends State<SignInPage> {
                 if (signInResponse.httpStatus == 200) {
                   showLoading(this.context);
                   _signInBloc.add(SignInSuccess());
+
+                  //todo: check token
+                  log('signInToken: ${signInResponse.data}');
+
                   await SharedPreferencesStorage().setLoggedOutStatus(false);
                   await _saveUserInfo(signInResponse.data);
                   if (mounted) {

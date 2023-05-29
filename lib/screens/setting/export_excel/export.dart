@@ -1,12 +1,20 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_bloc.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_state.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../network/model/wallet.dart';
+import '../../../network/provider/export_file_provider.dart';
+import '../../../network/response/base_response.dart';
 import '../../../utilities/screen_utilities.dart';
 import '../../../utilities/utils.dart';
 import '../../../widgets/primary_button.dart';
@@ -70,6 +78,9 @@ class _ExportPageState extends State<ExportPage> {
           if (state is ErrorServerState) {
             showMessage1OptionDialog(context, 'Error!',
                 content: 'Internal_server_error');
+            // } else if (state is ExportDone) {
+            //   print(state.file.path);
+            // OpenFile.open(state.file.path);
           }
         },
         builder: (context, state) {
@@ -113,7 +124,7 @@ class _ExportPageState extends State<ExportPage> {
           padding: const EdgeInsets.only(top: 32),
           child: PrimaryButton(
             text: 'Xuất file',
-            onTap: () {
+            onTap: () async {
               if (isNullOrEmpty(dateEnd)) {
                 showMessage1OptionDialog(
                   context,
@@ -125,13 +136,7 @@ class _ExportPageState extends State<ExportPage> {
                   'Vui lòng chọn tài khoản/ví trước khi xuất file',
                 );
               } else {
-                List<int> walletIDs = [];
-                listWalletSelected.map((e) => walletIDs.add(e.id!)).toList();
-                _exportBloc.add(GetExport(
-                  walletIDs: walletIDs,
-                  formDate: dateStart,
-                  toDate: dateEnd!,
-                ));
+                await downloadExport(context);
               }
             },
           ),
@@ -140,10 +145,41 @@ class _ExportPageState extends State<ExportPage> {
     );
   }
 
+  Future downloadExport(BuildContext context) async {
+    List<int> walletIDs = [];
+    listWalletSelected.map((e) => walletIDs.add(e.id!)).toList();
+
+    await Permission.storage.request();
+    // _exportBloc.add(GetExport(
+    //   walletIDs: walletIDs,
+    //   fromDate: dateStart,
+    //   toDate: dateEnd!,
+    // ));
+    final Map<String, dynamic> query = {
+      'fromDate': dateStart,
+      'toDate': dateEnd,
+      'walletIds': walletIDs.map((ite) => ite.toString()).toList(),
+    };
+    final savePath =
+        '${(await getApplicationDocumentsDirectory()).path}/report_${dateStart}_$dateEnd.xlsx';
+
+    final response = await ExportProvider().getFileReport(
+      query: query,
+      savePath: savePath,
+    );
+    if (response is File) {
+      OpenFile.open(response.path);
+    } else if (response is ExpiredTokenResponse) {
+      logoutIfNeed(this.context);
+    } else {
+      showMessage1OptionDialog(this.context, 'Error!',
+          content: 'Internal_server_error');
+    }
+  }
+
   Widget _selectWallets(List<Wallet>? listWallet) {
-    List<Wallet> listWalled = listWallet ?? [];
     List<String> titles =
-        listWalled.map((wallet) => wallet.name ?? '').toList();
+        listWalletSelected.map((wallet) => wallet.name ?? '').toList();
     String walletsName = titles.join(', ');
 
     return ListTile(
@@ -152,7 +188,7 @@ class _ExportPageState extends State<ExportPage> {
           context,
           MaterialPageRoute(
             builder: (context) => SelectWalletsPage(
-              listWallet: listWalled,
+              listWallet: listWallet,
             ),
           ),
         );

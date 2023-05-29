@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
@@ -62,6 +64,7 @@ mixin ProviderMixin {
     if (kDebugMode) {
       if (isNotNullOrEmpty(url)) {
         print('URL: $url');
+        log('TOKEN: $token');
       }
     }
     return Options(

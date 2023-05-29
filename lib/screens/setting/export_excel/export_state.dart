@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 
 import '../../../network/model/wallet.dart';
@@ -20,3 +22,9 @@ class ExportInitial extends ExportState {
 }
 
 class ExportFileState extends ExportState {}
+
+class ExportDone extends ExportState {
+  final File file;
+
+  ExportDone({required this.file});
+}
