@@ -1,6 +1,6 @@
 class Wallet {
   final int? id;
-  final int? accountBalance;
+  final double? accountBalance;
   final String? name;
   final String? accountType;
   final String? currency;

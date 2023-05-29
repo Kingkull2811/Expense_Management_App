@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:viet_wallet/network/repository/wallet_repository.dart';
 import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/button_switch.dart';
 import 'package:viet_wallet/widgets/no_internet_widget.dart';
 
@@ -30,8 +31,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
 
   WalletType itemSelected = listWalletType[0];
 
-  String currency = '₫';
-  String currencyName = 'VND';
+  String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
 
   @override
   void initState() {
@@ -256,8 +256,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                         showSearchField: false,
                         onSelect: (Currency value) {
                           setState(() {
-                            currencyName = value.code;
-                            currency = value.symbol;
+                            currency = '${value.symbol}/${value.code}';
                           });
                         },
                         favorite: ['VND']);
@@ -282,7 +281,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                         child: Padding(
                           padding: const EdgeInsets.only(left: 16.0),
                           child: Text(
-                            currencyName,
+                            currency,
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black,
@@ -428,7 +427,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      '.00 $currency',
+                      ' $currency',
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,
@@ -560,7 +559,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
         await _walletRepository.createNewWallet(
           accountBalance: int.parse(_moneyController.text.trim()),
           accountType: walletType(itemSelected.walletTypeIcon).name,
-          currency: '$currency/$currencyName',
+          currency: currency,
           description: _noteController.text.trim(),
           name: _nameController.text.trim(),
           report: _showOnReport,

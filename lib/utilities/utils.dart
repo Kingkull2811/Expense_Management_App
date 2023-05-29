@@ -17,7 +17,7 @@ String formatterDouble(double value) {
   return formatter.format(value);
 }
 
-String formatterInt(int? value) {
+String formatterInt(double? value) {
   if (value == null) {
     return '0';
   }

@@ -33,4 +33,6 @@ class ApiPath {
   static const String recurring = '$apiDomain/api/v1/recurring-transaction';
 
   static const String exportData = '$apiDomain/api/v1/export';
+
+  static const String analyticReport = '$apiDomain/api/v1/report/statistic';
 }

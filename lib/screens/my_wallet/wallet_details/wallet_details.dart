@@ -12,7 +12,7 @@ import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/app_image.dart';
 
-import '../../../network/model/day_transcaction_model.dart';
+import '../../../network/model/day_transaction_model.dart';
 import '../../../network/model/wallet.dart';
 import '../../../network/model/wallet_report_model.dart';
 import '../../../utilities/enum/api_error_result.dart';
@@ -123,7 +123,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                             ),
                           ),
                           Text(
-                            '${walletReport?.incomeTotal} $currency',
+                            '${walletReport?.incomeTotal ?? '0'} $currency',
                             style: TextStyle(
                               fontSize: 16,
                               color: Theme.of(context).primaryColor,
@@ -146,7 +146,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                             ),
                           ),
                           Text(
-                            '${walletReport?.expenseTotal} $currency',
+                            '${walletReport?.expenseTotal ?? '0'} $currency',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.redAccent,
@@ -182,7 +182,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                       ),
                     ),
                     Text(
-                      '${walletReport?.currentBalance} $currency',
+                      '${walletReport?.currentBalance ?? '0'} $currency',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -421,6 +421,9 @@ class _WalletDetailsState extends State<WalletDetails> {
                 .add(WalletDetailInit(walletId: widget.wallet.id));
             setState(() {});
           }
+          if (isNullOrEmpty(result)) {
+            return;
+          }
         },
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0),
@@ -431,12 +434,16 @@ class _WalletDetailsState extends State<WalletDetails> {
               borderRadius: BorderRadius.circular(20),
               color: Colors.grey.withOpacity(0.2),
             ),
-            child: AppImage(
-              localPathOrUrl: collectionInfo?.categoryLogo,
-              errorWidget: const Icon(
-                Icons.help_outline,
-                size: 30,
-                color: Colors.grey,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: AppImage(
+                localPathOrUrl: collectionInfo?.categoryLogo,
+                boxFit: BoxFit.contain,
+                errorWidget: const Icon(
+                  Icons.help_outline,
+                  size: 30,
+                  color: Colors.grey,
+                ),
               ),
             ),
           ),

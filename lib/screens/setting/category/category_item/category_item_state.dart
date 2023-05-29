@@ -1,7 +1,7 @@
 import 'package:viet_wallet/bloc/api_result_state.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 
-import '../../../network/model/category_model.dart';
+import '../../../../network/model/category_model.dart';
 
 class CategoryItemState implements ApiResultState {
   final bool isLoading;

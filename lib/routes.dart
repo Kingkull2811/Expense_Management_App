@@ -4,8 +4,8 @@ import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
 import 'package:viet_wallet/screens/my_wallet/add_new_wallet/add_new_wallet.dart';
-import 'package:viet_wallet/screens/setting/category_item/category_item.dart';
-import 'package:viet_wallet/screens/setting/category_item/category_item_bloc.dart';
+import 'package:viet_wallet/screens/setting/category/category_item/category_item.dart';
+import 'package:viet_wallet/screens/setting/category/category_item/category_item_bloc.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_bloc.dart';
 import 'package:viet_wallet/screens/setting/limit_expenditure/limit.dart';
@@ -17,7 +17,6 @@ import 'package:viet_wallet/screens/setting/security/security.dart';
 import 'screens/planning/balance_payments/payments.position.bloc.dart';
 import 'screens/planning/balance_payments/payments.position.page.dart';
 import 'screens/planning/expenditure_analysis/expenditure_analysis.dart';
-import 'screens/planning/expenditure_analysis/expenditure_analysis_bloc.dart';
 
 class AppRoutes {
   static const mainApp = '/';
@@ -85,10 +84,7 @@ class AppRoutes {
         );
       },
       AppRoutes.reportExpenditure: (context) {
-        return BlocProvider<ExpenditureBloc>(
-          create: (context) => ExpenditureBloc(context),
-          child: const Expenditure(),
-        );
+        return const Expenditure();
       },
       AppRoutes.category: (context) {
         return BlocProvider<CategoryItemBloc>(

@@ -2,7 +2,7 @@ import 'package:viet_wallet/network/model/collection_model.dart';
 
 class DayTransaction {
   final String? date;
-  final int? amountTotal;
+  final double? amountTotal;
   final List<CollectionModel>? transactionOutputs;
 
   DayTransaction({
@@ -20,7 +20,7 @@ class DayTransaction {
 
     return DayTransaction(
       date: json['date'] as String?,
-      amountTotal: json['amountTotal'] as int?,
+      amountTotal: double.parse(json['amountTotal'].toString()),
       transactionOutputs: transactionOutputs,
     );
   }

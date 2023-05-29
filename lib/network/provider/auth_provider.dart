@@ -33,7 +33,8 @@ class AuthProvider with ProviderMixin {
         String refreshToken = await _secureStorage.readSecureData(
           AppConstants.refreshTokenKey,
         );
-
+        //todo
+        print('refresh: $refreshToken');
         final response = await AuthProvider().refreshToken(
           refreshToken: refreshToken,
         );

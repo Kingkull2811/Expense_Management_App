@@ -108,9 +108,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
           elevation: 0.5,
           backgroundColor: Theme.of(context).primaryColor,
           leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.of(context).pop(true),
             child: const Icon(Icons.close, size: 24, color: Colors.white),
           ),
           centerTitle: true,
@@ -210,12 +208,15 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                                   height: 50,
                                   width: 50,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25),
-                                      color: Colors.grey.withOpacity(0.25)),
+                                    borderRadius: BorderRadius.circular(25),
+                                    color: Colors.grey.withOpacity(0.25),
+                                  ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(25),
                                     child: AppImage(
                                       localPathOrUrl: categoryIconUrl,
+                                      height: 50,
+                                      width: 50,
                                       boxFit: BoxFit.cover,
                                       errorWidget: const Icon(
                                         Icons.help_outline,
@@ -574,10 +575,13 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.grey.withOpacity(0.3),
                       ),
-                      child: AppImage(
-                        localPathOrUrl: item?.logoImageUrl ?? '',
-                        boxFit: BoxFit.cover,
-                        errorWidget: Container(),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: AppImage(
+                          localPathOrUrl: item?.logoImageUrl ?? '',
+                          boxFit: BoxFit.cover,
+                          errorWidget: Container(),
+                        ),
                       ),
                     ),
                   ),
@@ -679,14 +683,19 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                               borderRadius: BorderRadius.circular(30),
                               color: Colors.grey.withOpacity(0.3),
                             ),
-                            child: AppImage(
-                                localPathOrUrl: listLogo[index].fileUrl,
-                                boxFit: BoxFit.cover,
-                                errorWidget: const Icon(
-                                  Icons.help_outline,
-                                  size: 40,
-                                  color: Colors.grey,
-                                )),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: AppImage(
+                                  localPathOrUrl: listLogo[index].fileUrl,
+                                  width: 50,
+                                  height: 50,
+                                  boxFit: BoxFit.contain,
+                                  errorWidget: const Icon(
+                                    Icons.help_outline,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  )),
+                            ),
                           ),
                         ),
                       ),

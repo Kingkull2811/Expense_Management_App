@@ -5,10 +5,10 @@ import 'package:viet_wallet/screens/setting/category/category_info/category_info
 import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
-import '../../../network/model/category_model.dart';
-import '../../../utilities/enum/api_error_result.dart';
-import '../../../utilities/screen_utilities.dart';
-import '../../../widgets/app_image.dart';
+import '../../../../network/model/category_model.dart';
+import '../../../../utilities/enum/api_error_result.dart';
+import '../../../../utilities/screen_utilities.dart';
+import '../../../../widgets/app_image.dart';
 import 'category_item_bloc.dart';
 import 'category_item_event.dart';
 import 'category_item_state.dart';
@@ -37,9 +37,21 @@ class _CategoryItemState extends State<CategoryItem>
   final Map<int, bool> _isExpandedMapEx = {};
   final Map<int, bool> _isExpandedMapCo = {};
 
+  late CategoryItemBloc _categoryItemBloc;
+
+  Future<void> _reloadPage() async {
+    showLoading(context);
+    await Future.delayed(const Duration(seconds: 1), () {
+      _categoryItemBloc.add(CategoryInit());
+      Navigator.pop(context);
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
-    BlocProvider.of<CategoryItemBloc>(context).add(CategoryInit());
+    _categoryItemBloc = BlocProvider.of<CategoryItemBloc>(context)
+      ..add(CategoryInit());
     _tabController = TabController(length: 2, vsync: this);
     _expenditureSearch.addListener(() {
       setState(() {
@@ -145,8 +157,8 @@ class _CategoryItemState extends State<CategoryItem>
         ],
       ),
       floatingActionButton: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final bool result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => BlocProvider(
@@ -155,6 +167,9 @@ class _CategoryItemState extends State<CategoryItem>
               ),
             ),
           );
+          if (result) {
+            await _reloadPage();
+          }
         },
         child: Container(
           width: 50,

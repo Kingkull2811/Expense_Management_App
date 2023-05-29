@@ -7,9 +7,14 @@ import '../../../../utilities/utils.dart';
 import '../../../../widgets/app_image.dart';
 
 class SelectCategory extends StatefulWidget {
+  final bool isFromAnalytic;
   final List<CategoryModel>? listCategory;
 
-  const SelectCategory({Key? key, this.listCategory}) : super(key: key);
+  const SelectCategory({
+    Key? key,
+    this.listCategory,
+    this.isFromAnalytic = false,
+  }) : super(key: key);
 
   @override
   State<SelectCategory> createState() => _SelectCategoryState();
@@ -147,25 +152,6 @@ class _SelectCategoryState extends State<SelectCategory> {
   }
 
   Widget _listViewCategory(List<CategoryModel> listCate) {
-    // return ListView.builder(
-    //   scrollDirection: Axis.vertical,
-    //   physics: const NeverScrollableScrollPhysics(),
-    //   itemCount: widget.listCategory!.length + 1,
-    //   itemBuilder: (context, index) {
-    //     final isExpanded = _isExpandedMapEx[index - 1] ?? true;
-    //     if (index == 0) {
-    //       return _buildAllCheck(checkAll);
-    //     }
-    //     return Padding(
-    //       padding: const EdgeInsets.only(left: 16),
-    //       child: _itemListCategoryEx(
-    //         widget.listCategory![index - 1],
-    //         isExpanded,
-    //         index - 1,
-    //       ),
-    //     );
-    //   },
-    // );
     return ListView.builder(
       scrollDirection: Axis.vertical,
       physics: const BouncingScrollPhysics(),
@@ -181,7 +167,7 @@ class _SelectCategoryState extends State<SelectCategory> {
               color: Colors.grey,
             ),
             title: const Text(
-              'Check All',
+              'Chọn tất cả',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -280,20 +266,23 @@ class _SelectCategoryState extends State<SelectCategory> {
                       color: Colors.black,
                     ),
                   ),
-                  trailing: Theme(
-                    data: Theme.of(context).copyWith(
-                      unselectedWidgetColor: Theme.of(context).primaryColor,
-                    ),
-                    child: Checkbox(
-                      activeColor: Theme.of(context).primaryColor,
-                      value: category.isChecked,
-                      onChanged: (value) {
-                        setState(() {
-                          category.isChecked = value!;
-                          updateCategoryCheckedStatus(category, value);
-                          _checkAll = isAllChecked();
-                        });
-                      },
+                  trailing: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        unselectedWidgetColor: Theme.of(context).primaryColor,
+                      ),
+                      child: Checkbox(
+                        activeColor: Theme.of(context).primaryColor,
+                        value: category.isChecked,
+                        onChanged: (value) {
+                          setState(() {
+                            category.isChecked = value!;
+                            updateCategoryCheckedStatus(category, value);
+                            _checkAll = isAllChecked();
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ),

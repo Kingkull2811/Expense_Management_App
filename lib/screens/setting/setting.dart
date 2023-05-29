@@ -368,7 +368,7 @@ class _SettingPageState extends State<SettingPage> {
             showSearchField: false,
             onSelect: (Currency value) async {
               await SharedPreferencesStorage()
-                  .setCurrency(currency: '${value.symbol}(${value.code})');
+                  .setCurrency(currency: '${value.symbol}/${value.code}');
               setState(() {});
             },
             favorite: ['VND']);

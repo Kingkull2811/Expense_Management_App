@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -257,6 +259,9 @@ class _SignInPageState extends State<SignInPage> {
 
                   _signInBloc.add(SignInSuccess());
                   await SharedPreferencesStorage().setLoggedOutStatus(false);
+
+                  //todo
+                  log('userdate: ${response.data}');
 
                   ///save user info
                   await SharedPreferencesStorage().setSaveUserInfo(

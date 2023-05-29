@@ -253,14 +253,15 @@ class _HomePageState extends State<HomePage>
                 : SizedBox(
                     height: 60 * (listWallet!.length).toDouble() + 15,
                     child: ListView.builder(
+                      padding: EdgeInsets.zero,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: listWallet.length,
                       itemBuilder: (context, index) {
                         if (index == 0) {}
                         return _createItemWallet(
                           context,
-                          listWallet[index - 1],
-                          thisIndex: index - 1,
+                          listWallet[index],
+                          thisIndex: index,
                           endIndex: listWallet.length,
                         );
                       },
