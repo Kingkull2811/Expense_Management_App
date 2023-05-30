@@ -1,62 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_state.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_state.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
-import '../../../../utilities/shared_preferences_storage.dart';
-import 'day_analytic_bloc.dart';
-import 'day_analytic_event.dart';
+import 'month_analytic_bloc.dart';
+import 'month_analytic_event.dart';
 
-class DayAnalytic extends StatefulWidget {
-  final String fromDate, toDate;
+class MonthAnalytic extends StatefulWidget {
+  final String fromMonth, toMonth;
   final List<int> walletIDs, categoryIDs;
-  const DayAnalytic({
+  const MonthAnalytic({
     Key? key,
-    required this.fromDate,
-    required this.toDate,
+    required this.fromMonth,
+    required this.toMonth,
     required this.walletIDs,
     required this.categoryIDs,
   }) : super(key: key);
 
   @override
-  State<DayAnalytic> createState() => _DayAnalyticState();
+  State<MonthAnalytic> createState() => _MonthAnalyticState();
 }
 
-class _DayAnalyticState extends State<DayAnalytic> {
+class _MonthAnalyticState extends State<MonthAnalytic> {
   final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
   bool _showDetail = false;
 
   @override
   void initState() {
-    BlocProvider.of<DayAnalyticBloc>(context).add(DayAnalyticEvent(
+    BlocProvider.of<MonthAnalyticBloc>(context).add(MonthAnalyticEvent(
       walletIDs: widget.walletIDs,
       categoryIDs: widget.categoryIDs,
-      fromDate: widget.fromDate,
-      toDate: widget.toDate,
+      fromMonth: widget.fromMonth,
+      toMonth: widget.toMonth,
     ));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DayAnalyticBloc, DayAnalyticState>(
+    return BlocBuilder<MonthAnalyticBloc, MonthAnalyticState>(
       builder: (context, state) {
         List<CategoryReport> listReport = state.data?.categoryReports ?? [];
 
         return state.isLoading
             ? const AnimationLoading()
             : Padding(
-                padding: const EdgeInsets.fromLTRB(4, 10, 4, 10),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
+                      padding: EdgeInsets.only(left: 4, bottom: 8.0),
                       child: Text(
-                        '(Đơn vị: nghìn VNĐ)',
+                        '(Đơn vị: triệu VNĐ)',
                         style: TextStyle(fontSize: 12, color: Colors.black),
                       ),
                     ),
@@ -64,13 +63,11 @@ class _DayAnalyticState extends State<DayAnalytic> {
                       primaryXAxis: CategoryAxis(),
                       tooltipBehavior: TooltipBehavior(enable: true),
                       series: <ChartSeries>[
-                        LineSeries<CategoryReport, String>(
+                        ColumnSeries<CategoryReport, String>(
                           dataSource: listReport,
-                          xValueMapper: (CategoryReport data, _) =>
-                              DateFormat('dd/MM')
-                                  .format(DateTime.parse(data.time)),
+                          xValueMapper: (CategoryReport data, _) => data.time,
                           yValueMapper: (CategoryReport data, _) =>
-                              data.totalAmount / 1000,
+                              data.totalAmount / 1000000,
                           name: 'CategoryReport',
                           color: Colors.lightBlueAccent,
                         ),
@@ -101,7 +98,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Trung bình chỉ/ngày',
+                            'Trung bình chỉ/tháng',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey,

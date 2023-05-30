@@ -5,18 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/analytic_model.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_event.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_state.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_event.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_state.dart';
 
 import '../../../../network/provider/analytic_provider.dart';
 import '../../../../utilities/enum/api_error_result.dart';
 import '../../../../utilities/screen_utilities.dart';
 
-class DayAnalyticBloc extends Bloc<DayAnalyticEvent, DayAnalyticState> {
+class MonthAnalyticBloc extends Bloc<MonthAnalyticEvent, MonthAnalyticState> {
   final BuildContext context;
-  DayAnalyticBloc(this.context) : super(DayAnalyticState()) {
+  MonthAnalyticBloc(this.context) : super(MonthAnalyticState()) {
     on((event, emit) async {
-      if (event is DayAnalyticEvent) {
+      if (event is MonthAnalyticEvent) {
         emit(state.copyWith(isLoading: true));
 
         final connectivityResult = await Connectivity().checkConnectivity();
@@ -27,9 +27,9 @@ class DayAnalyticBloc extends Bloc<DayAnalyticEvent, DayAnalyticState> {
           ));
         } else {
           final Map<String, dynamic> query = {
-            'fromTime': event.fromDate,
-            'timeType': 'DAY',
-            'toTime': event.toDate,
+            'fromTime': event.fromMonth,
+            'timeType': 'MONTH',
+            'toTime': event.toMonth,
             'type': 'EXPENSE'
           };
 

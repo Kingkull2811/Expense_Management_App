@@ -51,13 +51,13 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        return false;
+        return true;
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false,
+            automaticallyImplyLeading: true,
             backgroundColor: Theme.of(context).primaryColor,
             centerTitle: true,
             title: const Text(

@@ -1,6 +1,6 @@
 class CategoryReport {
   final String time;
-  final int totalAmount;
+  final double totalAmount;
 
   CategoryReport({
     required this.time,
@@ -10,7 +10,7 @@ class CategoryReport {
   factory CategoryReport.fromJson(Map<String, dynamic> json) {
     return CategoryReport(
       time: json['time'] as String,
-      totalAmount: json['totalAmount'] as int,
+      totalAmount: double.parse(json['totalAmount'].toString()),
     );
   }
 
@@ -21,8 +21,8 @@ class CategoryReport {
 }
 
 class AnalyticModel {
-  final int totalAmount;
-  final int mediumAmount;
+  final double totalAmount;
+  final double mediumAmount;
   final List<CategoryReport> categoryReports;
 
   AnalyticModel({
@@ -33,8 +33,8 @@ class AnalyticModel {
 
   factory AnalyticModel.fromJson(Map<String, dynamic> json) {
     return AnalyticModel(
-      totalAmount: json['totalAmount'] as int,
-      mediumAmount: json['mediumAmount'] as int,
+      totalAmount: double.parse(json['totalAmount'].toString()),
+      mediumAmount: double.parse(json['mediumAmount'].toString()),
       categoryReports: (json['categoryReports'] as List<dynamic>)
           .map((report) =>
               CategoryReport.fromJson(report as Map<String, dynamic>))

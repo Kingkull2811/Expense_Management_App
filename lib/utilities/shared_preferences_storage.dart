@@ -31,9 +31,6 @@ class SharedPreferencesStorage {
           AppConstants.refreshTokenKey, data.refreshToken);
 
       await _preferences.setString(
-          AppConstants.accessTokenKey, data.accessToken);
-
-      await _preferences.setString(
           AppConstants.accessTokenExpiredTimeKey, data.expiredAccessToken);
 
       await _preferences.setString(
@@ -92,15 +89,8 @@ class SharedPreferencesStorage {
 
   ///logout
   void resetDataWhenLogout() {
-    _preferences.remove(AppConstants.accessTokenExpiredTimeKey);
-    _preferences.remove(AppConstants.refreshTokenExpiredKey);
-    _preferences.remove(AppConstants.usernameKey);
     _preferences.setBool(AppConstants.isLoggedOut, false);
     _preferences.setBool(AppConstants.isRememberInfo, false);
-
-    _secureStorage.deleteSecureData(AppConstants.emailKey);
-    _secureStorage.deleteSecureData(AppConstants.accessTokenKey);
-    _secureStorage.deleteSecureData(AppConstants.refreshTokenKey);
   }
 
   ///save fcm_token

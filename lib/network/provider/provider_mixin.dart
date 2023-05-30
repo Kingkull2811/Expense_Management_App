@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
@@ -59,20 +57,12 @@ mixin ProviderMixin {
     String? contentType,
     String? accept,
   }) async {
-    String? token = //SharedPreferencesStorage().getAccessToken();
+    String token =
         await SecureStorage().readSecureData(AppConstants.accessTokenKey);
-    String refreshToken =
-        await SecureStorage().readSecureData(AppConstants.refreshTokenKey);
 
-    if (isNullOrEmpty(token)) {
-      print('****token null*****');
-      return Options();
-    }
     if (kDebugMode) {
       if (isNotNullOrEmpty(url)) {
         print('URL: $url');
-        log('accessToke: $token');
-        log('ref: $refreshToken');
       }
     }
     return Options(

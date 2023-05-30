@@ -100,7 +100,7 @@ class _PlanningPageState extends State<PlanningPage> {
                                 MaterialPageRoute(
                                   builder: (context) => Expenditure(
                                     listWallet: state.listWallet,
-                                    listExCategory: state.listExCategory ?? [],
+                                    listCategory: state.listExCategory ?? [],
                                   ),
                                 ),
                               );
@@ -136,8 +136,16 @@ class _PlanningPageState extends State<PlanningPage> {
                         children: [
                           InkWell(
                             onTap: () {
-                              Navigator.pushNamed(
-                                  context, AppRoutes.reportExpenditure);
+                              // Navigator.pushNamed(context, AppRoutes.reportExpenditure);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Expenditure(
+                                    listWallet: state.listWallet,
+                                    listCategory: state.listExCategory,
+                                  ),
+                                ),
+                              );
                             },
                             child: Container(
                               width: 170,

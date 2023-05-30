@@ -206,7 +206,7 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
             title: const Text(
               'Bạn muốn thoát khỏi ứng dụng??',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),

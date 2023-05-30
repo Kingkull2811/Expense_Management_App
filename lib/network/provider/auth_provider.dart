@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
@@ -33,8 +31,7 @@ class AuthProvider with ProviderMixin {
         String refreshToken = await _secureStorage.readSecureData(
           AppConstants.refreshTokenKey,
         );
-        //todo
-        print('refresh: $refreshToken');
+
         final response = await AuthProvider().refreshToken(
           refreshToken: refreshToken,
         );
@@ -87,8 +84,6 @@ class AuthProvider with ProviderMixin {
         ApiPath.signIn,
         data: data,
       );
-      //todo
-      log('login: $response');
       return SignInResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.signIn);
