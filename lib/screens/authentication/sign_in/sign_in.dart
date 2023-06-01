@@ -3,9 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
-import 'package:viet_wallet/network/response/sign_in_response.dart';
-import 'package:viet_wallet/network/response/user_response.dart';
-import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password.dart';
 import 'package:viet_wallet/screens/authentication/forgot_password/forgot_password_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
@@ -20,6 +17,7 @@ import 'package:viet_wallet/widgets/animation_loading.dart';
 import 'package:viet_wallet/widgets/input_field.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
+import '../../../routes.dart';
 import '../../../services/notification_service.dart';
 import '../../../widgets/input_password_field.dart';
 
@@ -248,24 +246,31 @@ class _SignInPageState extends State<SignInPage> {
                 showMessageNoInternetDialog(context);
               } else {
                 _signInBloc.add(DisplayLoading());
-                SignInResponse signInResponse = await _authProvider.signIn(
+
+                final response = await _authProvider.signIn(
                   username: _usernameController.text.trim(),
                   password: _passwordController.text.trim(),
                 );
-                if (signInResponse.httpStatus == 200) {
+
+                if (response.isOK()) {
                   showLoading(this.context);
+
                   _signInBloc.add(SignInSuccess());
                   await SharedPreferencesStorage().setLoggedOutStatus(false);
-                  await _saveUserInfo(signInResponse.data);
-                  if (mounted) {
-                    Navigator.pushReplacementNamed(context, AppRoutes.home);
-                  }
+
+                  ///save user info
+                  await SharedPreferencesStorage().setSaveUserInfo(
+                    response.data,
+                  );
+
+                  await Navigator.pushReplacementNamed(
+                      this.context, AppRoutes.home);
                 } else {
                   _signInBloc.add(SignInFailure());
 
                   showMessage1OptionDialog(
                     this.context,
-                    signInResponse.errors?.first.errorMessage,
+                    response.errors?.first.errorMessage,
                     content: 'Vui lòng nhập lại',
                     buttonLabel: 'OK',
                   );
@@ -312,8 +317,4 @@ class _SignInPageState extends State<SignInPage> {
       ],
     );
   }
-}
-
-Future<void> _saveUserInfo(UserResponse? signInData) async {
-  await SharedPreferencesStorage().setSaveUserInfo(signInData);
 }

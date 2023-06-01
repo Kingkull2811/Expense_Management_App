@@ -39,7 +39,7 @@ class NewCollectionPage extends StatefulWidget {
 class _NewCollectionPageState extends State<NewCollectionPage> {
   final _collectionProvider = CollectionProvider();
 
-  final String _currency = SharedPreferencesStorage().getCurrency() ?? 'VND';
+  String _currency = SharedPreferencesStorage().getCurrency();
 
   final _moneyController = TextEditingController();
   final _noteController = TextEditingController();
@@ -494,16 +494,19 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
           color: Colors.grey.withOpacity(0.2),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: AppImage(
-          localPathOrUrl: itemCategorySelected.iconLeading,
-          width: 30,
-          height: 30,
-          boxFit: BoxFit.cover,
-          alignment: Alignment.center,
-          errorWidget: const Icon(
-            Icons.help_outline,
-            color: Colors.grey,
-            size: 30,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: AppImage(
+            localPathOrUrl: itemCategorySelected.iconLeading,
+            width: 30,
+            height: 30,
+            boxFit: BoxFit.cover,
+            alignment: Alignment.center,
+            errorWidget: const Icon(
+              Icons.help_outline,
+              color: Colors.grey,
+              size: 30,
+            ),
           ),
         ),
       ),
@@ -692,6 +695,8 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                                   walletId = listWallet[index].id;
                                   walletName = listWallet[index].name;
                                   walletType = listWallet[index].accountType;
+                                  _currency =
+                                      listWallet[index].currency ?? _currency;
                                 });
                                 Navigator.pop(context);
                               },
@@ -833,7 +838,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      '.00 $_currency',
+                      _currency,
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,
@@ -959,11 +964,7 @@ class ItemOption {
 }
 
 List<ItemOption> itemsOption = [
-  ItemOption(
-    itemId: 0,
-    title: 'Chi tiền',
-    icon: Icons.remove,
-  ),
+  ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove),
   ItemOption(itemId: 1, title: 'Thu tiền', icon: Icons.add),
   // ItemOption(title: 'Cho vay', icon: Icons.payment),
   // ItemOption(title: 'Đi vay', icon: Icons.currency_exchange),

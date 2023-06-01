@@ -46,7 +46,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
 
   List<Wallet> listWalletSelected = [];
 
-  final String _currency = SharedPreferencesStorage().getCurrency() ?? 'VND';
+  final String _currency = SharedPreferencesStorage().getCurrency();
 
   late LimitInfoBloc _limitInfoBloc;
 

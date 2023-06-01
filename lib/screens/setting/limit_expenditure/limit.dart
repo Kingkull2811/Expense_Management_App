@@ -26,7 +26,7 @@ class LimitPage extends StatefulWidget {
 }
 
 class _LimitPageState extends State<LimitPage> {
-  final String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final String currency = SharedPreferencesStorage().getCurrency();
 
   late LimitBloc _limitBloc;
 

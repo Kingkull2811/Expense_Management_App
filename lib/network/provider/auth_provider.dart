@@ -16,14 +16,16 @@ import '../../services/notification_service.dart';
 
 class AuthProvider with ProviderMixin {
   final SecureStorage _secureStorage = SecureStorage();
+  final SharedPreferencesStorage _pref = SharedPreferencesStorage();
 
   Future<bool> checkAuthenticationStatus() async {
-    String accessTokenExpired =
-        SharedPreferencesStorage().getAccessTokenExpired();
+    String accessTokenExpired = _pref.getAccessTokenExpired();
+    if (isNullOrEmpty(accessTokenExpired)) {
+      return false;
+    }
 
     if (DateTime.parse(accessTokenExpired).isBefore(DateTime.now())) {
-      String refreshTokenExpired =
-          SharedPreferencesStorage().getRefreshTokenExpired();
+      String refreshTokenExpired = _pref.getRefreshTokenExpired();
 
       if (DateTime.parse(refreshTokenExpired).isAfter(DateTime.now())) {
         String refreshToken = await _secureStorage.readSecureData(
@@ -33,8 +35,9 @@ class AuthProvider with ProviderMixin {
         final response = await AuthProvider().refreshToken(
           refreshToken: refreshToken,
         );
-        await SharedPreferencesStorage().saveUserInfoRefresh(
-          refreshTokenData: response,
+
+        await _pref.saveUserInfoRefresh(
+          data: response,
         );
         return true;
       }
@@ -66,7 +69,7 @@ class AuthProvider with ProviderMixin {
     required String password,
   }) async {
     try {
-      String fcmToken = SharedPreferencesStorage().getFCMToken();
+      String fcmToken = _pref.getFCMToken();
       if (isNullOrEmpty(fcmToken)) {
         fcmToken = await NotificationServices().getDeviceToken();
       }
@@ -80,7 +83,6 @@ class AuthProvider with ProviderMixin {
       final response = await dio.post(
         ApiPath.signIn,
         data: data,
-        options: AppConstants.options,
       );
       return SignInResponse.fromJson(response.data);
     } catch (error, stacktrace) {

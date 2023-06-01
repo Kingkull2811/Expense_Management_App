@@ -11,8 +11,8 @@ import '../../../utilities/enum/enum.dart';
 import '../../../utilities/screen_utilities.dart';
 import '../../../utilities/utils.dart';
 import '../../../widgets/app_image.dart';
-import '../../setting/category_item/category_item.dart';
-import '../../setting/category_item/category_item_bloc.dart';
+import '../../setting/category/category_item/category_item.dart';
+import '../../setting/category/category_item/category_item_bloc.dart';
 import '../new_collection.dart';
 
 class OptionCategoryPage extends StatefulWidget {
@@ -42,9 +42,21 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
   final Map<int, bool> _isExpandedMapEx = {};
   final Map<int, bool> _isExpandedMapCo = {};
 
+  late OptionCategoryBloc _optionCategoryBloc;
+
+  Future<void> _reloadPage() async {
+    showLoading(context);
+    await Future.delayed(const Duration(seconds: 1), () {
+      _optionCategoryBloc.add(GetOptionCategoryEvent());
+      Navigator.pop(context);
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
-    BlocProvider.of<OptionCategoryBloc>(context).add(GetOptionCategoryEvent());
+    _optionCategoryBloc = BlocProvider.of<OptionCategoryBloc>(context)
+      ..add(GetOptionCategoryEvent());
     _tabController = TabController(length: 2, vsync: this);
     _expenditureSearch.addListener(() {
       setState(() {
@@ -747,8 +759,8 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
       ),
       actions: [
         IconButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final bool result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => BlocProvider(
@@ -757,6 +769,9 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
                 ),
               ),
             );
+            if (result) {
+              await _reloadPage();
+            }
           },
           icon: const Icon(
             Icons.edit_note,

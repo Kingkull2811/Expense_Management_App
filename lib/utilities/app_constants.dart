@@ -1,5 +1,3 @@
-import 'package:dio/dio.dart';
-
 class AppConstants {
   static const String isRememberInfo = 'REMEMBER_INFO';
   static const String isLoggedOut = 'IS_LOGGED_OUT';
@@ -23,12 +21,6 @@ class AppConstants {
 
   static const String fcmTokenKey = 'FCM_TOKEN_KEY';
 
-  //for set options timeOut waiting request dio connect to servers
-  static Options options = Options(
-    sendTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-    receiveDataWhenStatusError: true,
-  );
   static RegExp emailExp =
       RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
   static RegExp passwordExp =

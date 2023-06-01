@@ -1,9 +1,9 @@
-import 'day_transcaction_model.dart';
+import 'day_transaction_model.dart';
 
 class WalletReport {
-  final int? expenseTotal;
-  final int? incomeTotal;
-  final int? currentBalance;
+  final double? expenseTotal;
+  final double? incomeTotal;
+  final double? currentBalance;
   final List<DayTransaction>? dayTransactionList;
 
   WalletReport({
@@ -20,9 +20,9 @@ class WalletReport {
         .toList();
 
     return WalletReport(
-      expenseTotal: json['expenseTotal'] as int?,
-      incomeTotal: json['incomeTotal'] as int?,
-      currentBalance: json['currentBalance'] as int?,
+      expenseTotal: double.parse(json['expenseTotal'].toString()),
+      incomeTotal: double.parse(json['incomeTotal'].toString()),
+      currentBalance: double.parse(json['currentBalance'].toString()),
       dayTransactionList: dayTransactionList,
     );
   }

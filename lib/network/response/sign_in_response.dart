@@ -1,10 +1,10 @@
-import 'package:viet_wallet/network/response/user_response.dart';
+import 'package:viet_wallet/network/model/sign_in_model.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/network/response/error_response.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 
 class SignInResponse extends BaseResponse {
-  final dynamic data;
+  final SignInModel? data;
 
   SignInResponse({
     this.data,
@@ -18,15 +18,16 @@ class SignInResponse extends BaseResponse {
 
   factory SignInResponse.fromJson(Map<String, dynamic> json) {
     List<Errors> errors = [];
-    if(isNotNullOrEmpty(json["errors"])){
+    if (isNotNullOrEmpty(json["errors"])) {
       final List<dynamic> errorsJson = json["errors"];
-      errors = errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
+      errors =
+          errorsJson.map((errorJson) => Errors.fromJson(errorJson)).toList();
     }
 
     return SignInResponse(
       httpStatus: json["httpStatus"],
       message: json["message"],
-      data: json["data"] == null? []: UserResponse.fromJson(json["data"]),
+      data: json["data"] == null ? null : SignInModel.fromJson(json["data"]),
       errors: errors,
     );
   }
