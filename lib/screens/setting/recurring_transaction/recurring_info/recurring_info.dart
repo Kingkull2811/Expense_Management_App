@@ -49,7 +49,7 @@ class _RecurringInfoState extends State<RecurringInfo> {
 
   bool _showClearNote = false;
 
-  final String _currency = SharedPreferencesStorage().getCurrency() ?? 'VND';
+  final String _currency = SharedPreferencesStorage().getCurrency();
 
   late RecurringInfoBloc _recurringInfoBloc;
 

@@ -8,6 +8,7 @@ import 'package:viet_wallet/widgets/animation_loading.dart';
 import '../../../../network/model/data_sfcartesian_char_model.dart';
 import '../../../../network/model/report_expenditure_revenue_model.dart';
 import '../../../../utilities/shared_preferences_storage.dart';
+import '../../../../utilities/utils.dart';
 import 'precious_bloc.dart';
 import 'precious_event.dart';
 import 'precious_state.dart';
@@ -24,7 +25,7 @@ class PreciousAnalytic extends StatefulWidget {
 }
 
 class _PreciousAnalyticState extends State<PreciousAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -63,7 +64,7 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
             ? const AnimationLoading()
             : SingleChildScrollView(
                 padding: EdgeInsets.zero,
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -113,11 +114,11 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  '${data.incomeTotal} $currency',
+                  '${formatterDouble(data.incomeTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.green),
                 ),
                 Text(
-                  '${data.expenseTotal} $currency',
+                  '${formatterDouble(data.expenseTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.red),
                 ),
                 Container(
@@ -128,7 +129,7 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
                     ),
                   ),
                   child: Text(
-                    '${data.remainTotal} $currency',
+                    '${formatterDouble(data.remainTotal)} $currency',
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
                 )
@@ -163,7 +164,7 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
               dataSource: listIncome,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Income',
+              name: 'Thu',
               color: Colors.grey,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -172,7 +173,7 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
               dataSource: listExpense,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Expense',
+              name: 'Chi',
               color: Colors.blue,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -181,7 +182,7 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
               dataSource: listRemain,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Remain',
+              name: 'Còn lại',
               color: Colors.red,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)

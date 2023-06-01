@@ -14,6 +14,8 @@ import 'package:viet_wallet/widgets/animation_loading.dart';
 import '../../network/model/wallet.dart';
 import '../../utilities/screen_utilities.dart';
 import '../../utilities/utils.dart';
+import '../my_wallet/wallet_details/wallet_details.dart';
+import '../my_wallet/wallet_details/wallet_details_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -31,7 +33,7 @@ class _HomePageState extends State<HomePage>
 
   late TabController _tabController;
 
-  final String currency = SharedPreferencesStorage().getCurrency() ?? '';
+  final String currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -355,65 +357,78 @@ class _HomePageState extends State<HomePage>
 
   Widget _createItemWallet(
     BuildContext context,
-    Wallet? wallet, {
+    Wallet wallet, {
     required int thisIndex,
     required int endIndex,
   }) {
-    return Container(
-      height: 60,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular((thisIndex == endIndex) ? 15 : 0),
-          bottomRight: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => WalletDetailsBloc(context),
+              child: WalletDetails(wallet: wallet),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        height: 60,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+            bottomRight: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+          ),
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                isNotNullOrEmpty(wallet?.accountType)
-                    ? getIconWallet(walletType: wallet?.accountType ?? '')
-                    : Icons.help_outline,
-                size: 24,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              '${wallet?.name}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  isNotNullOrEmpty(wallet.accountType)
+                      ? getIconWallet(walletType: wallet.accountType ?? '')
+                      : Icons.help_outline,
+                  size: 24,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 16),
-            child: Text(
-              _isShowBalance
-                  ? '${formatterDouble((wallet?.accountBalance ?? 0).toDouble())} $currency'
-                  : '****** $currency',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                '${wallet.name}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 16),
+              child: Text(
+                _isShowBalance
+                    ? '${formatterDouble((wallet.accountBalance ?? 0).toDouble())} $currency'
+                    : '****** $currency',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

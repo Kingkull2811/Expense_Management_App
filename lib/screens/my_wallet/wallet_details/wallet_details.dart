@@ -31,7 +31,7 @@ class WalletDetails extends StatefulWidget {
 class _WalletDetailsState extends State<WalletDetails> {
   late WalletDetailsBloc _walletDetailsBloc;
 
-  final String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final String currency = SharedPreferencesStorage().getCurrency();
 
   String toDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String fromDate = DateFormat('yyyy-MM-dd').format(DateTime(
@@ -123,7 +123,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                             ),
                           ),
                           Text(
-                            '${walletReport?.incomeTotal ?? '0'} $currency',
+                            '${formatterDouble(walletReport?.incomeTotal)} $currency',
                             style: TextStyle(
                               fontSize: 16,
                               color: Theme.of(context).primaryColor,
@@ -146,7 +146,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                             ),
                           ),
                           Text(
-                            '${walletReport?.expenseTotal ?? '0'} $currency',
+                            '${formatterDouble(walletReport?.expenseTotal)} $currency',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.redAccent,
@@ -182,7 +182,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                       ),
                     ),
                     Text(
-                      '${walletReport?.currentBalance ?? '0'} $currency',
+                      '${formatterDouble(walletReport?.currentBalance)} $currency',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black,
@@ -367,7 +367,8 @@ class _WalletDetailsState extends State<WalletDetails> {
                         color: Colors.black,
                       ),
                     ),
-                    Text('${dayTransaction?.amountTotal} $currency'),
+                    Text(
+                        '${formatterDouble(dayTransaction?.amountTotal)} $currency'),
                   ],
                 ),
               ),
@@ -456,7 +457,7 @@ class _WalletDetailsState extends State<WalletDetails> {
           ),
         ),
         trailing: Text(
-          '${collectionInfo?.amount} $currency',
+          '${formatterDouble(collectionInfo?.amount)} $currency',
           style: TextStyle(
             fontSize: 16,
             color:

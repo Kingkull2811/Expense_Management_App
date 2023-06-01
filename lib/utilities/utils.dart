@@ -12,7 +12,10 @@ bool isNullOrEmpty(dynamic obj) =>
     obj == null ||
     ((obj is String || obj is List || obj is Map) && obj.isEmpty);
 
-String formatterDouble(double value) {
+String formatterDouble(double? value) {
+  if (value == null) {
+    return '0.00';
+  }
   final formatter = NumberFormat("#,##0.00", "en_US");
   return formatter.format(value);
 }

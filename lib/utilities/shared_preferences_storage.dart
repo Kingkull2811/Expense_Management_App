@@ -79,7 +79,8 @@ class SharedPreferencesStorage {
     await _preferences.setString(AppConstants.currencyKey, currency);
   }
 
-  String? getCurrency() => _preferences.getString(AppConstants.currencyKey);
+  String getCurrency() =>
+      _preferences.getString(AppConstants.currencyKey) ?? 'VND';
 
   Future<void> setHiddenAmount(bool value) async {
     await _preferences.setBool(AppConstants.isHiddenAmount, value);

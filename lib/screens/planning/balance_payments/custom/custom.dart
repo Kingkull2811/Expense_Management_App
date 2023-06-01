@@ -28,7 +28,7 @@ class CustomAnalytic extends StatefulWidget {
 }
 
 class _CustomAnalyticState extends State<CustomAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -120,11 +120,11 @@ class _CustomAnalyticState extends State<CustomAnalytic> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  '${data.incomeTotal} $currency',
+                  '${formatterDouble(data.incomeTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.green),
                 ),
                 Text(
-                  '${data.expenseTotal} $currency',
+                  '${formatterDouble(data.expenseTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.red),
                 ),
                 Container(
@@ -135,7 +135,7 @@ class _CustomAnalyticState extends State<CustomAnalytic> {
                     ),
                   ),
                   child: Text(
-                    '${data.remainTotal} $currency',
+                    '${formatterDouble(data.remainTotal)} $currency',
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
                 )
@@ -170,7 +170,7 @@ class _CustomAnalyticState extends State<CustomAnalytic> {
               dataSource: listIncome,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Income',
+              name: 'Thu',
               color: Colors.grey,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -179,7 +179,7 @@ class _CustomAnalyticState extends State<CustomAnalytic> {
               dataSource: listExpense,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Expense',
+              name: 'Chi',
               color: Colors.blue,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -188,7 +188,7 @@ class _CustomAnalyticState extends State<CustomAnalytic> {
               dataSource: listRemain,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Remain',
+              name: 'Còn lại',
               color: Colors.red,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)

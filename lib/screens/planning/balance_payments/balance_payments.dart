@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:viet_wallet/screens/planning/balance_payments/current/current_bloc.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/current/current_event.dart';
 import 'package:viet_wallet/screens/planning/balance_payments/custom/custom.dart';
 import 'package:viet_wallet/screens/planning/balance_payments/month/month.dart';
 import 'package:viet_wallet/screens/planning/balance_payments/month/month_bloc.dart';
@@ -18,7 +19,6 @@ import '../../../utilities/screen_utilities.dart';
 import '../../../utilities/utils.dart';
 import '../../setting/limit_expenditure/limit_info/select_wallets.dart';
 import 'current/current.dart';
-import 'current/current_event.dart';
 import 'custom/custom_bloc.dart';
 import 'custom/custom_event.dart';
 
@@ -38,12 +38,10 @@ class _BalancePaymentsState extends State<BalancePayments>
   List<Wallet> listWalletSelected = [];
   List<int> walletIDs = [];
 
-  List<int> initWallet(List<Wallet>? wallets) {
-    List<int> walletIDs = [];
-    for (var element in wallets ?? []) {
-      walletIDs.add(element.id!);
-    }
-    return walletIDs;
+  List<int> initWallet(List<Wallet> wallets) {
+    return List.generate(wallets.length, (index) {
+      return listWalletSelected[index].id!;
+    });
   }
 
   int currentYear = DateTime.now().year;
@@ -57,7 +55,7 @@ class _BalancePaymentsState extends State<BalancePayments>
   void initState() {
     _tabController = TabController(length: 5, vsync: this);
     listWalletSelected = widget.listWallet ?? [];
-    walletIDs = initWallet(widget.listWallet);
+    walletIDs = initWallet(widget.listWallet ?? []);
     super.initState();
   }
 
@@ -139,6 +137,32 @@ class _BalancePaymentsState extends State<BalancePayments>
         );
         setState(() {
           listWalletSelected = result ?? [];
+          walletIDs = initWallet(listWalletSelected);
+
+          context.read<CurrentAnalyticBloc>().add(CurrentAnalyticEvent(
+                walletIDs: walletIDs,
+              ));
+
+          context.read<MonthAnalyticBlocB>().add(MonthAnalyticEvent(
+                walletIDs: walletIDs,
+                year: currentYear,
+              ));
+
+          context.read<PreciousAnalyticBloc>().add(
+                PreciousAnalyticEvent(walletIDs: walletIDs),
+              );
+
+          context.read<YearAnalyticBlocB>().add(YearAnalyticEvent(
+                walletIDs: walletIDs,
+                year: currentYear,
+                toYear: toYear,
+              ));
+
+          context.read<CustomAnalyticBloc>().add(CustomAnalyticEvent(
+                walletIDs: walletIDs,
+                fromTime: fromTime,
+                toTime: toTime,
+              ));
         });
       },
       dense: false,
@@ -194,14 +218,6 @@ class _BalancePaymentsState extends State<BalancePayments>
                   style: const TextStyle(fontSize: 16, color: Colors.black),
                 ),
               ),
-              // const Padding(
-              //   padding: EdgeInsets.only(right: 16),
-              //   child: Icon(
-              //     Icons.arrow_forward_ios,
-              //     size: 16,
-              //     color: Colors.grey,
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -210,13 +226,7 @@ class _BalancePaymentsState extends State<BalancePayments>
           thickness: 10,
           color: Theme.of(context).backgroundColor,
         ),
-        Expanded(
-          child: BlocProvider(
-            create: (context) => CurrentAnalyticBloc(context)
-              ..add(CurrentAnalyticEvent(walletIDs: walletIDs)),
-            child: CurrentAnalytic(walletIDs: walletIDs),
-          ),
-        ),
+        Expanded(child: CurrentAnalytic(walletIDs: walletIDs)),
       ],
     );
   }
@@ -240,13 +250,7 @@ class _BalancePaymentsState extends State<BalancePayments>
           color: Theme.of(context).backgroundColor,
         ),
         Expanded(
-          child: BlocProvider(
-            create: (context) => MonthAnalyticBloc(context)
-              ..add(
-                MonthAnalyticEvent(walletIDs: walletIDs, year: currentYear),
-              ),
-            child: MonthAnalytic(walletIDs: walletIDs, year: currentYear),
-          ),
+          child: MonthAnalytic(walletIDs: walletIDs, year: currentYear),
         ),
       ],
     );
@@ -270,13 +274,7 @@ class _BalancePaymentsState extends State<BalancePayments>
           thickness: 10,
           color: Theme.of(context).backgroundColor,
         ),
-        Expanded(
-          child: BlocProvider(
-            create: (context) => PreciousAnalyticBloc(context)
-              ..add(PreciousAnalyticEvent(walletIDs: walletIDs)),
-            child: PreciousAnalytic(walletIDs: walletIDs),
-          ),
-        ),
+        Expanded(child: PreciousAnalytic(walletIDs: walletIDs)),
       ],
     );
   }
@@ -300,18 +298,10 @@ class _BalancePaymentsState extends State<BalancePayments>
           color: Theme.of(context).backgroundColor,
         ),
         Expanded(
-          child: BlocProvider(
-            create: (context) => YearAnalyticBloc(context)
-              ..add(YearAnalyticEvent(
-                walletIDs: walletIDs,
-                year: currentYear,
-                toYear: toYear,
-              )),
-            child: YearAnalytic(
-              walletIDs: walletIDs,
-              year: currentYear,
-              toYear: toYear,
-            ),
+          child: YearAnalytic(
+            walletIDs: walletIDs,
+            year: currentYear,
+            toYear: toYear,
           ),
         ),
       ],
@@ -337,18 +327,10 @@ class _BalancePaymentsState extends State<BalancePayments>
           color: Theme.of(context).backgroundColor,
         ),
         Expanded(
-          child: BlocProvider(
-            create: (context) => CustomAnalyticBloc(context)
-              ..add(CustomAnalyticEvent(
-                walletIDs: walletIDs,
-                fromTime: fromTime,
-                toTime: toTime,
-              )),
-            child: CustomAnalytic(
-              walletIDs: walletIDs,
-              fromTime: fromTime,
-              toTime: toTime,
-            ),
+          child: CustomAnalytic(
+            walletIDs: walletIDs,
+            fromTime: fromTime,
+            toTime: toTime,
           ),
         ),
       ],
@@ -383,6 +365,17 @@ class _BalancePaymentsState extends State<BalancePayments>
                       onChanged: (DateTime valuer) {
                         setState(() {
                           currentYear = valuer.year;
+
+                          this.context.read<MonthAnalyticBlocB>().add(
+                                MonthAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  year: currentYear,
+                                ),
+                              );
+
+                          this.context.read<PreciousAnalyticBloc>().add(
+                                PreciousAnalyticEvent(walletIDs: walletIDs),
+                              );
                         });
                         Navigator.pop(context);
                       },
@@ -442,6 +435,14 @@ class _BalancePaymentsState extends State<BalancePayments>
                               onChanged: (DateTime valuer) {
                                 setState(() {
                                   currentYear = valuer.year;
+
+                                  this.context.read<YearAnalyticBlocB>().add(
+                                        YearAnalyticEvent(
+                                          walletIDs: walletIDs,
+                                          year: currentYear,
+                                          toYear: toYear,
+                                        ),
+                                      );
                                 });
                                 Navigator.pop(context);
                               },
@@ -473,6 +474,14 @@ class _BalancePaymentsState extends State<BalancePayments>
                               onChanged: (DateTime valuer) {
                                 setState(() {
                                   toYear = valuer.year;
+
+                                  this.context.read<YearAnalyticBlocB>().add(
+                                        YearAnalyticEvent(
+                                          walletIDs: walletIDs,
+                                          year: currentYear,
+                                          toYear: toYear,
+                                        ),
+                                      );
                                 });
                                 Navigator.pop(context);
                               },
@@ -532,6 +541,16 @@ class _BalancePaymentsState extends State<BalancePayments>
                               'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
                         } else {
                           fromTime = DateFormat('yyyy/MM/dd').format(timePick);
+                          if (!mounted) {
+                            return;
+                          }
+                          this.context.read<CustomAnalyticBloc>().add(
+                                CustomAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  fromTime: fromTime,
+                                  toTime: toTime,
+                                ),
+                              );
                         }
                       },
                       child: Text(
@@ -549,6 +568,16 @@ class _BalancePaymentsState extends State<BalancePayments>
                           return;
                         } else {
                           toTime = DateFormat('yyyy/MM/dd').format(timePick);
+                          if (!mounted) {
+                            return;
+                          }
+                          this.context.read<CustomAnalyticBloc>().add(
+                                CustomAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  fromTime: fromTime,
+                                  toTime: toTime,
+                                ),
+                              );
                         }
                       },
                       child: Text(

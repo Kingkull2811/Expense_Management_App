@@ -27,7 +27,7 @@ class ReportLimit extends StatefulWidget {
 class _ReportLimitState extends State<ReportLimit> {
   late ReportLimitBloc _reportLimitBloc;
 
-  String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  String currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {

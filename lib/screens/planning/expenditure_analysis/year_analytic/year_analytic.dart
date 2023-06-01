@@ -9,6 +9,7 @@ import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
 import '../../../../utilities/enum/enum.dart';
+import '../../../../utilities/utils.dart';
 
 class YearAnalytic extends StatefulWidget {
   final String fromYear, toYear;
@@ -29,7 +30,7 @@ class YearAnalytic extends StatefulWidget {
 }
 
 class _YearAnalyticState extends State<YearAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
   bool _showDetail = false;
 
   @override
@@ -73,7 +74,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
                           xValueMapper: (CategoryReport data, _) => data.time,
                           yValueMapper: (CategoryReport data, _) =>
                               data.totalAmount / 1000000,
-                          name: 'CategoryReport',
+                          name: 'Chi tiêu năm',
                           color: Colors.lightBlueAccent,
                         ),
                       ],
@@ -88,7 +89,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           Text(
-                            '${state.data?.totalAmount} $currency',
+                            '${formatterDouble(state.data?.totalAmount)} $currency',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -110,7 +111,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
                             ),
                           ),
                           Text(
-                            '${state.data?.mediumAmount} $currency',
+                            '${formatterDouble(state.data?.mediumAmount)} $currency',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -206,7 +207,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
             Row(
               children: [
                 Text(
-                  '${report.totalAmount} $currency ',
+                  '${formatterDouble(report.totalAmount)} $currency ',
                   style: const TextStyle(color: Colors.red),
                 ),
                 const Icon(

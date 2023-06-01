@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/data_sfcartesian_char_model.dart';
@@ -24,11 +25,11 @@ class MonthAnalytic extends StatefulWidget {
 }
 
 class _MonthAnalyticState extends State<MonthAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
-    BlocProvider.of<MonthAnalyticBloc>(context).add(MonthAnalyticEvent(
+    BlocProvider.of<MonthAnalyticBlocB>(context).add(MonthAnalyticEvent(
       walletIDs: widget.walletIDs,
       year: widget.year,
     ));
@@ -37,7 +38,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MonthAnalyticBloc, MonthAnalyticState>(
+    return BlocBuilder<MonthAnalyticBlocB, MonthAnalyticState>(
       builder: (context, state) {
         List<ReportData> data = state.data ?? [];
         List<DataSf> sfListExpense = data.map((reportData) {
@@ -111,11 +112,11 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  '${data.incomeTotal} $currency',
+                  '${formatterDouble(data.incomeTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.green),
                 ),
                 Text(
-                  '${data.expenseTotal} $currency',
+                  '${formatterDouble(data.expenseTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.red),
                 ),
                 Container(
@@ -126,7 +127,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                     ),
                   ),
                   child: Text(
-                    '${data.remainTotal} $currency',
+                    '${formatterDouble(data.remainTotal)} $currency',
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
                 )
@@ -161,7 +162,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
               dataSource: listIncome,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Income',
+              name: 'Thu',
               color: Colors.grey,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -170,7 +171,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
               dataSource: listExpense,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Expense',
+              name: 'Chi',
               color: Colors.blue,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -179,7 +180,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
               dataSource: listRemain,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Remain',
+              name: 'Còn lại',
               color: Colors.red,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)

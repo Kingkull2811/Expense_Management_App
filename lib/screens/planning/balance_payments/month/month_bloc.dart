@@ -10,9 +10,9 @@ import '../../../../utilities/enum/api_error_result.dart';
 import '../../../../utilities/screen_utilities.dart';
 import 'month_state.dart';
 
-class MonthAnalyticBloc extends Bloc<MonthAnalyticEvent, MonthAnalyticState> {
+class MonthAnalyticBlocB extends Bloc<MonthAnalyticEvent, MonthAnalyticState> {
   final BuildContext context;
-  MonthAnalyticBloc(this.context) : super(MonthAnalyticState()) {
+  MonthAnalyticBlocB(this.context) : super(MonthAnalyticState()) {
     on((event, emit) async {
       if (event is MonthAnalyticEvent) {
         emit(state.copyWith(isLoading: true));

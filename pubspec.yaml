@@ -32,6 +32,7 @@ dependencies:
   dio_cookie_manager: ^2.1.1
   badges: ^3.0.2
   flutter_bloc: ^8.1.2
+  open_file: ^3.3.0
 
   flutter:
     sdk: flutter

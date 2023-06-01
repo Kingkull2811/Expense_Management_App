@@ -157,9 +157,7 @@ class NotificationServices {
   }
 
   void handleMessage(BuildContext context, RemoteMessage message) {
-    if (message.data['type'] == 'msj') {
-      print(message.data['id']);
-    }
+    if (message.data['type'] == 'msj') {}
   }
 
   Future foregroundMessage() async {

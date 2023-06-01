@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
@@ -29,7 +30,7 @@ class DayAnalytic extends StatefulWidget {
 }
 
 class _DayAnalyticState extends State<DayAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
   bool _showDetail = false;
 
   @override
@@ -75,7 +76,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
                                   .format(DateTime.parse(data.time)),
                           yValueMapper: (CategoryReport data, _) =>
                               data.totalAmount / 1000,
-                          name: 'CategoryReport',
+                          name: 'Chi tiêu ngày',
                           color: Colors.lightBlueAccent,
                         ),
                       ],
@@ -90,7 +91,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           Text(
-                            '${state.data?.totalAmount} $currency',
+                            '${formatterDouble(state.data?.totalAmount)} $currency',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -112,7 +113,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
                             ),
                           ),
                           Text(
-                            '${state.data?.mediumAmount} $currency',
+                            '${formatterDouble(state.data?.mediumAmount)} $currency',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -208,7 +209,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
             Row(
               children: [
                 Text(
-                  '${report.totalAmount} $currency ',
+                  '${formatterDouble(report.totalAmount)} $currency ',
                   style: const TextStyle(color: Colors.red),
                 ),
                 const Icon(

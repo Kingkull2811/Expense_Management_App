@@ -10,9 +10,9 @@ import '../../../../utilities/enum/api_error_result.dart';
 import '../../../../utilities/screen_utilities.dart';
 import 'year_state.dart';
 
-class YearAnalyticBloc extends Bloc<YearAnalyticEvent, YearAnalyticState> {
+class YearAnalyticBlocB extends Bloc<YearAnalyticEvent, YearAnalyticState> {
   final BuildContext context;
-  YearAnalyticBloc(this.context) : super(YearAnalyticState()) {
+  YearAnalyticBlocB(this.context) : super(YearAnalyticState()) {
     on((event, emit) async {
       if (event is YearAnalyticEvent) {
         emit(state.copyWith(isLoading: true));

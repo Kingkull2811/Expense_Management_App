@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/report_expenditure_revenue_model.dart';
@@ -20,7 +21,7 @@ class CurrentAnalytic extends StatefulWidget {
 }
 
 class _CurrentAnalyticState extends State<CurrentAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -75,11 +76,11 @@ class _CurrentAnalyticState extends State<CurrentAnalytic> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  '${data.incomeTotal} $currency',
+                  '${formatterDouble(data.incomeTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.green),
                 ),
                 Text(
-                  '${data.expenseTotal} $currency',
+                  '${formatterDouble(data.expenseTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.red),
                 ),
                 Container(
@@ -90,7 +91,7 @@ class _CurrentAnalyticState extends State<CurrentAnalytic> {
                     ),
                   ),
                   child: Text(
-                    '${data.remainTotal} $currency',
+                    '${formatterDouble(data.remainTotal)} $currency',
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
                 )

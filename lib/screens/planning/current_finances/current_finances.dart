@@ -25,7 +25,7 @@ class CurrentFinances extends StatefulWidget {
 class _CurrentFinancesState extends State<CurrentFinances> {
   late CurrentFinancesBloc _currentFinancesBloc;
 
-  final String currency = SharedPreferencesStorage().getCurrency() ?? '\$(USD)';
+  final String currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -245,7 +245,7 @@ class _CurrentFinancesState extends State<CurrentFinances> {
                       ),
                     ),
                     Text(
-                      '${formatterInt(wallet.accountBalance)} ${wallet.currency}',
+                      '${formatterInt(wallet.accountBalance)} $currency',
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.grey,

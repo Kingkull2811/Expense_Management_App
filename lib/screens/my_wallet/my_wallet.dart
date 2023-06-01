@@ -7,7 +7,6 @@ import 'package:viet_wallet/screens/my_wallet/my_wallet_event.dart';
 import 'package:viet_wallet/screens/my_wallet/my_wallet_state.dart';
 import 'package:viet_wallet/screens/my_wallet/wallet_details/wallet_details.dart';
 import 'package:viet_wallet/screens/my_wallet/wallet_details/wallet_details_bloc.dart';
-import 'package:viet_wallet/screens/my_wallet/wallet_details/wallet_details_event.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
@@ -117,7 +116,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Center(
                       child: Text(
-                        'Tổng tiền : ${formatterInt(state.moneyTotal ?? 0)} ${SharedPreferencesStorage().getCurrency() ?? '\$(USD)'}',
+                        'Tổng tiền : ${formatterDouble(state.moneyTotal)} ${SharedPreferencesStorage().getCurrency()}',
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black,
@@ -207,8 +206,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider(
-              create: (context) => WalletDetailsBloc(context)
-                ..add(WalletDetailInit(walletId: wallet.id)),
+              create: (context) => WalletDetailsBloc(context),
               child: WalletDetails(wallet: wallet),
             ),
           ),

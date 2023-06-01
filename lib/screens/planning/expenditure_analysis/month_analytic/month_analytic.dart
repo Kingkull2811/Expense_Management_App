@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_state.dart';
+import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
 import '../../../../utilities/enum/enum.dart';
+import '../../../../utilities/shared_preferences_storage.dart';
 import 'month_analytic_bloc.dart';
 import 'month_analytic_event.dart';
 
@@ -28,6 +30,8 @@ class MonthAnalytic extends StatefulWidget {
 
 class _MonthAnalyticState extends State<MonthAnalytic> {
   bool _showDetail = false;
+
+  final currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -70,7 +74,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                           xValueMapper: (CategoryReport data, _) => data.time,
                           yValueMapper: (CategoryReport data, _) =>
                               data.totalAmount / 1000000,
-                          name: 'CategoryReport',
+                          name: 'Chi tiêu tháng',
                           color: Colors.lightBlueAccent,
                         ),
                       ],
@@ -85,7 +89,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           Text(
-                            '${state.data?.totalAmount}',
+                            formatterDouble(state.data?.totalAmount),
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -107,7 +111,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                             ),
                           ),
                           Text(
-                            '${state.data?.mediumAmount}',
+                            formatterDouble(state.data?.mediumAmount),
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -203,7 +207,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
             Row(
               children: [
                 Text(
-                  '${report.totalAmount}',
+                  '${formatterDouble(report.totalAmount)} $currency',
                   style: const TextStyle(color: Colors.red),
                 ),
                 const Icon(

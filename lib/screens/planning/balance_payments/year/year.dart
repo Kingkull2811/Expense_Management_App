@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:viet_wallet/screens/planning/balance_payments/year/year_bloc.dart';
+import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/data_sfcartesian_char_model.dart';
@@ -27,11 +28,11 @@ class YearAnalytic extends StatefulWidget {
 }
 
 class _YearAnalyticState extends State<YearAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
-    BlocProvider.of<YearAnalyticBloc>(context).add(YearAnalyticEvent(
+    BlocProvider.of<YearAnalyticBlocB>(context).add(YearAnalyticEvent(
       walletIDs: widget.walletIDs,
       year: widget.year,
       toYear: widget.toYear,
@@ -41,7 +42,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<YearAnalyticBloc, YearAnalyticState>(
+    return BlocBuilder<YearAnalyticBlocB, YearAnalyticState>(
       builder: (context, state) {
         List<ReportData> data = state.data ?? [];
         log(data.toString());
@@ -119,11 +120,11 @@ class _YearAnalyticState extends State<YearAnalytic> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  '${data.incomeTotal} $currency',
+                  '${formatterDouble(data.incomeTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.green),
                 ),
                 Text(
-                  '${data.expenseTotal} $currency',
+                  '${formatterDouble(data.expenseTotal)} $currency',
                   style: const TextStyle(fontSize: 14, color: Colors.red),
                 ),
                 Container(
@@ -134,7 +135,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
                     ),
                   ),
                   child: Text(
-                    '${data.remainTotal} $currency',
+                    '${formatterDouble(data.remainTotal)} $currency',
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
                 )
@@ -169,7 +170,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
               dataSource: listIncome,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Income',
+              name: 'Thu',
               color: Colors.grey,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -178,7 +179,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
               dataSource: listExpense,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Expense',
+              name: 'Chi',
               color: Colors.blue,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)
@@ -187,7 +188,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
               dataSource: listRemain,
               xValueMapper: (DataSf data, _) => data.title,
               yValueMapper: (DataSf data, _) => data.value,
-              name: 'Remain',
+              name: 'Còn lại',
               color: Colors.red,
               // Enable data label
               // dataLabelSettings: DataLabelSettings(isVisible: true)

@@ -1,4 +1,3 @@
-import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:viet_wallet/routes.dart';
@@ -68,7 +67,7 @@ class _SettingPageState extends State<SettingPage> {
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
-              _itemCurrencySetting(),
+              // _itemCurrencySetting(),
               _widgetHideAmount(),
               _itemOption(
                 icon: Icons.lock_outline,
@@ -130,10 +129,10 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   Navigator.pushNamed(context, AppRoutes.exportFile);
                 }),
-            _itemOption(
-              title: 'Tra cứu tỷ giá',
-              imagePath: 'images/ic_currency_search.png',
-            ),
+            // _itemOption(
+            //   title: 'Tra cứu tỷ giá',
+            //   imagePath: 'images/ic_currency_search.png',
+            // ),
           ],
         ),
       ),
@@ -359,86 +358,86 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
-  Widget _itemCurrencySetting() {
-    return InkWell(
-      onTap: () {
-        showCurrencyPicker(
-            context: context,
-            showFlag: true,
-            showCurrencyName: true,
-            showCurrencyCode: true,
-            showSearchField: false,
-            onSelect: (Currency value) async {
-              await SharedPreferencesStorage()
-                  .setCurrency(currency: '${value.symbol}/${value.code}');
-              setState(() {});
-            },
-            favorite: ['VND']);
-      },
-      child: Column(
-        children: [
-          Divider(height: 0.5, color: Colors.grey.withOpacity(0.2)),
-          Padding(
-            padding: const EdgeInsets.all(0),
-            child: SizedBox(
-              height: 60,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10.0, right: 16),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.grey.withOpacity(0.2),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Image.asset(
-                          'images/ic_currency_setting.png',
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Expanded(
-                    child: Text(
-                      'Thiết lập đơn vị tiền tệ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      SharedPreferencesStorage().getCurrency() ?? '',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 2),
-                    child: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _itemCurrencySetting() {
+  //   return InkWell(
+  //     onTap: () {
+  //       showCurrencyPicker(
+  //           context: context,
+  //           showFlag: true,
+  //           showCurrencyName: true,
+  //           showCurrencyCode: true,
+  //           showSearchField: false,
+  //           onSelect: (Currency value) async {
+  //             await SharedPreferencesStorage()
+  //                 .setCurrency(currency: '${value.symbol}/${value.code}');
+  //             setState(() {});
+  //           },
+  //           favorite: ['VND']);
+  //     },
+  //     child: Column(
+  //       children: [
+  //         Divider(height: 0.5, color: Colors.grey.withOpacity(0.2)),
+  //         Padding(
+  //           padding: const EdgeInsets.all(0),
+  //           child: SizedBox(
+  //             height: 60,
+  //             child: Row(
+  //               crossAxisAlignment: CrossAxisAlignment.center,
+  //               mainAxisAlignment: MainAxisAlignment.start,
+  //               children: [
+  //                 Padding(
+  //                   padding: const EdgeInsets.only(left: 10.0, right: 16),
+  //                   child: Container(
+  //                     width: 40,
+  //                     height: 40,
+  //                     decoration: BoxDecoration(
+  //                       borderRadius: BorderRadius.circular(12),
+  //                       color: Colors.grey.withOpacity(0.2),
+  //                     ),
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.all(6.0),
+  //                       child: Image.asset(
+  //                         'images/ic_currency_setting.png',
+  //                         color: Theme.of(context).primaryColor,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const Expanded(
+  //                   child: Text(
+  //                     'Thiết lập đơn vị tiền tệ',
+  //                     style: TextStyle(
+  //                       fontSize: 16,
+  //                       color: Colors.black,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding: const EdgeInsets.only(left: 10),
+  //                   child: Text(
+  //                     SharedPreferencesStorage().getCurrency() ?? '',
+  //                     style: TextStyle(
+  //                       fontSize: 16,
+  //                       color: Theme.of(context).primaryColor,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 const Padding(
+  //                   padding: EdgeInsets.only(left: 2),
+  //                   child: Icon(
+  //                     Icons.arrow_forward_ios,
+  //                     size: 16,
+  //                     color: Colors.grey,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _widgetHideAmount() {
     return InkWell(

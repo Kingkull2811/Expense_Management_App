@@ -26,7 +26,7 @@ class RecurringPage extends StatefulWidget {
 }
 
 class _RecurringPageState extends State<RecurringPage> {
-  final String currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  final String currency = SharedPreferencesStorage().getCurrency();
 
   late RecurringTransactionBloc _recurringBloc;
 

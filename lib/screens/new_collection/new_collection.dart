@@ -39,7 +39,7 @@ class NewCollectionPage extends StatefulWidget {
 class _NewCollectionPageState extends State<NewCollectionPage> {
   final _collectionProvider = CollectionProvider();
 
-  String _currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
+  String _currency = SharedPreferencesStorage().getCurrency();
 
   final _moneyController = TextEditingController();
   final _noteController = TextEditingController();
@@ -695,10 +695,8 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                                   walletId = listWallet[index].id;
                                   walletName = listWallet[index].name;
                                   walletType = listWallet[index].accountType;
-                                  _currency = listWallet[index].currency ??
-                                      SharedPreferencesStorage()
-                                          .getCurrency() ??
-                                      '\$/USD';
+                                  _currency =
+                                      listWallet[index].currency ?? _currency;
                                 });
                                 Navigator.pop(context);
                               },
@@ -840,7 +838,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      ' $_currency',
+                      _currency,
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,
@@ -966,11 +964,7 @@ class ItemOption {
 }
 
 List<ItemOption> itemsOption = [
-  ItemOption(
-    itemId: 0,
-    title: 'Chi tiền',
-    icon: Icons.remove,
-  ),
+  ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove),
   ItemOption(itemId: 1, title: 'Thu tiền', icon: Icons.add),
   // ItemOption(title: 'Cho vay', icon: Icons.payment),
   // ItemOption(title: 'Đi vay', icon: Icons.currency_exchange),

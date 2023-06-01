@@ -18,7 +18,6 @@ import 'package:viet_wallet/screens/setting/recurring_transaction/recurring_tran
 import 'package:viet_wallet/screens/setting/security/security.dart';
 
 import 'screens/planning/balance_payments/balance_payments.dart';
-import 'screens/planning/balance_payments/balance_payments_bloc.dart';
 import 'screens/planning/expenditure_analysis/expenditure_analysis.dart';
 
 class AppRoutes {
@@ -82,10 +81,7 @@ class AppRoutes {
         return const SecurityPage();
       },
       AppRoutes.reportPayment: (context) {
-        return BlocProvider<PaymentsPositionBloc>(
-          create: (context) => PaymentsPositionBloc(context),
-          child: const BalancePayments(),
-        );
+        return const BalancePayments();
       },
       AppRoutes.reportFinances: (context) {
         return BlocProvider<CurrentFinancesBloc>(

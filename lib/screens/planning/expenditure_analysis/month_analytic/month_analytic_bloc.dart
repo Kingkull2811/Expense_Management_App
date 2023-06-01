@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +15,7 @@ class MonthAnalyticBloc extends Bloc<MonthAnalyticEvent, MonthAnalyticState> {
   MonthAnalyticBloc(this.context) : super(MonthAnalyticState()) {
     on((event, emit) async {
       if (event is MonthAnalyticEvent) {
-        emit(state.copyWith(isLoading: true));
+        // emit(state.copyWith(isLoading: true));
 
         final connectivityResult = await Connectivity().checkConnectivity();
         if (connectivityResult == ConnectivityResult.none) {
@@ -37,9 +35,6 @@ class MonthAnalyticBloc extends Bloc<MonthAnalyticEvent, MonthAnalyticState> {
             if (event.walletIDs.isNotEmpty) 'walletIds': event.walletIDs,
             if (event.categoryIDs.isNotEmpty) 'categoryIds': event.categoryIDs,
           };
-
-          log(query.toString());
-          log(data.toString());
 
           final response = await AnalyticProvider().getDayEXAnalytic(
             query: query,

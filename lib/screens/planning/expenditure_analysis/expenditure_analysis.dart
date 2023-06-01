@@ -301,20 +301,22 @@ class _ExpenditureState extends State<Expenditure>
                           showMessage1OptionDialog(this.context,
                               'Vui lòng chọn thời gian bắt đâu sau thời gian kết thúc.');
                         } else {
-                          firstDayOfMonth =
-                              DateFormat('yyyy-MM-dd').format(timePick);
-                          if (!mounted) {
-                            return;
-                          }
-                          this.context.read<DayAnalyticBloc>().add(
-                                DayAnalyticEvent(
-                                  walletIDs: walletIDs,
-                                  categoryIDs: listCateIDSelected,
-                                  fromDate: firstDayOfMonth,
-                                  toDate: lastDayOfMonth,
-                                  type: TransactionType.expense,
-                                ),
-                              );
+                          setState(() {
+                            firstDayOfMonth =
+                                DateFormat('yyyy-MM-dd').format(timePick);
+                            if (!mounted) {
+                              return;
+                            }
+                            this.context.read<DayAnalyticBloc>().add(
+                                  DayAnalyticEvent(
+                                    walletIDs: walletIDs,
+                                    categoryIDs: listCateIDSelected,
+                                    fromDate: firstDayOfMonth,
+                                    toDate: lastDayOfMonth,
+                                    type: TransactionType.expense,
+                                  ),
+                                );
+                          });
                         }
                       },
                       child: Text(
@@ -336,20 +338,22 @@ class _ExpenditureState extends State<Expenditure>
                           showMessage1OptionDialog(this.context,
                               'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
                         } else {
-                          lastDayOfMonth =
-                              DateFormat('yyyy-MM-dd').format(timePick);
-                          if (!mounted) {
-                            return;
-                          }
-                          this.context.read<DayAnalyticBloc>().add(
-                                DayAnalyticEvent(
-                                  walletIDs: walletIDs,
-                                  categoryIDs: listCateIDSelected,
-                                  fromDate: firstDayOfMonth,
-                                  toDate: lastDayOfMonth,
-                                  type: TransactionType.expense,
-                                ),
-                              );
+                          setState(() {
+                            lastDayOfMonth =
+                                DateFormat('yyyy-MM-dd').format(timePick);
+                            if (!mounted) {
+                              return;
+                            }
+                            this.context.read<DayAnalyticBloc>().add(
+                                  DayAnalyticEvent(
+                                    walletIDs: walletIDs,
+                                    categoryIDs: listCateIDSelected,
+                                    fromDate: firstDayOfMonth,
+                                    toDate: lastDayOfMonth,
+                                    type: TransactionType.expense,
+                                  ),
+                                );
+                          });
                         }
                       },
                       child: Text(
