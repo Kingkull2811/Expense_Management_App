@@ -65,7 +65,7 @@ class _SelectCategoryState extends State<SelectCategory> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: true,
+          automaticallyImplyLeading: false,
           backgroundColor: Theme.of(context).primaryColor,
           centerTitle: true,
           title: Text(

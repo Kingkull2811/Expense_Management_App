@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_state.dart';
-import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
@@ -28,7 +27,6 @@ class MonthAnalytic extends StatefulWidget {
 }
 
 class _MonthAnalyticState extends State<MonthAnalytic> {
-  final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
   bool _showDetail = false;
 
   @override
@@ -87,7 +85,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                             style: TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                           Text(
-                            '${state.data?.totalAmount} $currency',
+                            '${state.data?.totalAmount}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -109,7 +107,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                             ),
                           ),
                           Text(
-                            '${state.data?.mediumAmount} $currency',
+                            '${state.data?.mediumAmount}',
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -205,7 +203,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
             Row(
               children: [
                 Text(
-                  '${report.totalAmount} $currency ',
+                  '${report.totalAmount}',
                   style: const TextStyle(color: Colors.red),
                 ),
                 const Icon(

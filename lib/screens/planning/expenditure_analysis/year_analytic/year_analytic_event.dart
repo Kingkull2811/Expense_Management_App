@@ -15,5 +15,5 @@ class YearAnalyticEvent extends Equatable {
   });
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [fromYear, toYear, walletIDs, categoryIDs, type];
 }

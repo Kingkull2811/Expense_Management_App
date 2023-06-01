@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/planning/balance_payments/balance_payments.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_bloc.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/expenditure_analysis.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_bloc.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning_event.dart';
 import 'package:viet_wallet/screens/planning/planning_state.dart';
@@ -139,10 +142,26 @@ class _PlanningPageState extends State<PlanningPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Expenditure(
-                                    listWallet: state.listWallet,
-                                    listCategory: state.listExCategory,
-                                    type: TransactionType.expense,
+                                  builder: (context) => MultiBlocProvider(
+                                    providers: [
+                                      BlocProvider<DayAnalyticBloc>(
+                                        create: (BuildContext context) =>
+                                            DayAnalyticBloc(context),
+                                      ),
+                                      BlocProvider<MonthAnalyticBloc>(
+                                        create: (BuildContext context) =>
+                                            MonthAnalyticBloc(context),
+                                      ),
+                                      BlocProvider<YearAnalyticBloc>(
+                                        create: (BuildContext context) =>
+                                            YearAnalyticBloc(context),
+                                      ),
+                                    ],
+                                    child: Expenditure(
+                                      listWallet: state.listWallet,
+                                      listCategory: state.listExCategory,
+                                      type: TransactionType.expense,
+                                    ),
                                   ),
                                 ),
                               );

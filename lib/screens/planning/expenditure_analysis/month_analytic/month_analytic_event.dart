@@ -7,13 +7,14 @@ class MonthAnalyticEvent extends Equatable {
   final List<int> walletIDs, categoryIDs;
   final TransactionType type;
 
-  const MonthAnalyticEvent(
-      {required this.fromMonth,
-      required this.toMonth,
-      required this.walletIDs,
-      required this.categoryIDs,
-      this.type = TransactionType.expense});
+  const MonthAnalyticEvent({
+    required this.fromMonth,
+    required this.toMonth,
+    required this.walletIDs,
+    required this.categoryIDs,
+    this.type = TransactionType.expense,
+  });
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [fromMonth, toMonth, walletIDs, categoryIDs, type];
 }

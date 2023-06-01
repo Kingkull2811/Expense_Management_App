@@ -69,12 +69,10 @@ class _ExpenditureState extends State<Expenditure>
     return listCateId;
   }
 
-  List<int> initWallet(List<Wallet>? wallets) {
-    List<int> walletIDs = [];
-    for (var element in wallets ?? []) {
-      walletIDs.add(element.id!);
-    }
-    return walletIDs;
+  List<int> initWallet(List<Wallet> wallets) {
+    return List.generate(wallets.length, (index) {
+      return listWalletSelected[index].id!;
+    });
   }
 
   List<int> listCateIDSelected = [];
@@ -86,7 +84,7 @@ class _ExpenditureState extends State<Expenditure>
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
     listWalletSelected = widget.listWallet ?? [];
-    walletIDs = initWallet(widget.listWallet);
+    walletIDs = initWallet(widget.listWallet ?? []);
     listCateIDSelected = initEXCate(widget.listCategory);
     super.initState();
   }
@@ -221,22 +219,12 @@ class _ExpenditureState extends State<Expenditure>
               height: 10,
               thickness: 10,
             ),
-            BlocProvider(
-              create: (context) => MonthAnalyticBloc(context)
-                ..add(MonthAnalyticEvent(
-                  walletIDs: walletIDs,
-                  categoryIDs: listCateIDSelected,
-                  fromMonth: fromMonth,
-                  toMonth: endMonth,
-                  type: widget.type,
-                )),
-              child: MonthAnalytic(
-                walletIDs: walletIDs,
-                categoryIDs: listCateIDSelected,
-                fromMonth: fromMonth,
-                toMonth: endMonth,
-                type: widget.type,
-              ),
+            MonthAnalytic(
+              walletIDs: walletIDs,
+              categoryIDs: listCateIDSelected,
+              fromMonth: fromMonth,
+              toMonth: endMonth,
+              type: widget.type,
             ),
           ],
         ),
@@ -261,22 +249,12 @@ class _ExpenditureState extends State<Expenditure>
               height: 10,
               thickness: 10,
             ),
-            BlocProvider(
-              create: (context) => YearAnalyticBloc(context)
-                ..add(YearAnalyticEvent(
-                  walletIDs: walletIDs,
-                  categoryIDs: listCateIDSelected,
-                  fromYear: fromYear,
-                  toYear: endYear,
-                  type: widget.type,
-                )),
-              child: YearAnalytic(
-                walletIDs: walletIDs,
-                categoryIDs: listCateIDSelected,
-                fromYear: fromYear,
-                toYear: endYear,
-                type: widget.type,
-              ),
+            YearAnalytic(
+              walletIDs: walletIDs,
+              categoryIDs: listCateIDSelected,
+              fromYear: fromYear,
+              toYear: endYear,
+              type: widget.type,
             ),
           ],
         ),
@@ -318,13 +296,25 @@ class _ExpenditureState extends State<Expenditure>
                             await _pickDayTime(firstDayOfMonth);
                         if (timePick == null) {
                           return;
-                        } else if (DateTime.parse(firstDayOfMonth)
-                            .isAfter(timePick)) {
+                        } else if (DateTime.parse(lastDayOfMonth)
+                            .isBefore(timePick)) {
                           showMessage1OptionDialog(this.context,
-                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
+                              'Vui lòng chọn thời gian bắt đâu sau thời gian kết thúc.');
                         } else {
                           firstDayOfMonth =
-                              DateFormat('yyyy/MM/dd').format(timePick);
+                              DateFormat('yyyy-MM-dd').format(timePick);
+                          if (!mounted) {
+                            return;
+                          }
+                          this.context.read<DayAnalyticBloc>().add(
+                                DayAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  categoryIDs: listCateIDSelected,
+                                  fromDate: firstDayOfMonth,
+                                  toDate: lastDayOfMonth,
+                                  type: TransactionType.expense,
+                                ),
+                              );
                         }
                       },
                       child: Text(
@@ -341,9 +331,25 @@ class _ExpenditureState extends State<Expenditure>
                             await _pickDayTime(lastDayOfMonth);
                         if (timePick == null) {
                           return;
+                        } else if (DateTime.parse(firstDayOfMonth)
+                            .isAfter(timePick)) {
+                          showMessage1OptionDialog(this.context,
+                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
                         } else {
                           lastDayOfMonth =
-                              DateFormat('yyyy/MM/dd').format(timePick);
+                              DateFormat('yyyy-MM-dd').format(timePick);
+                          if (!mounted) {
+                            return;
+                          }
+                          this.context.read<DayAnalyticBloc>().add(
+                                DayAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  categoryIDs: listCateIDSelected,
+                                  fromDate: firstDayOfMonth,
+                                  toDate: lastDayOfMonth,
+                                  type: TransactionType.expense,
+                                ),
+                              );
                         }
                       },
                       child: Text(
@@ -400,6 +406,16 @@ class _ExpenditureState extends State<Expenditure>
                       if (picker != null) {
                         setState(() {
                           fromMonth = DateFormat('yyyy-MM').format(picker);
+
+                          context.read<MonthAnalyticBloc>().add(
+                                MonthAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  categoryIDs: listCateIDSelected,
+                                  fromMonth: fromMonth,
+                                  toMonth: endMonth,
+                                  type: TransactionType.expense,
+                                ),
+                              );
                         });
                       } else {
                         return;
@@ -424,6 +440,16 @@ class _ExpenditureState extends State<Expenditure>
                       if (picker != null) {
                         setState(() {
                           endMonth = DateFormat('yyyy-MM').format(picker);
+
+                          context.read<MonthAnalyticBloc>().add(
+                                MonthAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  categoryIDs: listCateIDSelected,
+                                  fromMonth: fromMonth,
+                                  toMonth: endMonth,
+                                  type: TransactionType.expense,
+                                ),
+                              );
                         });
                       } else {
                         return;
@@ -484,6 +510,15 @@ class _ExpenditureState extends State<Expenditure>
                               onChanged: (DateTime valuer) {
                                 setState(() {
                                   fromYear = valuer.year.toString();
+                                  this.context.read<YearAnalyticBloc>().add(
+                                        YearAnalyticEvent(
+                                          walletIDs: walletIDs,
+                                          categoryIDs: listCateIDSelected,
+                                          fromYear: fromYear,
+                                          toYear: endYear,
+                                          type: TransactionType.expense,
+                                        ),
+                                      );
                                 });
                                 Navigator.pop(context);
                               },
@@ -515,6 +550,16 @@ class _ExpenditureState extends State<Expenditure>
                               onChanged: (DateTime valuer) {
                                 setState(() {
                                   endYear = valuer.year.toString();
+
+                                  this.context.read<YearAnalyticBloc>().add(
+                                        YearAnalyticEvent(
+                                          walletIDs: walletIDs,
+                                          categoryIDs: listCateIDSelected,
+                                          fromYear: fromYear,
+                                          toYear: endYear,
+                                          type: TransactionType.expense,
+                                        ),
+                                      );
                                 });
                                 Navigator.pop(context);
                               },
@@ -572,6 +617,33 @@ class _ExpenditureState extends State<Expenditure>
         if (isNotNullOrEmpty(result)) {
           setState(() {
             listCateIDSelected = result ?? [];
+            context.read<DayAnalyticBloc>().add(
+                  DayAnalyticEvent(
+                    walletIDs: walletIDs,
+                    categoryIDs: listCateIDSelected,
+                    fromDate: firstDayOfMonth,
+                    toDate: lastDayOfMonth,
+                    type: TransactionType.expense,
+                  ),
+                );
+            context.read<MonthAnalyticBloc>().add(
+                  MonthAnalyticEvent(
+                    walletIDs: walletIDs,
+                    categoryIDs: listCateIDSelected,
+                    fromMonth: fromMonth,
+                    toMonth: endMonth,
+                    type: TransactionType.expense,
+                  ),
+                );
+            context.read<YearAnalyticBloc>().add(
+                  YearAnalyticEvent(
+                    walletIDs: walletIDs,
+                    categoryIDs: listCateIDSelected,
+                    fromYear: fromYear,
+                    toYear: endYear,
+                    type: TransactionType.expense,
+                  ),
+                );
           });
         } else {
           return;
@@ -621,6 +693,34 @@ class _ExpenditureState extends State<Expenditure>
         );
         setState(() {
           listWalletSelected = result ?? [];
+          walletIDs = initWallet(listWalletSelected);
+          context.read<DayAnalyticBloc>().add(
+                DayAnalyticEvent(
+                  walletIDs: walletIDs,
+                  categoryIDs: listCateIDSelected,
+                  fromDate: firstDayOfMonth,
+                  toDate: lastDayOfMonth,
+                  type: TransactionType.expense,
+                ),
+              );
+          context.read<MonthAnalyticBloc>().add(
+                MonthAnalyticEvent(
+                  walletIDs: walletIDs,
+                  categoryIDs: listCateIDSelected,
+                  fromMonth: fromMonth,
+                  toMonth: endMonth,
+                  type: TransactionType.expense,
+                ),
+              );
+          context.read<YearAnalyticBloc>().add(
+                YearAnalyticEvent(
+                  walletIDs: walletIDs,
+                  categoryIDs: listCateIDSelected,
+                  fromYear: fromYear,
+                  toYear: endYear,
+                  type: TransactionType.expense,
+                ),
+              );
         });
       },
       dense: false,

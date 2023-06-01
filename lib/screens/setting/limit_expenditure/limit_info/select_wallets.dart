@@ -57,7 +57,7 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: true,
+            automaticallyImplyLeading: false,
             backgroundColor: Theme.of(context).primaryColor,
             centerTitle: true,
             title: const Text(
