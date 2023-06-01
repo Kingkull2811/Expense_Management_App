@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_state.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
@@ -10,6 +9,7 @@ import '../../../../utilities/enum/enum.dart';
 import '../../../../utilities/shared_preferences_storage.dart';
 import 'day_analytic_bloc.dart';
 import 'day_analytic_event.dart';
+import 'day_analytic_state.dart';
 
 class DayAnalytic extends StatefulWidget {
   final String fromDate, toDate;
@@ -46,7 +46,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DayAnalyticBloc, CurrentAnalyticState>(
+    return BlocBuilder<DayAnalyticBloc, DayAnalyticState>(
       builder: (context, state) {
         List<CategoryReport> listReport = state.data?.categoryReports ?? [];
 

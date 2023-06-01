@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/current/current_bloc.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/custom/custom.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/month/month.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/month/month_bloc.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/month/month_event.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/precious/precious.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/precious/precious_bloc.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/precious/precious_event.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/year/year.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/year/year_bloc.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/year/year_event.dart';
 
 import '../../../network/model/wallet.dart';
+import '../../../utilities/screen_utilities.dart';
 import '../../../utilities/utils.dart';
 import '../../setting/limit_expenditure/limit_info/select_wallets.dart';
+import 'current/current.dart';
+import 'current/current_event.dart';
+import 'custom/custom_bloc.dart';
+import 'custom/custom_event.dart';
 
 class BalancePayments extends StatefulWidget {
   final List<Wallet>? listWallet;
@@ -29,50 +46,20 @@ class _BalancePaymentsState extends State<BalancePayments>
     return walletIDs;
   }
 
+  int currentYear = DateTime.now().year;
+  int toYear = DateTime.now().year + 2;
+  String fromTime = DateFormat('yyyy-MM-dd')
+      .format(DateTime(DateTime.now().year, DateTime.now().month, 1));
+  String toTime = DateFormat('yyyy-MM-dd')
+      .format(DateTime(DateTime.now().year, DateTime.now().month + 1, 0));
+
   @override
   void initState() {
-    // BlocProvider.of<PaymentsPositionBloc>(context).add(PaymentsPositionInit());
     _tabController = TabController(length: 5, vsync: this);
     listWalletSelected = widget.listWallet ?? [];
     walletIDs = initWallet(widget.listWallet);
     super.initState();
   }
-
-  List<_SalesData> data = [
-    _SalesData('july', 1128),
-    _SalesData('may', 800),
-    _SalesData('april', 900),
-    _SalesData('june', 500),
-    _SalesData('october', 200),
-    _SalesData('december', 1000),
-  ];
-
-  List<_SalesData> datas = [
-    _SalesData('july', -1128),
-    _SalesData('may', 1128),
-    _SalesData('april', -1128),
-    _SalesData('june', -1128),
-    _SalesData('october', 1128),
-    _SalesData('december', 1128),
-  ];
-
-  List<_SalesData> dataPrecious = [
-    _SalesData('Quý 1', 500),
-    _SalesData('Quý 2', 1128),
-  ];
-
-  List<_SalesData> dataPrecious2 = [
-    _SalesData('Quý 1', -1128),
-    _SalesData('Quý 2', -500),
-  ];
-
-  List<_SalesData> dataYear = [
-    _SalesData('2023', 500),
-  ];
-
-  List<_SalesData> dataYear2 = [
-    _SalesData('2023', -1128),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -123,48 +110,15 @@ class _BalancePaymentsState extends State<BalancePayments>
               controller: _tabController,
               children: [
                 _current(),
-                _all('Tháng này', '0', '01922128', '9217271'),
                 _chartsMonth(),
                 _chartsPrecious(),
                 _chartsYear(),
+                _chartsCustom(),
               ],
             ),
           ),
         ],
       ),
-      // body: Column(
-      //   children: [
-      //     barDialog('2023', context),
-      //     const Divider(
-      //       color: Colors.black,
-      //       height: 1,
-      //     ),
-      //     Expanded(
-      //       child: BlocConsumer<PaymentsPositionBloc, PaymentsPositionState>(
-      //         listenWhen: (preState, curState) {
-      //           return curState.apiError != ApiError.noError;
-      //         },
-      //         listener: (context, state) {
-      //           if (state.apiError == ApiError.internalServerError) {
-      //             showMessage1OptionDialog(
-      //               context,
-      //               'Error!',
-      //               content: 'Internal_server_error',
-      //             );
-      //           }
-      //           if (state.apiError == ApiError.noInternetConnection) {
-      //             showMessageNoInternetDialog(context);
-      //           }
-      //         },
-      //         builder: (context, state) {
-      //           // if (state.isLoading) {
-      //           //   return const AnimationLoading();
-      //           // }
-      //         },
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 
@@ -240,14 +194,14 @@ class _BalancePaymentsState extends State<BalancePayments>
                   style: const TextStyle(fontSize: 16, color: Colors.black),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Colors.grey,
-                ),
-              ),
+              // const Padding(
+              //   padding: EdgeInsets.only(right: 16),
+              //   child: Icon(
+              //     Icons.arrow_forward_ios,
+              //     size: 16,
+              //     color: Colors.grey,
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -257,63 +211,106 @@ class _BalancePaymentsState extends State<BalancePayments>
           color: Theme.of(context).backgroundColor,
         ),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //Initialize the chart widget
-                const Text(
-                  '(Đơn vị: VNĐ)',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w400),
-                ),
-                SfCartesianChart(
-                  primaryXAxis: CategoryAxis(),
-                  // Chart title
-                  // Enable legend
-                  // Enable tooltip
-                  tooltipBehavior: TooltipBehavior(enable: true),
-                  series: <ChartSeries<_SalesData, String>>[
-                    ColumnSeries<_SalesData, String>(
-                      dataSource: data,
-                      xValueMapper: (_SalesData sales, _) => sales.year,
-                      yValueMapper: (_SalesData sales, _) => sales.sales,
-                      name: 'Sales',
-                      color: Colors.grey,
-                      // Enable data label
-                      // dataLabelSettings: DataLabelSettings(isVisible: true)
-                    ),
-                    ColumnSeries<_SalesData, String>(
-                      dataSource: data,
-                      xValueMapper: (_SalesData sales, _) => sales.year,
-                      yValueMapper: (_SalesData sales, _) => sales.sales,
-                      name: 'Sales',
-                      color: Colors.blue,
-                      // Enable data label
-                      // dataLabelSettings: DataLabelSettings(isVisible: true)
-                    ),
-                    ColumnSeries<_SalesData, String>(
-                      dataSource: datas,
-                      xValueMapper: (_SalesData sales, _) => sales.year,
-                      yValueMapper: (_SalesData sales, _) => sales.sales,
-                      name: 'Sales',
-                      color: Colors.red,
-                      // Enable data label
-                      // dataLabelSettings: DataLabelSettings(isVisible: true)
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    //Initialize the spark charts widget
-                    child: _all('Tháng này', '0', '01922128', '9217271'),
-                  ),
-                )
-              ],
+          child: BlocProvider(
+            create: (context) => CurrentAnalyticBloc(context)
+              ..add(CurrentAnalyticEvent(walletIDs: walletIDs)),
+            child: CurrentAnalytic(walletIDs: walletIDs),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _chartsMonth() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.3)),
+            ),
+          ),
+          child: _selectYearTime(),
+        ),
+        Divider(
+          height: 10,
+          thickness: 10,
+          color: Theme.of(context).backgroundColor,
+        ),
+        Expanded(
+          child: BlocProvider(
+            create: (context) => MonthAnalyticBloc(context)
+              ..add(
+                MonthAnalyticEvent(walletIDs: walletIDs, year: currentYear),
+              ),
+            child: MonthAnalytic(walletIDs: walletIDs, year: currentYear),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _chartsPrecious() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.3)),
+            ),
+          ),
+          child: _selectYearTime(),
+        ),
+        Divider(
+          height: 10,
+          thickness: 10,
+          color: Theme.of(context).backgroundColor,
+        ),
+        Expanded(
+          child: BlocProvider(
+            create: (context) => PreciousAnalyticBloc(context)
+              ..add(PreciousAnalyticEvent(walletIDs: walletIDs)),
+            child: PreciousAnalytic(walletIDs: walletIDs),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _chartsYear() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 40,
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.3)),
+            ),
+          ),
+          child: _selectYearToYear(),
+        ),
+        Divider(
+          height: 10,
+          thickness: 10,
+          color: Theme.of(context).backgroundColor,
+        ),
+        Expanded(
+          child: BlocProvider(
+            create: (context) => YearAnalyticBloc(context)
+              ..add(YearAnalyticEvent(
+                walletIDs: walletIDs,
+                year: currentYear,
+                toYear: toYear,
+              )),
+            child: YearAnalytic(
+              walletIDs: walletIDs,
+              year: currentYear,
+              toYear: toYear,
             ),
           ),
         ),
@@ -321,356 +318,269 @@ class _BalancePaymentsState extends State<BalancePayments>
     );
   }
 
-  Widget _all(String? tittle, String? interest, String? loss, String origin) {
-    return SingleChildScrollView(
-        child: Column(
+  Widget _chartsCustom() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 150,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(10), right: Radius.circular(10))),
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      tittle ?? '',
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '$interest ₫' ?? "" + ' ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.lightGreen),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$loss' + ' ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.red),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$origin ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              )
-            ],
+          height: 40,
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.3)),
+            ),
           ),
+          child: _selectDayTime(context),
         ),
-        const Divider(
-          color: Colors.black,
-          height: 1,
+        Divider(
+          height: 10,
+          thickness: 10,
+          color: Theme.of(context).backgroundColor,
         ),
-        Container(
-          height: 150,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(10), right: Radius.circular(10))),
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Quý này',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '$interest ₫' ?? "" + ' ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.lightGreen),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$loss' + ' ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.red),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$origin ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-        const Divider(
-          color: Colors.black,
-          height: 1,
-        ),
-        Container(
-          height: 150,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.horizontal(
-                  left: Radius.circular(10), right: Radius.circular(10))),
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Năm nay',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '$interest ₫' ?? "" + ' ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.lightGreen),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$loss' + ' ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.red),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          '$origin ₫',
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              )
-            ],
+        Expanded(
+          child: BlocProvider(
+            create: (context) => CustomAnalyticBloc(context)
+              ..add(CustomAnalyticEvent(
+                walletIDs: walletIDs,
+                fromTime: fromTime,
+                toTime: toTime,
+              )),
+            child: CustomAnalytic(
+              walletIDs: walletIDs,
+              fromTime: fromTime,
+              toTime: toTime,
+            ),
           ),
         ),
       ],
-    ));
-  }
-
-  Widget _chartsMonth() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        //Initialize the chart widget
-        const Text(
-          '(Đơn vị: VNĐ)',
-          style: TextStyle(
-              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w400),
-        ),
-        SfCartesianChart(
-            primaryXAxis: CategoryAxis(),
-            // Chart title
-            // Enable legend
-            // Enable tooltip
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries<_SalesData, String>>[
-              ColumnSeries<_SalesData, String>(
-                dataSource: data,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.grey,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              ),
-              ColumnSeries<_SalesData, String>(
-                dataSource: data,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.blue,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              ),
-              ColumnSeries<_SalesData, String>(
-                dataSource: datas,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.red,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              )
-            ]),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            //Initialize the spark charts widget
-            child: _all('Tháng này', '0', '01922128', '9217271'),
-          ),
-        )
-      ]),
     );
   }
 
-  Widget _chartsPrecious() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        //Initialize the chart widget
-        const Text(
-          '(Đơn vị: VNĐ)',
-          style: TextStyle(
-              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w400),
-        ),
-        SfCartesianChart(
-            primaryXAxis: CategoryAxis(),
-            // Chart title
-            // Enable legend
-            // Enable tooltip
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries<_SalesData, String>>[
-              ColumnSeries<_SalesData, String>(
-                dataSource: dataPrecious,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.grey,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              ),
-              ColumnSeries<_SalesData, String>(
-                dataSource: dataPrecious2,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.red,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              )
-            ]),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            //Initialize the spark charts widget
-            child: _all('Tháng này', '0', '01922128', '9217271'),
+  Widget _selectYearTime() {
+    return Row(
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 16, right: 20),
+          child: Icon(
+            Icons.calendar_month,
+            size: 30,
+            color: Colors.grey,
           ),
-        )
-      ]),
+        ),
+        Expanded(
+          child: InkWell(
+            onTap: () async {
+              await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Chọn năm'),
+                  content: SizedBox(
+                    height: 300,
+                    width: 300,
+                    child: YearPicker(
+                      firstDate: DateTime(2010),
+                      lastDate: DateTime(2040),
+                      selectedDate: DateTime(currentYear),
+                      onChanged: (DateTime valuer) {
+                        setState(() {
+                          currentYear = valuer.year;
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+            child: Text(
+              'Năm hiện tại: $currentYear',
+              style: const TextStyle(fontSize: 16, color: Colors.black),
+            ),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(right: 16),
+          child: Icon(
+            Icons.arrow_forward_ios,
+            size: 16,
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _chartsYear() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        //Initialize the chart widget
-        const Text(
-          '(Đơn vị: VNĐ)',
-          style: TextStyle(
-              fontSize: 12, color: Colors.black, fontWeight: FontWeight.w400),
-        ),
-        SfCartesianChart(
-            primaryXAxis: CategoryAxis(),
-            // Chart title
-            // Enable legend
-            // Enable tooltip
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries<_SalesData, String>>[
-              ColumnSeries<_SalesData, String>(
-                dataSource: dataYear,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.grey,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              ),
-              ColumnSeries<_SalesData, String>(
-                dataSource: dataYear2,
-                xValueMapper: (_SalesData sales, _) => sales.year,
-                yValueMapper: (_SalesData sales, _) => sales.sales,
-                name: 'Sales',
-                color: Colors.red,
-                // Enable data label
-                // dataLabelSettings: DataLabelSettings(isVisible: true)
-              )
-            ]),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            //Initialize the spark charts widget
-            child: _all('Tháng này', '0', '01922128', '9217271'),
+  Widget _selectYearToYear() {
+    return SizedBox(
+      height: 50,
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, right: 20),
+            child: Icon(
+              Icons.calendar_month,
+              size: 30,
+              color: Colors.grey,
+            ),
           ),
-        )
-      ]),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Chọn năm bắt đầu'),
+                          content: SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: YearPicker(
+                              firstDate: DateTime(2010),
+                              lastDate: DateTime(2040),
+                              selectedDate: DateTime(currentYear),
+                              onChanged: (DateTime valuer) {
+                                setState(() {
+                                  currentYear = valuer.year;
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Từ: $currentYear',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Chọn năm kết thúc'),
+                          content: SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: YearPicker(
+                              firstDate: DateTime(2010),
+                              lastDate: DateTime(2040),
+                              selectedDate: DateTime(toYear),
+                              onChanged: (DateTime valuer) {
+                                setState(() {
+                                  toYear = valuer.year;
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Đến: $toYear',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
-}
 
-class _SalesData {
-  _SalesData(this.year, this.sales);
+  Widget _selectDayTime(BuildContext context) {
+    return InkWell(
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 16, right: 20),
+              child: Icon(
+                Icons.calendar_month,
+                size: 30,
+                color: Colors.grey,
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final DateTime? timePick = await _pickDayTime(fromTime);
+                        if (timePick == null) {
+                          return;
+                        } else if (DateTime.parse(fromTime).isAfter(timePick)) {
+                          showMessage1OptionDialog(this.context,
+                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
+                        } else {
+                          fromTime = DateFormat('yyyy/MM/dd').format(timePick);
+                        }
+                      },
+                      child: Text(
+                        'Từ: $fromTime',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final DateTime? timePick = await _pickDayTime(toTime);
+                        if (timePick == null) {
+                          return;
+                        } else {
+                          toTime = DateFormat('yyyy/MM/dd').format(timePick);
+                        }
+                      },
+                      child: Text(
+                        'Đến: $toTime',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  final String year;
-  final double sales;
+  Future<DateTime?> _pickDayTime(String current) async {
+    return await showDatePicker(
+      context: context,
+      initialDate: DateTime.parse(current),
+      firstDate: DateTime(1990, 01, 01),
+      lastDate: DateTime(2050, 12, 31),
+    );
+  }
 }

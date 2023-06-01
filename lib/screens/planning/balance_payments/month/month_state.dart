@@ -3,12 +3,12 @@ import 'package:viet_wallet/bloc/api_result_state.dart';
 import '../../../../network/model/report_expenditure_revenue_model.dart';
 import '../../../../utilities/enum/api_error_result.dart';
 
-class CurrentAnalyticState implements ApiResultState {
+class MonthAnalyticState implements ApiResultState {
   final bool isLoading;
   final ApiError _apiError;
   final List<ReportData>? data;
 
-  CurrentAnalyticState({
+  MonthAnalyticState({
     this.isLoading = false,
     ApiError apiError = ApiError.noError,
     this.data,
@@ -18,13 +18,13 @@ class CurrentAnalyticState implements ApiResultState {
   ApiError get apiError => _apiError;
 }
 
-extension DayAnalyticStateEx on CurrentAnalyticState {
-  CurrentAnalyticState copyWith({
+extension DayAnalyticStateEx on MonthAnalyticState {
+  MonthAnalyticState copyWith({
     bool? isLoading,
     ApiError? apiError,
     List<ReportData>? data,
   }) =>
-      CurrentAnalyticState(
+      MonthAnalyticState(
         isLoading: isLoading ?? this.isLoading,
         apiError: apiError ?? this.apiError,
         data: data ?? this.data,

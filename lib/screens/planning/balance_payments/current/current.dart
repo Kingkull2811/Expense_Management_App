@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_state.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
-import '../../../../network/model/analytic_model.dart';
+import '../../../../network/model/report_expenditure_revenue_model.dart';
 import '../../../../utilities/shared_preferences_storage.dart';
 import 'current_bloc.dart';
 import 'current_event.dart';
+import 'current_state.dart';
 
 class CurrentAnalytic extends StatefulWidget {
   final List<int> walletIDs;
@@ -23,7 +21,6 @@ class CurrentAnalytic extends StatefulWidget {
 
 class _CurrentAnalyticState extends State<CurrentAnalytic> {
   final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
-  bool _showDetail = false;
 
   @override
   void initState() {
@@ -37,173 +34,65 @@ class _CurrentAnalyticState extends State<CurrentAnalytic> {
   Widget build(BuildContext context) {
     return BlocBuilder<CurrentAnalyticBloc, CurrentAnalyticState>(
       builder: (context, state) {
-        List<CategoryReport> listReport = state.data?.categoryReports ?? [];
+        List<ReportData> data = state.data ?? [];
 
         return state.isLoading
             ? const AnimationLoading()
-            : Padding(
-                padding: const EdgeInsets.fromLTRB(4, 10, 4, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        '(Đơn vị: nghìn VNĐ)',
-                        style: TextStyle(fontSize: 12, color: Colors.black),
-                      ),
-                    ),
-                    SfCartesianChart(
-                      primaryXAxis: CategoryAxis(),
-                      tooltipBehavior: TooltipBehavior(enable: true),
-                      series: <ChartSeries>[
-                        LineSeries<CategoryReport, String>(
-                          dataSource: listReport,
-                          xValueMapper: (CategoryReport data, _) =>
-                              DateFormat('dd/MM')
-                                  .format(DateTime.parse(data.time)),
-                          yValueMapper: (CategoryReport data, _) =>
-                              data.totalAmount / 1000,
-                          name: 'CategoryReport',
-                          color: Colors.lightBlueAccent,
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Tổng chi tiêu',
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
-                          Text(
-                            '${state.data?.totalAmount} $currency',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Trung bình chỉ/ngày',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          Text(
-                            '${state.data?.mediumAmount} $currency',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      color: Colors.grey.withOpacity(0.2),
-                      height: 10,
-                      thickness: 10,
-                    ),
-                    listFilter(listReport),
-                  ],
+            : SizedBox(
+                height: 150 + 100 * (data.length).toDouble(),
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: data.length,
+                  itemBuilder: (context, index) => _itemList(data[index]),
                 ),
               );
       },
     );
   }
 
-  Widget listFilter(List<CategoryReport>? listReport) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () {
-              setState(() {
-                _showDetail = !_showDetail;
-              });
-            },
-            child: SizedBox(
-              height: 40,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Xem chi tiết',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Icon(
-                    _showDetail
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: Colors.grey,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_showDetail)
-            SizedBox(
-              height: 40 * (listReport!.length).toDouble(),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: listReport.length,
-                itemBuilder: (context, index) => details(listReport[index]),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget details(CategoryReport report) {
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        height: 40,
-        decoration: BoxDecoration(
-          border: BorderDirectional(
-            top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
-            bottom: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
-          ),
+  Widget _itemList(ReportData data) {
+    return Container(
+      decoration: BoxDecoration(
+        border: BorderDirectional(
+          top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
+          bottom: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
         ),
+      ),
+      padding: const EdgeInsets.all(10),
+      child: SizedBox(
+        height: 100,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              report.time,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              data.name,
+              style: const TextStyle(fontSize: 16, color: Colors.black),
             ),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  '${report.totalAmount} $currency ',
-                  style: const TextStyle(color: Colors.red),
+                  '${data.incomeTotal} $currency',
+                  style: const TextStyle(fontSize: 14, color: Colors.green),
                 ),
-                const Icon(
-                  Icons.keyboard_arrow_right_rounded,
-                  size: 20,
-                  color: Colors.grey,
+                Text(
+                  '${data.expenseTotal} $currency',
+                  style: const TextStyle(fontSize: 14, color: Colors.red),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 10),
+                  decoration: const BoxDecoration(
+                    border: BorderDirectional(
+                      top: BorderSide(width: 0.5, color: Colors.grey),
+                    ),
+                  ),
+                  child: Text(
+                    '${data.remainTotal} $currency',
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                  ),
                 )
               ],
             ),

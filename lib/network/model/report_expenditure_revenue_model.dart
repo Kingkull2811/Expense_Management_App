@@ -1,8 +1,10 @@
+import 'package:viet_wallet/utilities/utils.dart';
+
 class ReportData {
   final String name;
-  final int incomeTotal;
-  final int expenseTotal;
-  final int remainTotal;
+  final double incomeTotal;
+  final double expenseTotal;
+  final double remainTotal;
 
   ReportData({
     required this.name,
@@ -13,10 +15,10 @@ class ReportData {
 
   factory ReportData.fromJson(Map<String, dynamic> json) {
     return ReportData(
-      name: json['name'] as String,
-      incomeTotal: json['incomeTotal'] as int,
-      expenseTotal: json['expenseTotal'] as int,
-      remainTotal: json['remainTotal'] as int,
+      name: isNotNullOrEmpty(json['name']) ? (json['name'] as String) : '',
+      incomeTotal: double.parse(json['incomeTotal'].toString()),
+      expenseTotal: double.parse(json['expenseTotal'].toString()),
+      remainTotal: double.parse(json['remainTotal'].toString()),
     );
   }
 

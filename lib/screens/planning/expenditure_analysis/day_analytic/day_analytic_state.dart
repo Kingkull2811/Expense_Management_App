@@ -1,14 +1,13 @@
-import 'package:viet_wallet/bloc/api_result_state.dart';
-
+import '../../../../bloc/api_result_state.dart';
 import '../../../../network/model/analytic_model.dart';
 import '../../../../utilities/enum/api_error_result.dart';
 
-class CurrentAnalyticState implements ApiResultState {
+class DayAnalyticState implements ApiResultState {
   final bool isLoading;
   final ApiError _apiError;
   final AnalyticModel? data;
 
-  CurrentAnalyticState({
+  DayAnalyticState({
     this.isLoading = false,
     ApiError apiError = ApiError.noError,
     this.data,
@@ -18,13 +17,13 @@ class CurrentAnalyticState implements ApiResultState {
   ApiError get apiError => _apiError;
 }
 
-extension DayAnalyticStateEx on CurrentAnalyticState {
-  CurrentAnalyticState copyWith({
+extension DayAnalyticStateEx on DayAnalyticState {
+  DayAnalyticState copyWith({
     bool? isLoading,
     ApiError? apiError,
     AnalyticModel? data,
   }) =>
-      CurrentAnalyticState(
+      DayAnalyticState(
         isLoading: isLoading ?? this.isLoading,
         apiError: apiError ?? this.apiError,
         data: data ?? this.data,

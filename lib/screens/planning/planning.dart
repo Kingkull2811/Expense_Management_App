@@ -72,7 +72,9 @@ class _PlanningPageState extends State<PlanningPage> {
                           InkWell(
                             onTap: () {
                               Navigator.pushNamed(
-                                  context, AppRoutes.reportFinances);
+                                context,
+                                AppRoutes.reportFinances,
+                              );
                             },
                             child: Container(
                               width: 170,
@@ -98,7 +100,9 @@ class _PlanningPageState extends State<PlanningPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => BalancePayments()),
+                                  builder: (context) => BalancePayments(
+                                      listWallet: state.listWallet),
+                                ),
                               );
                             },
                             child: Container(

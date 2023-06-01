@@ -6,15 +6,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/analytic_model.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_event.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_state.dart';
 
 import '../../../../network/provider/analytic_provider.dart';
 import '../../../../utilities/enum/api_error_result.dart';
 import '../../../../utilities/screen_utilities.dart';
+import 'day_analytic_state.dart';
 
-class DayAnalyticBloc extends Bloc<DayAnalyticEvent, CurrentAnalyticState> {
+class DayAnalyticBloc extends Bloc<DayAnalyticEvent, DayAnalyticState> {
   final BuildContext context;
-  DayAnalyticBloc(this.context) : super(CurrentAnalyticState()) {
+  DayAnalyticBloc(this.context) : super(DayAnalyticState()) {
     on((event, emit) async {
       if (event is DayAnalyticEvent) {
         emit(state.copyWith(isLoading: true));

@@ -28,6 +28,8 @@ class ApiPath {
 
   static const String getReportByWalletId = '$apiDomain/api/v1/report/';
 
+  static const String getReport = '$apiDomain/api/v1/report';
+
   static const String expenseLimit = '$apiDomain/api/v1/expense-limit';
 
   static const String recurring = '$apiDomain/api/v1/recurring-transaction';
