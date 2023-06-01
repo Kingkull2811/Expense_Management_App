@@ -12,9 +12,9 @@ import '../../../../network/provider/analytic_provider.dart';
 import '../../../../utilities/enum/api_error_result.dart';
 import '../../../../utilities/screen_utilities.dart';
 
-class DayAnalyticBloc extends Bloc<DayAnalyticEvent, DayAnalyticState> {
+class DayAnalyticBloc extends Bloc<DayAnalyticEvent, CurrentAnalyticState> {
   final BuildContext context;
-  DayAnalyticBloc(this.context) : super(DayAnalyticState()) {
+  DayAnalyticBloc(this.context) : super(CurrentAnalyticState()) {
     on((event, emit) async {
       if (event is DayAnalyticEvent) {
         emit(state.copyWith(isLoading: true));
@@ -30,7 +30,7 @@ class DayAnalyticBloc extends Bloc<DayAnalyticEvent, DayAnalyticState> {
             'fromTime': event.fromDate,
             'timeType': 'DAY',
             'toTime': event.toDate,
-            'type': 'EXPENSE'
+            'type': event.type.name.toUpperCase()
           };
 
           final Map<String, dynamic> data = {

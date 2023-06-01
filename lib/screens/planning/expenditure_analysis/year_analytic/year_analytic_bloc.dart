@@ -30,7 +30,7 @@ class YearAnalyticBloc extends Bloc<YearAnalyticEvent, YearAnalyticState> {
             'fromTime': event.fromYear,
             'timeType': 'YEAR',
             'toTime': event.toYear,
-            'type': 'EXPENSE'
+            'type': event.type.name.toUpperCase()
           };
 
           final Map<String, dynamic> data = {

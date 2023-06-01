@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:viet_wallet/utilities/enum/enum.dart';
 import 'package:viet_wallet/widgets/search_box.dart';
 
 import '../../../../network/model/category_model.dart';
@@ -7,13 +8,13 @@ import '../../../../utilities/utils.dart';
 import '../../../../widgets/app_image.dart';
 
 class SelectCategory extends StatefulWidget {
-  final bool isFromAnalytic;
+  final TransactionType type;
   final List<CategoryModel>? listCategory;
 
   const SelectCategory({
     Key? key,
     this.listCategory,
-    this.isFromAnalytic = false,
+    this.type = TransactionType.expense,
   }) : super(key: key);
 
   @override
@@ -67,9 +68,11 @@ class _SelectCategoryState extends State<SelectCategory> {
           automaticallyImplyLeading: true,
           backgroundColor: Theme.of(context).primaryColor,
           centerTitle: true,
-          title: const Text(
-            'Chọn hang mục chi',
-            style: TextStyle(
+          title: Text(
+            widget.type == TransactionType.expense
+                ? 'Chọn hạng mục chi'
+                : 'Chọn hạng mục thu',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: Colors.white,
@@ -96,7 +99,9 @@ class _SelectCategoryState extends State<SelectCategory> {
                 if (isNullOrEmpty(listCategoryIdSelected)) {
                   showMessage1OptionDialog(
                     context,
-                    'Bạn cần chọn ít nhất một hang mục chi',
+                    widget.type == TransactionType.expense
+                        ? 'Bạn cần chọn ít nhất một hạng mục chi'
+                        : 'Bạn cần chọn ít nhất một hạng mục thu',
                   );
                 } else {
                   Navigator.of(context).pop(listCategoryIdSelected);
@@ -115,7 +120,9 @@ class _SelectCategoryState extends State<SelectCategory> {
           child: isNullOrEmpty(widget.listCategory)
               ? Center(
                   child: Text(
-                    'Không có hạng mục chi',
+                    widget.type == TransactionType.expense
+                        ? 'Không có hạng mục chi'
+                        : 'Không có hạng mục thu',
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).primaryColor,

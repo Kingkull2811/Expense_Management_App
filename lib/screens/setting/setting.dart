@@ -31,15 +31,17 @@ class _SettingPageState extends State<SettingPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: _appBar(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            _featureOption(),
-            _generalSettings(),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _featureOption(),
+              _generalSettings(),
+            ],
+          ),
         ),
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
+import 'package:mat_month_picker_dialog/mat_month_picker_dialog.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_bloc.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic.dart';
@@ -10,6 +10,7 @@ import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic
 import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic_bloc.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic_event.dart';
+import 'package:viet_wallet/utilities/enum/enum.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 
 import '../../../network/model/category_model.dart';
@@ -22,11 +23,13 @@ import 'day_analytic/day_analytic_event.dart';
 class Expenditure extends StatefulWidget {
   final List<Wallet>? listWallet;
   final List<CategoryModel>? listCategory;
+  final TransactionType type;
 
   const Expenditure({
     Key? key,
     this.listWallet,
     this.listCategory,
+    this.type = TransactionType.expense,
   }) : super(key: key);
 
   @override
@@ -90,15 +93,43 @@ class _ExpenditureState extends State<Expenditure>
 
   @override
   Widget build(BuildContext context) {
+    return _body();
+    // return BlocConsumer<ExpenditureAnalyticBloc, ExpenditureAnalyticState>(
+    //   listenWhen: (preState, curState) {
+    //     return curState.apiError != ApiError.noError;
+    //   },
+    //   listener: (context, state) {
+    //     if (state.apiError == ApiError.internalServerError) {
+    //       showMessage1OptionDialog(
+    //         context,
+    //         'Error!',
+    //         content: 'Internal_server_error',
+    //       );
+    //     }
+    //     if (state.apiError == ApiError.noInternetConnection) {
+    //       showMessageNoInternetDialog(context);
+    //     }
+    //   },
+    //   builder: (context, state) {
+    //     return state.isLoading
+    //         ? const AnimationLoading()
+    //         : _body(context, state);
+    //   },
+    // );
+  }
+
+  Widget _body() {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: Theme.of(context).primaryColor,
-          title: const Text(
-            'Phân tích chi tiêu',
-            style: TextStyle(
+          title: Text(
+            widget.type == TransactionType.expense
+                ? 'Phân tích chi tiêu'
+                : 'Phân tích thu',
+            style: const TextStyle(
               fontSize: 20,
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -157,12 +188,14 @@ class _ExpenditureState extends State<Expenditure>
                   categoryIDs: listCateIDSelected,
                   fromDate: firstDayOfMonth,
                   toDate: lastDayOfMonth,
+                  type: widget.type,
                 )),
               child: DayAnalytic(
                 walletIDs: walletIDs,
                 categoryIDs: listCateIDSelected,
                 fromDate: firstDayOfMonth,
                 toDate: lastDayOfMonth,
+                type: widget.type,
               ),
             ),
           ],
@@ -195,12 +228,14 @@ class _ExpenditureState extends State<Expenditure>
                   categoryIDs: listCateIDSelected,
                   fromMonth: fromMonth,
                   toMonth: endMonth,
+                  type: widget.type,
                 )),
               child: MonthAnalytic(
                 walletIDs: walletIDs,
                 categoryIDs: listCateIDSelected,
                 fromMonth: fromMonth,
                 toMonth: endMonth,
+                type: widget.type,
               ),
             ),
           ],
@@ -233,12 +268,14 @@ class _ExpenditureState extends State<Expenditure>
                   categoryIDs: listCateIDSelected,
                   fromYear: fromYear,
                   toYear: endYear,
+                  type: widget.type,
                 )),
               child: YearAnalytic(
                 walletIDs: walletIDs,
                 categoryIDs: listCateIDSelected,
                 fromYear: fromYear,
                 toYear: endYear,
+                type: widget.type,
               ),
             ),
           ],
@@ -274,28 +311,30 @@ class _ExpenditureState extends State<Expenditure>
             Expanded(
               child: Row(
                 children: [
-                  InkWell(
-                    onTap: () async {
-                      final DateTime? timePick =
-                          await _pickDayTime(firstDayOfMonth);
-                      if (timePick == null) {
-                        return;
-                      } else if (DateTime.parse(firstDayOfMonth)
-                          .isAfter(timePick)) {
-                        showMessage1OptionDialog(this.context,
-                            'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
-                      } else {
-                        firstDayOfMonth =
-                            DateFormat('yyyy/MM/dd').format(timePick);
-                      }
-                    },
-                    child: Text(
-                      'Từ: $firstDayOfMonth',
-                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final DateTime? timePick =
+                            await _pickDayTime(firstDayOfMonth);
+                        if (timePick == null) {
+                          return;
+                        } else if (DateTime.parse(firstDayOfMonth)
+                            .isAfter(timePick)) {
+                          showMessage1OptionDialog(this.context,
+                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
+                        } else {
+                          firstDayOfMonth =
+                              DateFormat('yyyy/MM/dd').format(timePick);
+                        }
+                      },
+                      child: Text(
+                        'Từ: $firstDayOfMonth',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
+                  Expanded(
                     child: InkWell(
                       onTap: () async {
                         final DateTime? timePick =
@@ -332,50 +371,62 @@ class _ExpenditureState extends State<Expenditure>
   }
 
   Widget _selectMonthTime() {
-    return InkWell(
-      onTap: () {},
-      child: SizedBox(
-        height: 50,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 16, right: 20),
-              child: Icon(
-                Icons.calendar_month,
-                size: 30,
-                color: Colors.grey,
-              ),
+    return SizedBox(
+      height: 50,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, right: 20),
+            child: Icon(
+              Icons.calendar_month,
+              size: 30,
+              color: Colors.grey,
             ),
-            Expanded(
-                child: Row(
+          ),
+          Expanded(
+            child: Row(
               children: [
-                InkWell(
-                  onTap: () async {
-                    final DateTime? timePick = await _pickMonth(fromMonth);
-                    if (timePick == null) {
-                      return;
-                    } else if (DateTime.parse(fromMonth).isAfter(timePick)) {
-                      showMessage1OptionDialog(this.context,
-                          'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
-                    } else {
-                      fromMonth = DateFormat('yyyy/MM').format(timePick);
-                    }
-                  },
-                  child: Text(
-                    'Từ: $fromMonth',
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
+                Expanded(
+                  flex: 1,
                   child: InkWell(
                     onTap: () async {
-                      final DateTime? timePick = await _pickMonth(endMonth);
-                      if (timePick == null) {
-                        return;
+                      final DateTime? picker = await showMonthPicker(
+                        context: context,
+                        firstDate: DateTime(2010, 01, 01),
+                        lastDate: DateTime(2040, 12, 31),
+                        initialDate: DateTime.parse('$fromMonth-01'),
+                      );
+                      if (picker != null) {
+                        setState(() {
+                          fromMonth = DateFormat('yyyy-MM').format(picker);
+                        });
                       } else {
-                        endMonth = DateFormat('yyyy/MM').format(timePick);
+                        return;
+                      }
+                    },
+                    child: Text(
+                      'Từ: $fromMonth',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: InkWell(
+                    onTap: () async {
+                      final DateTime? picker = await showMonthPicker(
+                        context: context,
+                        firstDate: DateTime(2010, 01, 01),
+                        lastDate: DateTime(2040, 12, 31),
+                        initialDate: DateTime.parse('$endMonth-01'),
+                      );
+                      if (picker != null) {
+                        setState(() {
+                          endMonth = DateFormat('yyyy-MM').format(picker);
+                        });
+                      } else {
+                        return;
                       }
                     },
                     child: Text(
@@ -385,53 +436,111 @@ class _ExpenditureState extends State<Expenditure>
                   ),
                 ),
               ],
-            )),
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
-              ),
             ),
-          ],
-        ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _selectYearTime() {
-    return InkWell(
-      onTap: () {},
-      child: SizedBox(
-        height: 50,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 16, right: 20),
-              child: Icon(
-                Icons.calendar_month,
-                size: 30,
-                color: Colors.grey,
-              ),
+    return SizedBox(
+      height: 50,
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, right: 20),
+            child: Icon(
+              Icons.calendar_month,
+              size: 30,
+              color: Colors.grey,
             ),
-            Expanded(
-              child: Text(
-                '$fromYear -> $endYear',
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-              ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Chọn năm bắt đầu'),
+                          content: SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: YearPicker(
+                              firstDate: DateTime(2010),
+                              lastDate: DateTime(2040),
+                              selectedDate: DateTime(int.parse(fromYear)),
+                              onChanged: (DateTime valuer) {
+                                setState(() {
+                                  fromYear = valuer.year.toString();
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Từ: $fromYear',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Chọn năm kết thúc'),
+                          content: SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: YearPicker(
+                              firstDate: DateTime(2010),
+                              lastDate: DateTime(2040),
+                              selectedDate: DateTime(int.parse(endYear)),
+                              onChanged: (DateTime valuer) {
+                                setState(() {
+                                  endYear = valuer.year.toString();
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Đến: $endYear',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: Colors.grey,
-              ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -456,6 +565,7 @@ class _ExpenditureState extends State<Expenditure>
           MaterialPageRoute(
             builder: (context) => SelectCategory(
               listCategory: listCate,
+              type: widget.type,
             ),
           ),
         );
@@ -540,18 +650,9 @@ class _ExpenditureState extends State<Expenditure>
   }
 
   Future<DateTime?> _pickDayTime(String current) async {
-    await showDatePicker(
+    return await showDatePicker(
       context: context,
       initialDate: DateTime.parse(current),
-      firstDate: DateTime(1990, 01, 01),
-      lastDate: DateTime(2050, 12, 31),
-    );
-  }
-
-  Future<DateTime?> _pickMonth(String current) async {
-    await showMonthYearPicker(
-      context: context,
-      initialDate: DateTime.now(),
       firstDate: DateTime(1990, 01, 01),
       lastDate: DateTime(2050, 12, 31),
     );

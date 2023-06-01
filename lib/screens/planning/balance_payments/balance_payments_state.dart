@@ -1,19 +1,17 @@
 import 'package:viet_wallet/bloc/api_result_state.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 
-import '../../../network/model/category_model.dart';
+import '../../../network/model/wallet.dart';
 
 class PaymentsPositionState implements ApiResultState {
   final bool isLoading;
   final ApiError _apiError;
-  final List<CategoryModel>? listExCategory;
-  final List<CategoryModel>? listCoCategory;
+  final List<Wallet>? listWallet;
 
   PaymentsPositionState({
     this.isLoading = false,
     ApiError apiError = ApiError.noError,
-    this.listExCategory,
-    this.listCoCategory,
+    this.listWallet,
   }) : _apiError = apiError;
 
   @override
@@ -24,13 +22,11 @@ extension CategoryItemStateEx on PaymentsPositionState {
   PaymentsPositionState copyWith({
     bool? isLoading,
     ApiError? apiError,
-    List<CategoryModel>? listExCategory,
-    List<CategoryModel>? listCoCategory,
+    List<Wallet>? listWallet,
   }) =>
       PaymentsPositionState(
         isLoading: isLoading ?? this.isLoading,
         apiError: apiError ?? this.apiError,
-        listExCategory: listExCategory ?? this.listExCategory,
-        listCoCategory: listCoCategory ?? this.listCoCategory,
+        listWallet: listWallet ?? this.listWallet,
       );
 }

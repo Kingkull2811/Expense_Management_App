@@ -9,10 +9,10 @@ import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning.dart';
-import 'package:viet_wallet/screens/planning/planning_bloc.dart';
 
 import '../my_wallet/my_wallet.dart';
 import '../my_wallet/my_wallet_bloc.dart';
+import '../planning/planning_bloc.dart';
 import '../setting/setting.dart';
 
 class MainApp extends StatefulWidget {

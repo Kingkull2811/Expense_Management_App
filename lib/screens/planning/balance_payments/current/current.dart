@@ -1,65 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_state.dart';
-import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_state.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
-import '../../../../utilities/enum/enum.dart';
-import 'month_analytic_bloc.dart';
-import 'month_analytic_event.dart';
+import '../../../../utilities/shared_preferences_storage.dart';
+import 'current_bloc.dart';
+import 'current_event.dart';
 
-class MonthAnalytic extends StatefulWidget {
-  final String fromMonth, toMonth;
-  final List<int> walletIDs, categoryIDs;
-  final TransactionType type;
-  const MonthAnalytic(
-      {Key? key,
-      required this.fromMonth,
-      required this.toMonth,
-      required this.walletIDs,
-      required this.categoryIDs,
-      this.type = TransactionType.expense})
-      : super(key: key);
+class CurrentAnalytic extends StatefulWidget {
+  final List<int> walletIDs;
+  const CurrentAnalytic({
+    Key? key,
+    required this.walletIDs,
+  }) : super(key: key);
 
   @override
-  State<MonthAnalytic> createState() => _MonthAnalyticState();
+  State<CurrentAnalytic> createState() => _CurrentAnalyticState();
 }
 
-class _MonthAnalyticState extends State<MonthAnalytic> {
+class _CurrentAnalyticState extends State<CurrentAnalytic> {
   final currency = SharedPreferencesStorage().getCurrency() ?? '\$/USD';
   bool _showDetail = false;
 
   @override
   void initState() {
-    BlocProvider.of<MonthAnalyticBloc>(context).add(MonthAnalyticEvent(
+    BlocProvider.of<CurrentAnalyticBloc>(context).add(CurrentAnalyticEvent(
       walletIDs: widget.walletIDs,
-      categoryIDs: widget.categoryIDs,
-      fromMonth: widget.fromMonth,
-      toMonth: widget.toMonth,
-      type: widget.type,
     ));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MonthAnalyticBloc, MonthAnalyticState>(
+    return BlocBuilder<CurrentAnalyticBloc, CurrentAnalyticState>(
       builder: (context, state) {
         List<CategoryReport> listReport = state.data?.categoryReports ?? [];
 
         return state.isLoading
             ? const AnimationLoading()
             : Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                padding: const EdgeInsets.fromLTRB(4, 10, 4, 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Padding(
-                      padding: EdgeInsets.only(left: 4, bottom: 8.0),
+                      padding: EdgeInsets.only(bottom: 8.0),
                       child: Text(
-                        '(Đơn vị: triệu VNĐ)',
+                        '(Đơn vị: nghìn VNĐ)',
                         style: TextStyle(fontSize: 12, color: Colors.black),
                       ),
                     ),
@@ -67,11 +57,13 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                       primaryXAxis: CategoryAxis(),
                       tooltipBehavior: TooltipBehavior(enable: true),
                       series: <ChartSeries>[
-                        ColumnSeries<CategoryReport, String>(
+                        LineSeries<CategoryReport, String>(
                           dataSource: listReport,
-                          xValueMapper: (CategoryReport data, _) => data.time,
+                          xValueMapper: (CategoryReport data, _) =>
+                              DateFormat('dd/MM')
+                                  .format(DateTime.parse(data.time)),
                           yValueMapper: (CategoryReport data, _) =>
-                              data.totalAmount / 1000000,
+                              data.totalAmount / 1000,
                           name: 'CategoryReport',
                           color: Colors.lightBlueAccent,
                         ),
@@ -102,7 +94,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Trung bình chỉ/tháng',
+                            'Trung bình chỉ/ngày',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey,

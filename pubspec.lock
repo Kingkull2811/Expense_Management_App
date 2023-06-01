@@ -427,6 +427,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.6"
+  mat_month_picker_dialog:
+    dependency: "direct main"
+    description:
+      name: mat_month_picker_dialog
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   matcher:
     dependency: transitive
     description:
@@ -448,13 +455,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
-  month_year_picker:
-    dependency: "direct main"
-    description:
-      name: month_year_picker
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0+4"
   nested:
     dependency: transitive
     description:

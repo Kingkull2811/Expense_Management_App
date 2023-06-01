@@ -1,21 +1,26 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:viet_wallet/network/provider/category_provider.dart';
-import 'package:viet_wallet/screens/planning/balance_payments/payments.position.event.dart';
-import 'package:viet_wallet/screens/planning/balance_payments/payments.position.state.dart';
-import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 
+import '../../../network/provider/category_provider.dart';
+import '../../../network/provider/wallet_provider.dart';
+import '../../../network/response/base_get_response.dart';
 import '../../../network/response/get_list_category_response.dart';
+import '../../../network/response/get_list_wallet_response.dart';
+import '../../../utilities/enum/api_error_result.dart';
+import '../../../utilities/screen_utilities.dart';
+import 'expenditure_analytic_event.dart';
+import 'expenditure_analytic_state.dart';
 
-class PaymentsPositionBloc
-    extends Bloc<PaymentsPositionEvent, PaymentsPositionState> {
+class ExpenditureAnalyticBloc
+    extends Bloc<ExpenditureAnalyticEvent, ExpenditureAnalyticState> {
   final BuildContext context;
   final _categoryProvider = CategoryProvider();
+  final _walletProvider = WalletProvider();
 
-  PaymentsPositionBloc(this.context) : super(PaymentsPositionState()) {
-    on<PaymentsPositionEvent>((event, emit) async {
-      if (event is PaymentsPositionInit) {
+  ExpenditureAnalyticBloc(this.context) : super(ExpenditureAnalyticState()) {
+    on((event, emit) async {
+      if (event is ExpenditureAnalyticEvent) {
         emit(state.copyWith(isLoading: true));
 
         final connectivityResult = await Connectivity().checkConnectivity();
@@ -43,21 +48,22 @@ class PaymentsPositionBloc
             ));
           }
 
-          final responseIncome =
-              await _categoryProvider.getAllListCategory(param: "INCOME");
-          if (responseIncome is GetCategoryResponse) {
+          final walletResponse = await _walletProvider.getListWallet();
+          if (walletResponse is GetListWalletResponse) {
             emit(
               state.copyWith(
                 isLoading: false,
                 apiError: ApiError.noError,
-                listCoCategory: responseIncome.listCategory,
+                listWallet: walletResponse.walletList,
               ),
             );
+          } else if (walletResponse is ExpiredTokenGetResponse) {
+            logoutIfNeed(this.context);
           } else {
             emit(state.copyWith(
               isLoading: false,
               apiError: ApiError.internalServerError,
-              listCoCategory: [],
+              listWallet: [],
             ));
           }
         }

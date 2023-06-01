@@ -4,6 +4,9 @@ import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
 import 'package:viet_wallet/screens/my_wallet/add_new_wallet/add_new_wallet.dart';
+import 'package:viet_wallet/screens/planning/current_finances/current_finances.dart';
+import 'package:viet_wallet/screens/planning/current_finances/current_finances_bloc.dart';
+import 'package:viet_wallet/screens/planning/current_finances/current_finances_event.dart';
 import 'package:viet_wallet/screens/setting/category/category_item/category_item.dart';
 import 'package:viet_wallet/screens/setting/category/category_item/category_item_bloc.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export.dart';
@@ -14,8 +17,8 @@ import 'package:viet_wallet/screens/setting/recurring_transaction/recurring_tran
 import 'package:viet_wallet/screens/setting/recurring_transaction/recurring_transaction_bloc.dart';
 import 'package:viet_wallet/screens/setting/security/security.dart';
 
-import 'screens/planning/balance_payments/payments.position.bloc.dart';
-import 'screens/planning/balance_payments/payments.position.page.dart';
+import 'screens/planning/balance_payments/balance_payments.dart';
+import 'screens/planning/balance_payments/balance_payments_bloc.dart';
 import 'screens/planning/expenditure_analysis/expenditure_analysis.dart';
 
 class AppRoutes {
@@ -29,6 +32,7 @@ class AppRoutes {
 
   static const report = '/report';
   static const reportPayment = '/report/payment';
+  static const reportFinances = '/report/finances';
   static const reportExpenditure = '/report/expenditure';
   static const newCollection = '/new';
 
@@ -80,7 +84,14 @@ class AppRoutes {
       AppRoutes.reportPayment: (context) {
         return BlocProvider<PaymentsPositionBloc>(
           create: (context) => PaymentsPositionBloc(context),
-          child: const PaymentPosition(),
+          child: const BalancePayments(),
+        );
+      },
+      AppRoutes.reportFinances: (context) {
+        return BlocProvider<CurrentFinancesBloc>(
+          create: (context) =>
+              CurrentFinancesBloc(context)..add(CurrentFinancesInitEvent()),
+          child: const CurrentFinances(),
         );
       },
       AppRoutes.reportExpenditure: (context) {

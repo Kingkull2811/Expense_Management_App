@@ -6,6 +6,7 @@ import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/d
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
+import '../../../../utilities/enum/enum.dart';
 import '../../../../utilities/shared_preferences_storage.dart';
 import 'day_analytic_bloc.dart';
 import 'day_analytic_event.dart';
@@ -13,13 +14,15 @@ import 'day_analytic_event.dart';
 class DayAnalytic extends StatefulWidget {
   final String fromDate, toDate;
   final List<int> walletIDs, categoryIDs;
-  const DayAnalytic({
-    Key? key,
-    required this.fromDate,
-    required this.toDate,
-    required this.walletIDs,
-    required this.categoryIDs,
-  }) : super(key: key);
+  final TransactionType type;
+  const DayAnalytic(
+      {Key? key,
+      required this.fromDate,
+      required this.toDate,
+      required this.walletIDs,
+      required this.categoryIDs,
+      this.type = TransactionType.expense})
+      : super(key: key);
 
   @override
   State<DayAnalytic> createState() => _DayAnalyticState();
@@ -36,13 +39,14 @@ class _DayAnalyticState extends State<DayAnalytic> {
       categoryIDs: widget.categoryIDs,
       fromDate: widget.fromDate,
       toDate: widget.toDate,
+      type: widget.type,
     ));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DayAnalyticBloc, DayAnalyticState>(
+    return BlocBuilder<DayAnalyticBloc, CurrentAnalyticState>(
       builder: (context, state) {
         List<CategoryReport> listReport = state.data?.categoryReports ?? [];
 

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/routes.dart';
+import 'package:viet_wallet/screens/planning/balance_payments/balance_payments.dart';
 import 'package:viet_wallet/screens/planning/expenditure_analysis/expenditure_analysis.dart';
 import 'package:viet_wallet/screens/planning/planning_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning_event.dart';
 import 'package:viet_wallet/screens/planning/planning_state.dart';
-import 'package:viet_wallet/widgets/animation_loading.dart';
+import 'package:viet_wallet/utilities/enum/enum.dart';
 
 import '../../utilities/enum/api_error_result.dart';
 import '../../utilities/screen_utilities.dart';
+import '../../widgets/animation_loading.dart';
 
 class PlanningPage extends StatefulWidget {
   const PlanningPage({Key? key}) : super(key: key);
@@ -69,7 +71,8 @@ class _PlanningPageState extends State<PlanningPage> {
                         children: [
                           InkWell(
                             onTap: () {
-                              Navigator.pushNamed(context, AppRoutes.myWallet);
+                              Navigator.pushNamed(
+                                  context, AppRoutes.reportFinances);
                             },
                             child: Container(
                               width: 170,
@@ -85,24 +88,17 @@ class _PlanningPageState extends State<PlanningPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: const [
                                   SizedBox(width: 4),
-                                  Text(
-                                    'Tài chính hiện tại',
-                                  )
+                                  Text('Tài chính hiện tại')
                                 ],
                               ),
                             ),
                           ),
                           InkWell(
                             onTap: () {
-                              // Navigator.pushNamed(context, AppRoutes.reportPayment);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Expenditure(
-                                    listWallet: state.listWallet,
-                                    listCategory: state.listExCategory ?? [],
-                                  ),
-                                ),
+                                    builder: (context) => BalancePayments()),
                               );
                             },
                             child: Container(
@@ -136,13 +132,13 @@ class _PlanningPageState extends State<PlanningPage> {
                         children: [
                           InkWell(
                             onTap: () {
-                              // Navigator.pushNamed(context, AppRoutes.reportExpenditure);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => Expenditure(
                                     listWallet: state.listWallet,
                                     listCategory: state.listExCategory,
+                                    type: TransactionType.expense,
                                   ),
                                 ),
                               );
@@ -168,24 +164,38 @@ class _PlanningPageState extends State<PlanningPage> {
                               ),
                             ),
                           ),
-                          Container(
-                            width: 170,
-                            height: 150,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.horizontal(
-                                left: Radius.circular(10),
-                                right: Radius.circular(10),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Expenditure(
+                                    listWallet: state.listWallet,
+                                    listCategory: state.listCoCategory,
+                                    type: TransactionType.income,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 170,
+                              height: 150,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.horizontal(
+                                  left: Radius.circular(10),
+                                  right: Radius.circular(10),
+                                ),
                               ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                SizedBox(width: 4),
-                                Text(
-                                  'Phân tích thu',
-                                )
-                              ],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Phân tích thu',
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         ],

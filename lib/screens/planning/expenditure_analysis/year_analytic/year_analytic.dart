@@ -8,17 +8,21 @@ import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../../network/model/analytic_model.dart';
+import '../../../../utilities/enum/enum.dart';
 
 class YearAnalytic extends StatefulWidget {
   final String fromYear, toYear;
   final List<int> walletIDs, categoryIDs;
-  const YearAnalytic({
-    Key? key,
-    required this.fromYear,
-    required this.toYear,
-    required this.walletIDs,
-    required this.categoryIDs,
-  }) : super(key: key);
+  final TransactionType type;
+
+  const YearAnalytic(
+      {Key? key,
+      required this.fromYear,
+      required this.toYear,
+      required this.walletIDs,
+      required this.categoryIDs,
+      this.type = TransactionType.expense})
+      : super(key: key);
 
   @override
   State<YearAnalytic> createState() => _YearAnalyticState();
@@ -35,6 +39,7 @@ class _YearAnalyticState extends State<YearAnalytic> {
       categoryIDs: widget.categoryIDs,
       fromYear: widget.fromYear,
       toYear: widget.toYear,
+      type: widget.type,
     ));
     super.initState();
   }
