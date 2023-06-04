@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:intl/intl.dart';
 import 'package:viet_wallet/network/model/recurring_list_model.dart';
 import 'package:viet_wallet/network/model/recurring_post_model.dart';
 import 'package:viet_wallet/screens/setting/recurring_transaction/recurring_info/option_repeat_time.dart';
@@ -70,7 +71,8 @@ class _RecurringInfoState extends State<RecurringInfo> {
 
   List<DayOfWeek> listDay = [];
   FrequencyType frequencyType = FrequencyType.daily;
-  String? fromDate, toDate, time;
+  String? fromDate, toDate;
+  String time = DateFormat('HH:mm').format(DateTime.now());
 
   void initWhenEdit() {
     setState(() {
@@ -78,7 +80,8 @@ class _RecurringInfoState extends State<RecurringInfo> {
           widget.recurringListModel?.frequencyType ?? FrequencyType.daily;
       listDay = getDayOfWeekListFromStrings(
           widget.recurringListModel?.dayInWeeks ?? []);
-      time = widget.recurringListModel?.time;
+      time = widget.recurringListModel?.time ??
+          DateFormat('HH:mm').format(DateTime.now());
       fromDate = getDateTimeFormat(
           widget.recurringListModel?.fromDate ?? DateTime.now());
       toDate = isNotNullOrEmpty(toDate)
@@ -115,9 +118,11 @@ class _RecurringInfoState extends State<RecurringInfo> {
     String toDateF = isNullOrEmpty(toDate) ? '' : 'Đến $toDate';
     String timeF = 'Lúc $time';
     setState(() {
-      optionTitle = isNullOrEmpty(toDateF)
-          ? [frequencyName, fromDateF, timeF].join('. ')
-          : [frequencyName, fromDateF, toDateF, timeF].join('. ');
+      optionTitle = isNullOrEmpty(time)
+          ? [frequencyName, fromDateF].join('. ')
+          : isNullOrEmpty(toDateF)
+              ? [frequencyName, fromDateF, timeF].join('. ')
+              : [frequencyName, fromDateF, toDateF, timeF].join('. ');
     });
   }
 
@@ -506,9 +511,9 @@ class _RecurringInfoState extends State<RecurringInfo> {
         ),
       ),
       title: Text(
-        itemCategorySelected.title ?? '',
+        itemCategorySelected.title ?? 'Chọn hạng mục',
         style: TextStyle(
-          fontSize: 20,
+          fontSize: 16,
           color: (itemCategorySelected.categoryId != null)
               ? Colors.black
               : Colors.grey,

@@ -290,7 +290,12 @@ class _CategoryItemState extends State<CategoryItem>
                       borderRadius: BorderRadius.circular(20),
                       child: AppImage(
                         localPathOrUrl: category.logoImageUrl,
-                        errorWidget: const SizedBox.shrink(),
+                        boxFit: BoxFit.cover,
+                        errorWidget: const Icon(
+                          Icons.help_outline,
+                          size: 24,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
@@ -615,7 +620,12 @@ class _CategoryItemState extends State<CategoryItem>
                         borderRadius: BorderRadius.circular(20),
                         child: AppImage(
                           localPathOrUrl: item?.logoImageUrl,
-                          errorWidget: const SizedBox.shrink(),
+                          boxFit: BoxFit.cover,
+                          errorWidget: const Icon(
+                            Icons.help_outline,
+                            size: 24,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),

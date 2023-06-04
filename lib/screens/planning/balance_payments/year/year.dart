@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -45,7 +43,6 @@ class _YearAnalyticState extends State<YearAnalytic> {
     return BlocBuilder<YearAnalyticBlocB, YearAnalyticState>(
       builder: (context, state) {
         List<ReportData> data = state.data ?? [];
-        log(data.toString());
 
         List<DataSf> sfListExpense = data.map((reportData) {
           return DataSf(

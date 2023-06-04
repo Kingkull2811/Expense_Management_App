@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -14,9 +12,12 @@ import 'precious_event.dart';
 import 'precious_state.dart';
 
 class PreciousAnalytic extends StatefulWidget {
+  final int year;
   final List<int> walletIDs;
+
   const PreciousAnalytic({
     Key? key,
+    required this.year,
     required this.walletIDs,
   }) : super(key: key);
 
@@ -29,8 +30,10 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
 
   @override
   void initState() {
-    BlocProvider.of<PreciousAnalyticBloc>(context)
-        .add(PreciousAnalyticEvent(walletIDs: widget.walletIDs));
+    BlocProvider.of<PreciousAnalyticBloc>(context).add(PreciousAnalyticEvent(
+      year: widget.year,
+      walletIDs: widget.walletIDs,
+    ));
     super.initState();
   }
 
@@ -39,7 +42,6 @@ class _PreciousAnalyticState extends State<PreciousAnalytic> {
     return BlocBuilder<PreciousAnalyticBloc, PreciousAnalyticState>(
       builder: (context, state) {
         List<ReportData> data = state.data ?? [];
-        log(data.toString());
 
         List<DataSf> sfListExpense = data.map((reportData) {
           return DataSf(

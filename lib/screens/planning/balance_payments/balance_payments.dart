@@ -148,9 +148,10 @@ class _BalancePaymentsState extends State<BalancePayments>
                 year: currentYear,
               ));
 
-          context.read<PreciousAnalyticBloc>().add(
-                PreciousAnalyticEvent(walletIDs: walletIDs),
-              );
+          context.read<PreciousAnalyticBloc>().add(PreciousAnalyticEvent(
+                walletIDs: walletIDs,
+                year: currentYear,
+              ));
 
           context.read<YearAnalyticBlocB>().add(YearAnalyticEvent(
                 walletIDs: walletIDs,
@@ -274,7 +275,9 @@ class _BalancePaymentsState extends State<BalancePayments>
           thickness: 10,
           color: Theme.of(context).backgroundColor,
         ),
-        Expanded(child: PreciousAnalytic(walletIDs: walletIDs)),
+        Expanded(
+          child: PreciousAnalytic(year: currentYear, walletIDs: walletIDs),
+        ),
       ],
     );
   }
@@ -374,10 +377,18 @@ class _BalancePaymentsState extends State<BalancePayments>
                               );
 
                           this.context.read<PreciousAnalyticBloc>().add(
-                                PreciousAnalyticEvent(walletIDs: walletIDs),
+                                PreciousAnalyticEvent(
+                                  year: currentYear,
+                                  walletIDs: walletIDs,
+                                ),
                               );
                         });
-                        Navigator.pop(context);
+                        showLoading(context);
+                        Future.delayed(const Duration(seconds: 2), () {
+                          setState(() {});
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        });
                       },
                     ),
                   ),
@@ -444,7 +455,13 @@ class _BalancePaymentsState extends State<BalancePayments>
                                         ),
                                       );
                                 });
-                                Navigator.pop(context);
+
+                                showLoading(context);
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                });
                               },
                             ),
                           ),
@@ -472,18 +489,31 @@ class _BalancePaymentsState extends State<BalancePayments>
                               lastDate: DateTime(2040),
                               selectedDate: DateTime(toYear),
                               onChanged: (DateTime valuer) {
-                                setState(() {
-                                  toYear = valuer.year;
+                                if (valuer.year < currentYear) {
+                                  showMessage1OptionDialog(
+                                    context,
+                                    'Vui lòng chọn năm kết thúc sau năm bắt đầu',
+                                  );
+                                } else {
+                                  setState(() {
+                                    toYear = valuer.year;
 
-                                  this.context.read<YearAnalyticBlocB>().add(
-                                        YearAnalyticEvent(
-                                          walletIDs: walletIDs,
-                                          year: currentYear,
-                                          toYear: toYear,
-                                        ),
-                                      );
-                                });
-                                Navigator.pop(context);
+                                    this.context.read<YearAnalyticBlocB>().add(
+                                          YearAnalyticEvent(
+                                            walletIDs: walletIDs,
+                                            year: currentYear,
+                                            toYear: toYear,
+                                          ),
+                                        );
+                                  });
+                                  showLoading(context);
+                                  Future.delayed(const Duration(seconds: 2),
+                                      () {
+                                    setState(() {});
+                                    Navigator.pop(context);
+                                    Navigator.pop(context);
+                                  });
+                                }
                               },
                             ),
                           ),
@@ -540,7 +570,7 @@ class _BalancePaymentsState extends State<BalancePayments>
                           showMessage1OptionDialog(this.context,
                               'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
                         } else {
-                          fromTime = DateFormat('yyyy/MM/dd').format(timePick);
+                          fromTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
                           }
@@ -551,6 +581,12 @@ class _BalancePaymentsState extends State<BalancePayments>
                                   toTime: toTime,
                                 ),
                               );
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
                         }
                       },
                       child: Text(
@@ -567,7 +603,7 @@ class _BalancePaymentsState extends State<BalancePayments>
                         if (timePick == null) {
                           return;
                         } else {
-                          toTime = DateFormat('yyyy/MM/dd').format(timePick);
+                          toTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
                           }
@@ -578,6 +614,12 @@ class _BalancePaymentsState extends State<BalancePayments>
                                   toTime: toTime,
                                 ),
                               );
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
                         }
                       },
                       child: Text(

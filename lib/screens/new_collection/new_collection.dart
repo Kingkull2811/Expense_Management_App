@@ -1,11 +1,16 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:viet_wallet/network/response/collection_response.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
 import 'package:viet_wallet/screens/new_collection/option_category/option_category_bloc.dart';
+import 'package:viet_wallet/services/firebase_services.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/widgets/app_image.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
@@ -13,6 +18,7 @@ import 'package:viet_wallet/widgets/primary_button.dart';
 import '../../network/model/collection_model.dart';
 import '../../network/model/wallet.dart';
 import '../../network/provider/collection_provider.dart';
+import '../../network/response/collection_response.dart';
 import '../../utilities/enum/api_error_result.dart';
 import '../../utilities/enum/enum.dart';
 import '../../utilities/screen_utilities.dart';
@@ -59,14 +65,17 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
 
   String datePicker = formatToLocaleVietnam(DateTime.now());
   String timePicker = DateFormat.Hms().format(DateTime.now());
-  DateTime? _datePicked;
-  DateTime? _timePicked;
+  DateTime? _datePicked = DateTime.now();
+  DateTime? _timePicked = DateTime.now();
 
   bool _isMathReport = false;
 
   int? walletId;
   String? walletName;
   String? walletType;
+
+  String? imageUrl;
+  bool isOnline = true;
 
   void initCollectionEdit() {
     if (widget.collectionReport == null) {
@@ -93,6 +102,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
         title: widget.collectionReport?.categoryName,
         iconLeading: widget.collectionReport?.categoryLogo,
       );
+      imageUrl = widget.collectionReport?.imageUrl ?? '';
     });
   }
 
@@ -150,7 +160,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
           leading: widget.isEdit
               ? InkWell(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.of(context).pop(true);
                   },
                   child: const Icon(
                     Icons.arrow_back_ios,
@@ -195,22 +205,10 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
               ),
             ),
           ),
-          actions: [
+          actions: const [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: widget.isEdit
-                  ? const SizedBox(
-                      width: 24,
-                    )
-                  : InkWell(
-                      onTap: () {},
-                      child: const Icon(
-                        Icons.history,
-                        size: 24,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(width: 24)),
           ],
         ),
         body: SingleChildScrollView(
@@ -224,6 +222,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                 _money(),
                 _select(state),
                 _mathReport(),
+                _selectImage(),
                 _buttonSave(context),
               ],
             ),
@@ -253,7 +252,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                         await _collectionProvider.deleteCollection(
                           collectionId: (widget.collectionReport?.id)!,
                         );
-                        Navigator.pop(this.context, 'refresh');
+                        Navigator.of(this.context).pop(true);
                       },
                     );
                   },
@@ -261,6 +260,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                 PrimaryButton(
                   text: 'Cập nhật',
                   onTap: () async {
+                    showLoading(context);
                     final Map<String, dynamic> data = {
                       "addToReport": _isMathReport,
                       "amount": double.tryParse(
@@ -273,6 +273,11 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                       "transactionType":
                           (itemOption.itemId == 0) ? 'EXPENSE' : 'INCOME',
                       "walletId": walletId,
+                      "imageUrl": isOnline
+                          ? imageUrl
+                          : await FirebaseService().uploadImageToStorage(
+                              image: File(imageUrl!),
+                            ),
                     };
 
                     final response = await _collectionProvider.updateCollection(
@@ -285,7 +290,8 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                         this.context,
                         'Cập nhật giao dịch thành công',
                         onClose: () {
-                          Navigator.pop(this.context, 'refresh');
+                          Navigator.pop(context);
+                          Navigator.of(this.context).pop(true);
                         },
                       );
                     }
@@ -314,6 +320,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
   }
 
   Future<void> _postCollection(BuildContext context) async {
+    showLoading(context);
     final Map<String, dynamic> data = {
       "addToReport": _isMathReport,
       "amount": double.tryParse(_moneyController.text.trim().toString()),
@@ -323,7 +330,11 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
       "categoryId": itemCategorySelected.categoryId,
       "description": _noteController.text.trim(),
       "transactionType": (itemOption.itemId == 0) ? 'EXPENSE' : 'INCOME',
-      "walletId": walletId
+      "walletId": walletId,
+      if (isNotNullOrEmpty(imageUrl))
+        "imageUrl": await FirebaseService().uploadImageToStorage(
+          image: File(imageUrl!),
+        ),
     };
 
     final response = await _collectionProvider.newCollection(data: data);
@@ -333,6 +344,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
         this.context,
         'Thêm giao dịch thành công',
         onClose: () {
+          Navigator.pop(context);
           reloadPage();
         },
       );
@@ -351,6 +363,8 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
       itemOption = ItemOption(itemId: 0, title: 'Chi tiền', icon: Icons.remove);
       datePicker = formatToLocaleVietnam(DateTime.now());
       timePicker = DateFormat.Hms().format(DateTime.now());
+      imageUrl = '';
+      if (isOnline) isOnline = false;
     });
   }
 
@@ -367,6 +381,175 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
     } else {
       return '';
     }
+  }
+
+  _pickImageToSend(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) {
+        return CupertinoActionSheet(
+          actions: <Widget>[
+            CupertinoActionSheetAction(
+              onPressed: () async {
+                Navigator.pop(context);
+                await Permission.camera.request();
+                String? imagePath = await pickPhoto(ImageSource.camera);
+                if (isNullOrEmpty(imagePath)) {
+                  return;
+                } else {
+                  setState(() {
+                    if (isOnline) isOnline = false;
+                    imageUrl = imagePath;
+                  });
+                }
+              },
+              child: const Text(
+                'Chụp ảnh',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () async {
+                Navigator.pop(context);
+                await Permission.camera.request();
+                String? imagePath = await pickPhoto(ImageSource.gallery);
+                if (isNullOrEmpty(imagePath)) {
+                  return;
+                } else {
+                  setState(() {
+                    if (isOnline) isOnline = false;
+                    imageUrl = imagePath;
+                  });
+                }
+              },
+              child: const Text(
+                'Chọn ảnh từ thư viện',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Hủy',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black.withOpacity(0.7),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _selectImage() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.grey.withOpacity(0.1),
+                border: Border.all(
+                  width: 0.5,
+                  color: Colors.grey.withOpacity(0.9),
+                ),
+              ),
+              child: isNotNullOrEmpty(imageUrl)
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: AppImage(
+                        isOnline: isOnline,
+                        localPathOrUrl: imageUrl,
+                        boxFit: BoxFit.cover,
+                        errorWidget: InkWell(
+                          onTap: () => _pickImageToSend(context),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  size: 32,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Thêm ảnh',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : InkWell(
+                      onTap: () => _pickImageToSend(context),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: 32,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Thêm ảnh',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          isNotNullOrEmpty(imageUrl)
+              ? Positioned(
+                  top: 0,
+                  right: 0,
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (isOnline) isOnline = false;
+                        imageUrl = '';
+                      });
+                    },
+                    child: const Icon(
+                      Icons.cancel,
+                      size: 24,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ],
+      ),
+    );
   }
 
   Widget _mathReport() {

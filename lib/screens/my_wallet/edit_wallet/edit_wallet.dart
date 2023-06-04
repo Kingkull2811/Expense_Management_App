@@ -1,5 +1,4 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:viet_wallet/network/model/wallet.dart';
 import 'package:viet_wallet/network/repository/wallet_repository.dart';
@@ -38,7 +37,6 @@ class _EditWalletPageState extends State<EditWalletPage> {
   WalletType itemSelected = listWalletType[0];
 
   String currency = '';
-  String currencyName = 'VND';
 
   void initBeforeEdit() {
     setState(() {
@@ -46,12 +44,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
       _moneyController.text = widget.wallet.accountBalance.toString();
       _nameController.text = widget.wallet.name ?? '';
       _noteController.text = widget.wallet.description ?? '';
-      currency = isNotNullOrEmpty(widget.wallet.currency?.split('/')[0])
-          ? widget.wallet.currency?.split('/')[0] ?? '₫'
-          : '₫';
-      currencyName = isNotNullOrEmpty(widget.wallet.currency?.split('/')[1])
-          ? widget.wallet.currency?.split('/')[1] ?? 'VND'
-          : 'VND';
+      currency = widget.wallet.currency ?? 'VND';
       itemSelected = WalletType(
         walletTypeName:
             getNameWalletType(walletType: widget.wallet.accountType),
@@ -332,69 +325,6 @@ class _EditWalletPageState extends State<EditWalletPage> {
                 height: 0.5,
                 color: Colors.grey.withOpacity(0.3),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    showCurrencyPicker(
-                        context: context,
-                        showFlag: true,
-                        showCurrencyName: true,
-                        showCurrencyCode: true,
-                        showSearchField: false,
-                        onSelect: (Currency value) {
-                          setState(() {
-                            currencyName = value.name;
-                            currency = value.symbol;
-                          });
-                        },
-                        favorite: ['VND']);
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Theme.of(context).backgroundColor,
-                        ),
-                        child: const Icon(
-                          Icons.currency_exchange,
-                          size: 30,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Text(
-                            currencyName,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Divider(
-                height: 0.5,
-                color: Colors.grey.withOpacity(0.3),
-              ),
               TextField(
                 maxLines: null,
                 controller: _noteController,
@@ -517,7 +447,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      '.00 $currency',
+                      currency,
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,

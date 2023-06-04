@@ -6,6 +6,8 @@ import 'package:viet_wallet/network/provider/provider_mixin.dart';
 
 import '../model/category_model.dart';
 import '../response/base_get_response.dart';
+import '../response/base_response.dart';
+import '../response/delete_category_response.dart';
 import '../response/get_list_category_response.dart';
 import '../response/logo_category_response.dart';
 
@@ -80,15 +82,18 @@ class CategoryProvider with ProviderMixin {
     final String apiDeleteCategory = '${ApiPath.apiCategory}/$categoryId';
 
     if (await isExpiredToken()) {
-      return ExpiredTokenGetResponse();
+      return ExpiredTokenResponse();
     }
     try {
-      return await dio.delete(
+      final response = await dio.delete(
         apiDeleteCategory,
         options: await defaultOptions(url: apiDeleteCategory),
       );
+
+      log('delete: ${response.data}');
+      return DeleteCategoryResponse.fromJson(response.data);
     } catch (error, stacktrace) {
-      return errorGetResponse(error, stacktrace, apiDeleteCategory);
+      return errorResponse(error, stacktrace, apiDeleteCategory);
     }
   }
 

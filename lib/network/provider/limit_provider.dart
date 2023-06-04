@@ -3,13 +3,16 @@ import 'package:viet_wallet/network/model/limit_expenditure_model.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
 import 'package:viet_wallet/network/response/list_limit_response.dart';
 
+import '../../utilities/enum/enum.dart';
 import '../api/api_path.dart';
 import '../response/base_get_response.dart';
 import '../response/base_response.dart';
 import '../response/limit_by_id_response.dart';
 
 class LimitProvider with ProviderMixin {
-  Future<BaseGetResponse> getListLimit() async {
+  Future<BaseGetResponse> getListLimit({
+    required TransactionStatus status,
+  }) async {
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
     }
@@ -17,8 +20,10 @@ class LimitProvider with ProviderMixin {
     try {
       final response = await dio.get(
         ApiPath.expenseLimit,
+        queryParameters: {'status': status.name.toUpperCase()},
         options: await defaultOptions(url: ApiPath.expenseLimit),
       );
+      // log('response: $response');
 
       return ListLimitResponse.fromJson(response.data);
     } catch (error, stacktrace) {

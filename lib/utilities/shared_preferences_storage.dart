@@ -86,7 +86,8 @@ class SharedPreferencesStorage {
     await _preferences.setBool(AppConstants.isHiddenAmount, value);
   }
 
-  bool? getHiddenAmount() => _preferences.getBool(AppConstants.isHiddenAmount);
+  bool getHiddenAmount() =>
+      _preferences.getBool(AppConstants.isHiddenAmount) ?? false;
 
   ///logout
   void resetDataWhenLogout() {

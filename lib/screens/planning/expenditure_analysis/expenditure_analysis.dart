@@ -179,22 +179,12 @@ class _ExpenditureState extends State<Expenditure>
               height: 10,
               thickness: 10,
             ),
-            BlocProvider(
-              create: (context) => DayAnalyticBloc(context)
-                ..add(DayAnalyticEvent(
-                  walletIDs: walletIDs,
-                  categoryIDs: listCateIDSelected,
-                  fromDate: firstDayOfMonth,
-                  toDate: lastDayOfMonth,
-                  type: widget.type,
-                )),
-              child: DayAnalytic(
-                walletIDs: walletIDs,
-                categoryIDs: listCateIDSelected,
-                fromDate: firstDayOfMonth,
-                toDate: lastDayOfMonth,
-                type: widget.type,
-              ),
+            DayAnalytic(
+              walletIDs: walletIDs,
+              categoryIDs: listCateIDSelected,
+              fromDate: firstDayOfMonth,
+              toDate: lastDayOfMonth,
+              type: widget.type,
             ),
           ],
         ),
@@ -301,21 +291,28 @@ class _ExpenditureState extends State<Expenditure>
                           showMessage1OptionDialog(this.context,
                               'Vui lòng chọn thời gian bắt đâu sau thời gian kết thúc.');
                         } else {
+                          if (!mounted) {
+                            return;
+                          }
                           setState(() {
                             firstDayOfMonth =
                                 DateFormat('yyyy-MM-dd').format(timePick);
-                            if (!mounted) {
-                              return;
-                            }
+
                             this.context.read<DayAnalyticBloc>().add(
                                   DayAnalyticEvent(
                                     walletIDs: walletIDs,
                                     categoryIDs: listCateIDSelected,
                                     fromDate: firstDayOfMonth,
                                     toDate: lastDayOfMonth,
-                                    type: TransactionType.expense,
+                                    type: widget.type,
                                   ),
                                 );
+                          });
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 3), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
                           });
                         }
                       },
@@ -338,21 +335,27 @@ class _ExpenditureState extends State<Expenditure>
                           showMessage1OptionDialog(this.context,
                               'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
                         } else {
+                          if (!mounted) {
+                            return;
+                          }
                           setState(() {
                             lastDayOfMonth =
                                 DateFormat('yyyy-MM-dd').format(timePick);
-                            if (!mounted) {
-                              return;
-                            }
                             this.context.read<DayAnalyticBloc>().add(
                                   DayAnalyticEvent(
                                     walletIDs: walletIDs,
                                     categoryIDs: listCateIDSelected,
                                     fromDate: firstDayOfMonth,
                                     toDate: lastDayOfMonth,
-                                    type: TransactionType.expense,
+                                    type: widget.type,
                                   ),
                                 );
+                          });
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 3), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
                           });
                         }
                       },
@@ -417,9 +420,15 @@ class _ExpenditureState extends State<Expenditure>
                                   categoryIDs: listCateIDSelected,
                                   fromMonth: fromMonth,
                                   toMonth: endMonth,
-                                  type: TransactionType.expense,
+                                  type: widget.type,
                                 ),
                               );
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
                         });
                       } else {
                         return;
@@ -451,9 +460,15 @@ class _ExpenditureState extends State<Expenditure>
                                   categoryIDs: listCateIDSelected,
                                   fromMonth: fromMonth,
                                   toMonth: endMonth,
-                                  type: TransactionType.expense,
+                                  type: widget.type,
                                 ),
                               );
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
                         });
                       } else {
                         return;
@@ -520,11 +535,16 @@ class _ExpenditureState extends State<Expenditure>
                                           categoryIDs: listCateIDSelected,
                                           fromYear: fromYear,
                                           toYear: endYear,
-                                          type: TransactionType.expense,
+                                          type: widget.type,
                                         ),
                                       );
                                 });
-                                Navigator.pop(context);
+                                showLoading(context);
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                });
                               },
                             ),
                           ),
@@ -561,11 +581,16 @@ class _ExpenditureState extends State<Expenditure>
                                           categoryIDs: listCateIDSelected,
                                           fromYear: fromYear,
                                           toYear: endYear,
-                                          type: TransactionType.expense,
+                                          type: widget.type,
                                         ),
                                       );
                                 });
-                                Navigator.pop(context);
+                                showLoading(context);
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                });
                               },
                             ),
                           ),
@@ -619,6 +644,9 @@ class _ExpenditureState extends State<Expenditure>
           ),
         );
         if (isNotNullOrEmpty(result)) {
+          if (!mounted) {
+            return;
+          }
           setState(() {
             listCateIDSelected = result ?? [];
             context.read<DayAnalyticBloc>().add(
@@ -627,7 +655,7 @@ class _ExpenditureState extends State<Expenditure>
                     categoryIDs: listCateIDSelected,
                     fromDate: firstDayOfMonth,
                     toDate: lastDayOfMonth,
-                    type: TransactionType.expense,
+                    type: widget.type,
                   ),
                 );
             context.read<MonthAnalyticBloc>().add(
@@ -636,7 +664,7 @@ class _ExpenditureState extends State<Expenditure>
                     categoryIDs: listCateIDSelected,
                     fromMonth: fromMonth,
                     toMonth: endMonth,
-                    type: TransactionType.expense,
+                    type: widget.type,
                   ),
                 );
             context.read<YearAnalyticBloc>().add(
@@ -645,9 +673,15 @@ class _ExpenditureState extends State<Expenditure>
                     categoryIDs: listCateIDSelected,
                     fromYear: fromYear,
                     toYear: endYear,
-                    type: TransactionType.expense,
+                    type: widget.type,
                   ),
                 );
+          });
+          showLoading(context);
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {});
+            // Navigator.pop(context);
+            Navigator.pop(context);
           });
         } else {
           return;
@@ -704,7 +738,7 @@ class _ExpenditureState extends State<Expenditure>
                   categoryIDs: listCateIDSelected,
                   fromDate: firstDayOfMonth,
                   toDate: lastDayOfMonth,
-                  type: TransactionType.expense,
+                  type: widget.type,
                 ),
               );
           context.read<MonthAnalyticBloc>().add(
@@ -713,7 +747,7 @@ class _ExpenditureState extends State<Expenditure>
                   categoryIDs: listCateIDSelected,
                   fromMonth: fromMonth,
                   toMonth: endMonth,
-                  type: TransactionType.expense,
+                  type: widget.type,
                 ),
               );
           context.read<YearAnalyticBloc>().add(
@@ -722,9 +756,18 @@ class _ExpenditureState extends State<Expenditure>
                   categoryIDs: listCateIDSelected,
                   fromYear: fromYear,
                   toYear: endYear,
-                  type: TransactionType.expense,
+                  type: widget.type,
                 ),
               );
+        });
+        if (!mounted) {
+          return;
+        }
+        showLoading(context);
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {});
+          // Navigator.pop(context);
+          Navigator.pop(context);
         });
       },
       dense: false,

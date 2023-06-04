@@ -10,7 +10,7 @@ class ExportProvider with ProviderMixin {
   Future<Object> getFileReport({
     required List<int> walletIDs,
     required String fromDate,
-    required String toDate,
+    String? toDate,
   }) async {
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
@@ -20,22 +20,15 @@ class ExportProvider with ProviderMixin {
 
       String tempPath = savePath.path;
       var filePath = '$tempPath/report_${fromDate}_$toDate.xlsx';
+      var filePathNo = '$tempPath/report_$fromDate.xlsx';
 
       final response = await dio.get(
         ApiPath.exportData,
-        // url,
         queryParameters: {
           'fromDate': fromDate,
-          'toDate': toDate,
+          if (toDate != null) 'toDate': toDate,
           'walletIds': walletIDs.map((item) => item.toString()).toList(),
         },
-        // onReceiveProgress: (received, total) {
-        //   if (total != -1) {
-        //     if (kDebugMode) {
-        //       print("${(received / total * 100).toStringAsFixed(0)}%");
-        //     }
-        //   }
-        // },
         options: Options(
           // headers: {
           //   'Authorization': await SecureStorage()
@@ -49,7 +42,7 @@ class ExportProvider with ProviderMixin {
         ),
       );
 
-      final file = File(filePath);
+      final file = File(toDate != null ? filePath : filePathNo);
       await file.writeAsBytes(response.data, flush: true);
 
       return file;

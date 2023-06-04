@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/category_model.dart';
@@ -9,6 +11,9 @@ import 'package:viet_wallet/widgets/app_image.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
 import '../../../../network/model/logo_category_model.dart';
+import '../../../../network/provider/category_provider.dart';
+import '../../../../network/response/base_response.dart';
+import '../../../../network/response/delete_category_response.dart';
 import '../../../../utilities/screen_utilities.dart';
 import '../../../../utilities/utils.dart';
 
@@ -416,8 +421,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                               title: const Text(
                                 'Bạn muốn xóa hạng mục này?',
                                 style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
                                 ),
                               ),
                               actions: <Widget>[
@@ -427,6 +431,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                                 ),
                                 TextButton(
                                   onPressed: () async => await _deleteCategory(
+                                    context,
                                     (widget.categoryInfo?.id)!,
                                   ),
                                   child: const Text(
@@ -719,7 +724,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
     final Map<String, dynamic> data = {
       "categoryType": isExpandedCategory ? 'EXPENSE' : 'INCOME',
       "description": _noteController.text.trim(),
-      "logoImageID": categoryIconId ?? 0,
+      "logoImageID": isNotNullOrEmpty(categoryIconId) ? categoryIconId! : null,
       "name": _cateController.text.trim(),
       "parentId": parentId ?? 0,
       "pay": true
@@ -732,7 +737,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
     final Map<String, dynamic> data = {
       "categoryType": isExpandedCategory ? 'EXPENSE' : 'INCOME',
       "description": _noteController.text.trim(),
-      "logoImageID": categoryIconId ?? 0,
+      "logoImageID": isNotNullOrEmpty(categoryIconId) ? categoryIconId! : null,
       "name": _cateController.text.trim(),
       "parentId": parentId ?? 0,
       "pay": true
@@ -743,9 +748,47 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
     Navigator.of(context).pop(true);
   }
 
-  Future<void> _deleteCategory(int categoryId) async {
-    _categoryInfoBloc.add(DeleteCategoryEvent(categoryId: categoryId));
-    Navigator.pop(context);
-    Navigator.of(context).pop(true);
+  Future<void> _deleteCategory(BuildContext context, int categoryId) async {
+    // _categoryInfoBloc.add(DeleteCategoryEvent(categoryId: categoryId));
+    // Navigator.pop(context);
+    // Navigator.of(context).pop(true);
+    showLoading(this.context);
+    final response = await CategoryProvider().deleteCategory(
+      categoryId: categoryId,
+    );
+    log('result: $response');
+    if (response is DeleteCategoryResponse) {
+      if (response.isDelete) {
+        showMessage1OptionDialog(
+          this.context,
+          'Xóa hạng mục thành công',
+          onClose: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+            Navigator.of(context).pop(true);
+          },
+        );
+      } else {
+        showMessage1OptionDialog(
+          this.context,
+          response.messages,
+          onClose: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+        );
+      }
+    } else if (response is ExpiredTokenResponse) {
+      logoutIfNeed(this.context);
+    } else {
+      showMessage1OptionDialog(
+        this.context,
+        'Hệ thống bị lỗi, không thể xóa hạng mục này!',
+        onClose: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      );
+    }
   }
 }

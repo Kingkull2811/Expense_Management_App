@@ -26,7 +26,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  bool _isShowBalance = SharedPreferencesStorage().getHiddenAmount() ?? false;
+  bool _isShowBalance = SharedPreferencesStorage().getHiddenAmount();
   int notificationBadge = 3;
 
   late HomePageBloc _homePageBloc;
@@ -295,7 +295,8 @@ class _HomePageState extends State<HomePage>
                   children: [
                     Container(
                       constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.8),
+                        maxWidth: MediaQuery.of(context).size.width * 0.8,
+                      ),
                       child: Text(
                         _isShowBalance
                             ? '${formatterDouble(balance)}  $currency'
@@ -303,7 +304,7 @@ class _HomePageState extends State<HomePage>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 26,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
@@ -312,10 +313,12 @@ class _HomePageState extends State<HomePage>
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: InkWell(
-                        onTap: () {
+                        onTap: () async {
                           setState(() {
                             _isShowBalance = !_isShowBalance;
                           });
+                          await SharedPreferencesStorage()
+                              .setHiddenAmount(_isShowBalance);
                         },
                         child: Icon(
                           _isShowBalance
@@ -334,9 +337,10 @@ class _HomePageState extends State<HomePage>
                 badgeContent: Text((notificationBadge.toString()),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white)),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    )),
                 badgeStyle: const BadgeStyle(
                   badgeColor: Colors.red,
                   padding: EdgeInsets.fromLTRB(4, 2, 4, 2),

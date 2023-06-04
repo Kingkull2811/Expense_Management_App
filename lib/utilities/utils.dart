@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:viet_wallet/utilities/enum/enum.dart';
 import 'package:viet_wallet/utilities/enum/wallet_type.dart';
@@ -189,4 +192,22 @@ String getListDayName(List<DayOfWeek>? listDayOfWeek) {
 
 String getDateTimeFormat(DateTime date) {
   return DateFormat('yyyy-MM-dd').format(date);
+}
+
+///pick Image
+Future<String> pickPhoto(ImageSource imageSource) async {
+  final pickedFile = (imageSource == ImageSource.camera
+      ? await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          imageQuality: 50,
+          maxWidth: 2048,
+          maxHeight: 2048,
+        )
+      : await ImagePicker().pickImage(source: ImageSource.gallery));
+  if (pickedFile == null) {
+    return '';
+  }
+  File image = File(pickedFile.path);
+
+  return image.path;
 }

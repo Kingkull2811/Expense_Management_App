@@ -84,25 +84,4 @@ class OptionRepeatData {
   String toString() {
     return 'OptionRepeatData{dayInWeeks: $dayOfWeeks, frequencyType: $frequency, fromDate: $fromDate, toDate: $toDate, time: $time}';
   }
-
-// factory OptionRepeatData.fromJson(Map<String, dynamic> json) {
-  //   return OptionRepeatData(
-  //     dayInWeeks: List<String>.from(json['dayInWeeks'] ?? []),
-  //     frequencyType: json['frequencyType'] ?? '',
-  //     transactionType: getFrequencyType(json['transactionType'] ?? ''),
-  //     time: json['time'] ?? '',
-  //     fromDate: DateTime.parse(json['fromDate'] ?? ''),
-  //     toDate: DateTime.parse(json['toDate'] ?? ''),
-  //   );
-  // }
-  //
-  // Map<String, dynamic> toJson() => {
-  //   "dayInWeeks": dayInWeeks,
-  //   "frequencyType": setFrequencyType(frequencyType),
-  //   "fromDate": fromDate,
-  //   "toDate": toDate,
-  //   "transactionType": transactionType,
-  //   "time": time,
-  // };
-
 }

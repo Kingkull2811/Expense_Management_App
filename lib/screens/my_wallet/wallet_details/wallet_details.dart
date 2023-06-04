@@ -404,7 +404,7 @@ class _WalletDetailsState extends State<WalletDetails> {
       height: 60,
       child: ListTile(
         onTap: () async {
-          final String result = await Navigator.push(
+          final bool result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => BlocProvider(
@@ -417,12 +417,12 @@ class _WalletDetailsState extends State<WalletDetails> {
               ),
             ),
           );
-          if (result == 'refresh') {
-            _walletDetailsBloc
-                .add(WalletDetailInit(walletId: widget.wallet.id));
+          if (result) {
+            _walletDetailsBloc.add(WalletDetailInit(
+              walletId: widget.wallet.id,
+            ));
             setState(() {});
-          }
-          if (isNullOrEmpty(result)) {
+          } else {
             return;
           }
         },

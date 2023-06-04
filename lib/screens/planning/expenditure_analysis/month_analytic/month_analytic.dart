@@ -50,6 +50,7 @@ class _MonthAnalyticState extends State<MonthAnalytic> {
     return BlocBuilder<MonthAnalyticBloc, MonthAnalyticState>(
       builder: (context, state) {
         List<CategoryReport> listReport = state.data?.categoryReports ?? [];
+        listReport.sort((a, b) => a.time.compareTo(b.time));
 
         return state.isLoading
             ? const AnimationLoading()
