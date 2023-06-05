@@ -740,7 +740,7 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
       backgroundColor: Theme.of(context).primaryColor,
       leading: IconButton(
         onPressed: () {
-          Navigator.of(context).pop(null);
+          Navigator.of(context).pop([]);
         },
         icon: const Icon(
           Icons.arrow_back_ios,

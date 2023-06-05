@@ -426,7 +426,9 @@ class _LimitPageState extends State<LimitPage> {
                       Positioned(
                         right: sizeWidth * 0.4,
                         child: Text(
-                          '${percent.toStringAsFixed(2)} %',
+                          percent > 100
+                              ? 'Vượt 100%'
+                              : '${(percent * 100).toStringAsFixed(2)} %',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white,

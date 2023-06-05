@@ -1,9 +1,5 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:viet_wallet/network/provider/export_file_provider.dart';
 import 'package:viet_wallet/network/provider/wallet_provider.dart';
 import 'package:viet_wallet/network/response/base_get_response.dart';
 
@@ -15,7 +11,6 @@ import 'export_state.dart';
 class ExportBloc extends Bloc<ExportEvent, ExportState> {
   final BuildContext context;
 
-  final _exportProvider = ExportProvider();
   final _walletProvider = WalletProvider();
 
   ExportBloc(this.context) : super(LoadingState()) {
@@ -32,20 +27,6 @@ class ExportBloc extends Bloc<ExportEvent, ExportState> {
           logoutIfNeed(this.context);
         } else {
           emit(ErrorServerState());
-        }
-      }
-      if (event is GetExport) {
-        print('listInt: ${event.walletIDs.toString()}');
-
-        if (await Permission.storage.isGranted) {
-          final response = await _exportProvider.getFileReport(
-            fromDate: event.formDate,
-            toDate: event.toDate,
-            walletIDs: event.walletIDs,
-          );
-          log('$response');
-        } else {
-          await Permission.storage.request();
         }
       }
     });

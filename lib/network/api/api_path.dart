@@ -22,6 +22,11 @@ class ApiPath {
 
   static const String apiLogoCategory = '$apiDomain/api/v1/category-logo';
 
+  static const String categoryReport =
+      '$apiDomain/api/v1/report/category-report';
+
+  static const String weekReport = '$apiDomain/api/v1/report/week-report';
+
   static const String getListWallet = '$apiDomain/api/v1/wallet';
 
   static const String transaction = '$apiDomain/api/v1/transaction';

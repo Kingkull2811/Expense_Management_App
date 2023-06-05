@@ -12,7 +12,7 @@ import 'package:viet_wallet/utilities/secure_storage.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 
-import '../../services/notification_service.dart';
+import '../../services/awesome_notification.dart';
 
 class AuthProvider with ProviderMixin {
   final SecureStorage _secureStorage = SecureStorage();
@@ -69,10 +69,7 @@ class AuthProvider with ProviderMixin {
     required String password,
   }) async {
     try {
-      String fcmToken = _pref.getFCMToken();
-      if (isNullOrEmpty(fcmToken)) {
-        fcmToken = await NotificationServices().getDeviceToken();
-      }
+      String fcmToken = await AwesomeNotification().requestFirebaseToken();
 
       final data = {
         'deviceToken': fcmToken,

@@ -6,16 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:viet_wallet/routes.dart';
-import 'package:viet_wallet/services/notification_service.dart';
+import 'package:viet_wallet/services/awesome_notification.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // _removeBadgeWhenOpenApp();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  await AwesomeNotification.initializeLocalNotifications();
+  await AwesomeNotification.initializeRemoteNotifications();
 
   // Init SharedPreferences storage
   await SharedPreferencesStorage.init();
@@ -26,9 +27,6 @@ Future<void> main() async {
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  print('Handling a background message ${message.messageId}');
 }
 
 _removeBadgeWhenOpenApp() async {
@@ -53,7 +51,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     _checkAuthenticationState();
-    NotificationServices().requestNotificationPermission();
+    AwesomeNotification().checkPermission();
     super.initState();
   }
 
@@ -66,7 +64,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final ThemeData theme = ThemeData(
       brightness: Brightness.light,
-      primaryColor: const Color.fromARGB(255, 107, 154, 107), //#6B9A6B
+      primaryColor: const Color.fromARGB(255, 107, 154, 107),
+      //#6B9A6B
       primaryColorDark: const Color(0xff4d6e4b),
       primaryColorLight: const Color(0xFFb5ccb5),
       colorScheme: ThemeData().colorScheme.copyWith(
@@ -92,7 +91,6 @@ class _MyAppState extends State<MyApp> {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
-        // DefaultCupertinoLocalizations.delegate
       ],
       title: 'Viet Wallet App',
       theme: theme.copyWith(
@@ -108,7 +106,6 @@ class _MyAppState extends State<MyApp> {
     String passwordExpiredTime =
         SharedPreferencesStorage().getAccessTokenExpired();
 
-    print('expired: $passwordExpiredTime');
     if (passwordExpiredTime.isNotEmpty) {
       try {
         if (DateTime.parse(passwordExpiredTime).isAfter(DateTime.now())) {

@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_bloc.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_state.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../../network/model/wallet.dart';
+import '../../../network/provider/export_file_provider.dart';
 import '../../../utilities/screen_utilities.dart';
 import '../../../utilities/utils.dart';
 import '../../../widgets/primary_button.dart';
@@ -22,6 +28,8 @@ class ExportPage extends StatefulWidget {
 
 class _ExportPageState extends State<ExportPage> {
   late ExportBloc _exportBloc;
+
+  late RenderBox box;
 
   String dateStart = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String? dateEnd;
@@ -76,14 +84,14 @@ class _ExportPageState extends State<ExportPage> {
           if (state is LoadingState) {
             return const AnimationLoading();
           } else {
-            return _body(state);
+            return _body(context, state);
           }
         },
       ),
     );
   }
 
-  Widget _body(ExportState state) {
+  Widget _body(BuildContext context, ExportState state) {
     List<Wallet> listWallet = [];
     if (state is ExportInitial) {
       listWallet = state.listWallet;
@@ -113,25 +121,69 @@ class _ExportPageState extends State<ExportPage> {
           padding: const EdgeInsets.only(top: 32),
           child: PrimaryButton(
             text: 'Xuất file',
-            onTap: () {
-              if (isNullOrEmpty(dateEnd)) {
-                showMessage1OptionDialog(
-                  context,
-                  'Vui lòng chọn ngày kết thúc trước khi xuất file',
-                );
-              } else if (isNullOrEmpty(listWalletSelected)) {
+            onTap: () async {
+              if (isNullOrEmpty(listWalletSelected)) {
                 showMessage1OptionDialog(
                   context,
                   'Vui lòng chọn tài khoản/ví trước khi xuất file',
                 );
               } else {
+                await Permission.manageExternalStorage.request();
+
                 List<int> walletIDs = [];
                 listWalletSelected.map((e) => walletIDs.add(e.id!)).toList();
-                _exportBloc.add(GetExport(
-                  walletIDs: walletIDs,
-                  formDate: dateStart,
-                  toDate: dateEnd,
-                ));
+                final Map<String, dynamic> query = {
+                  'fromDate': dateStart,
+                  if (dateEnd != null) 'toDate': dateEnd,
+                  'walletIds': walletIDs,
+                };
+                final Directory downloadPath =
+                    await getApplicationSupportDirectory();
+                final String fileName = (dateEnd != null)
+                    ? 'report_${dateStart}_$dateEnd.xlsx'
+                    : 'report_$dateStart.xlsx';
+
+                final savePath = isNullOrEmpty(downloadPath)
+                    ? '/storage/emulated/0/Download/$fileName'
+                    : '${downloadPath.path}/$fileName';
+
+                print('savePath: $savePath');
+
+                final response = await ExportProvider().getFileReport(
+                  query: query,
+                  savePath: savePath,
+                );
+
+                if (response is File) {
+                  print('file: ${response.path}');
+
+                  // await OpenFile.open(response.path);
+
+                  // await Share.shareFiles(
+                  //   [response.path],
+                  //   text: fileName,
+                  // );
+
+                  // if (await canLaunchUrl(Uri.file(response.path))) {
+                  //   await launchUrl(Uri.file(response.path));
+                  // } else {
+                  //   throw 'Could not launch ${Uri.file(response.path)}';
+                  // }
+                } else if (response is ExpiredTokenResponse) {
+                  logoutIfNeed(this.context);
+                } else {
+                  showMessage1OptionDialog(
+                    this.context,
+                    'Error!',
+                    content: 'Có lỗi xảy ra, không thể xuất file',
+                  );
+                }
+
+                // _exportBloc.add(GetExport(
+                //   walletIDs: walletIDs,
+                //   formDate: dateStart,
+                //   toDate: dateEnd,
+                // ));
               }
             },
           ),

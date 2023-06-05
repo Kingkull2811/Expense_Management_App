@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in.dart';
 import 'package:viet_wallet/screens/authentication/sign_in/sign_in_bloc.dart';
+import 'package:viet_wallet/screens/home/expenditure_report/expenditure_report_bloc.dart';
+import 'package:viet_wallet/screens/home/revenue_report/revenue_report_bloc.dart';
 import 'package:viet_wallet/screens/main_app/main_app.dart';
 import 'package:viet_wallet/screens/my_wallet/add_new_wallet/add_new_wallet.dart';
 import 'package:viet_wallet/screens/planning/current_finances/current_finances.dart';
@@ -54,7 +56,14 @@ class AppRoutes {
               child: const SignInPage(),
             ),
       AppRoutes.home: (context) {
-        return MainApp(currentTab: 0);
+        return MultiBlocProvider(providers: [
+          BlocProvider<ExpenditureReportBloc>(
+            create: (context) => ExpenditureReportBloc(context),
+          ),
+          BlocProvider<RevenueReportBloc>(
+            create: (context) => RevenueReportBloc(context),
+          ),
+        ], child: MainApp(currentTab: 0));
       },
       AppRoutes.myWallet: (context) {
         return MainApp(currentTab: 1);

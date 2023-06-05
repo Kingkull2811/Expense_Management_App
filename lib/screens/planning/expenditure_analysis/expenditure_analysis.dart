@@ -92,28 +92,6 @@ class _ExpenditureState extends State<Expenditure>
   @override
   Widget build(BuildContext context) {
     return _body();
-    // return BlocConsumer<ExpenditureAnalyticBloc, ExpenditureAnalyticState>(
-    //   listenWhen: (preState, curState) {
-    //     return curState.apiError != ApiError.noError;
-    //   },
-    //   listener: (context, state) {
-    //     if (state.apiError == ApiError.internalServerError) {
-    //       showMessage1OptionDialog(
-    //         context,
-    //         'Error!',
-    //         content: 'Internal_server_error',
-    //       );
-    //     }
-    //     if (state.apiError == ApiError.noInternetConnection) {
-    //       showMessageNoInternetDialog(context);
-    //     }
-    //   },
-    //   builder: (context, state) {
-    //     return state.isLoading
-    //         ? const AnimationLoading()
-    //         : _body(context, state);
-    //   },
-    // );
   }
 
   Widget _body() {

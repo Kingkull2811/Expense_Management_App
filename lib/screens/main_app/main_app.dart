@@ -10,6 +10,8 @@ import 'package:viet_wallet/screens/new_collection/new_collection.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning.dart';
 
+import '../home/expenditure_report/expenditure_report_bloc.dart';
+import '../home/revenue_report/revenue_report_bloc.dart';
 import '../my_wallet/my_wallet.dart';
 import '../my_wallet/my_wallet_bloc.dart';
 import '../planning/planning_bloc.dart';
@@ -154,9 +156,19 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
     Widget currentTab;
     switch (index) {
       case 0:
-        currentTab = BlocProvider(
-          create: (context) => HomePageBloc(context), //..add(HomeInitial()),
-          child: const HomePage(),
+        currentTab = MultiBlocProvider(
+          providers: [
+            BlocProvider<ExpenditureReportBloc>(
+              create: (context) => ExpenditureReportBloc(context),
+            ),
+            BlocProvider<RevenueReportBloc>(
+              create: (context) => RevenueReportBloc(context),
+            ),
+          ],
+          child: BlocProvider(
+            create: (context) => HomePageBloc(context), //..add(HomeInitial()),
+            child: const HomePage(),
+          ),
         );
         break;
       case 1:

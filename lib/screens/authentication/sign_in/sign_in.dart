@@ -18,7 +18,7 @@ import 'package:viet_wallet/widgets/input_field.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
 import '../../../routes.dart';
-import '../../../services/notification_service.dart';
+import '../../../services/awesome_notification.dart';
 import '../../../widgets/input_password_field.dart';
 
 class SignInPage extends StatefulWidget {
@@ -39,23 +39,24 @@ class _SignInPageState extends State<SignInPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  NotificationServices notificationServices = NotificationServices();
+  // NotificationServices notificationServices = NotificationServices();
 
   @override
   void initState() {
     _signInBloc = BlocProvider.of<SignInBloc>(context);
     super.initState();
-    notificationServices.requestNotificationPermission();
-    notificationServices.foregroundMessage();
-    notificationServices.firebaseInit(context);
-    notificationServices.setupInteractMessage(context);
-    notificationServices.isTokenRefresh();
-
-    notificationServices.getDeviceToken().then((value) {
-      if (kDebugMode) {
-        print('device token: $value');
-      }
-    });
+    AwesomeNotification().requestFirebaseToken();
+    // notificationServices.requestNotificationPermission();
+    // notificationServices.foregroundMessage();
+    // notificationServices.firebaseInit(context);
+    // notificationServices.setupInteractMessage(context);
+    // notificationServices.isTokenRefresh();
+    //
+    // notificationServices.getDeviceToken().then((value) {
+    //   if (kDebugMode) {
+    //     print('device token: $value');
+    //   }
+    // });
   }
 
   @override

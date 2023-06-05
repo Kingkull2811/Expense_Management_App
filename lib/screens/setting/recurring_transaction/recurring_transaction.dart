@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/frequency_model.dart';
 import 'package:viet_wallet/utilities/utils.dart';
 import 'package:viet_wallet/widgets/app_image.dart';
-import 'package:viet_wallet/widgets/primary_button.dart';
 
 import '../../../network/model/recurring_list_model.dart';
 import '../../../utilities/enum/api_error_result.dart';
@@ -38,15 +37,6 @@ class _RecurringPageState extends State<RecurringPage> {
   TransactionDataStatus _transactionStatusSelected = TransactionDataStatus(
       name: 'Đang diễn ra', status: TransactionStatus.on_going);
 
-  void reloadPage() {
-    final Map<String, dynamic> query = {
-      'type': _transactionTypeSelected.type.name.toUpperCase(),
-      'status': _transactionStatusSelected.status.name.toUpperCase()
-    };
-    _recurringBloc.add(RecurringInit(query: query));
-    setState(() {});
-  }
-
   @override
   void initState() {
     _recurringBloc = BlocProvider.of<RecurringTransactionBloc>(context)
@@ -58,6 +48,19 @@ class _RecurringPageState extends State<RecurringPage> {
   void dispose() {
     _recurringBloc.close();
     super.dispose();
+  }
+
+  void _reloadPage() {
+    final Map<String, dynamic> query = {
+      'type': _transactionTypeSelected.type.name.toUpperCase(),
+      'status': _transactionStatusSelected.status.name.toUpperCase()
+    };
+    _recurringBloc.add(RecurringInit(query: query));
+    showLoading(context);
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      Navigator.pop(context);
+      setState(() {});
+    });
   }
 
   @override
@@ -98,7 +101,7 @@ class _RecurringPageState extends State<RecurringPage> {
                 ),
               );
               if (result) {
-                reloadPage();
+                _reloadPage();
               }
             },
             icon: const Icon(
@@ -115,22 +118,13 @@ class _RecurringPageState extends State<RecurringPage> {
           _itemType(),
           _itemStatus(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Text(
               '* Chọn loại giao dịch, trạng thái giao dịch để xem các ghi chép',
               style: TextStyle(
                 fontStyle: FontStyle.italic,
                 color: Theme.of(context).primaryColor,
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            child: PrimaryButton(
-              text: 'Search',
-              onTap: () async {
-                await handleButton();
-              },
             ),
           ),
           Expanded(child: _body(context)),
@@ -164,11 +158,13 @@ class _RecurringPageState extends State<RecurringPage> {
   Widget _listView(
       BuildContext context, List<RecurringListModel>? listRecurring) {
     if (isNullOrEmpty(listRecurring)) {
-      return Text(
-        'Recurring transaction data not available',
-        style: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).primaryColor,
+      return Center(
+        child: Text(
+          'Không tìm thấy dữ liệu ghi chép',
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).primaryColor,
+          ),
         ),
       );
     }
@@ -219,7 +215,7 @@ class _RecurringPageState extends State<RecurringPage> {
               ),
             );
             if (result) {
-              reloadPage();
+              _reloadPage();
             } else {
               return;
             }
@@ -314,14 +310,7 @@ class _RecurringPageState extends State<RecurringPage> {
     );
   }
 
-  Future handleButton() async {
-    final Map<String, dynamic> query = {
-      'type': _transactionTypeSelected.type.name.toUpperCase(),
-      'status': _transactionStatusSelected.status.name.toUpperCase()
-    };
-    _recurringBloc.add(RecurringInit(query: query));
-    setState(() {});
-  }
+  Future handleButton() async {}
 
   Widget _itemType() {
     return Padding(
@@ -446,6 +435,7 @@ class _RecurringPageState extends State<RecurringPage> {
                     _transactionTypeSelected = transactionType;
                   });
                   Navigator.pop(context);
+                  _reloadPage();
                 },
                 title: Text(transactionType.name),
                 trailing:
@@ -501,6 +491,7 @@ class _RecurringPageState extends State<RecurringPage> {
                     _transactionStatusSelected = transactionStatus;
                   });
                   Navigator.pop(context);
+                  _reloadPage();
                 },
                 title: Text(transactionStatus.name),
                 trailing: (_transactionStatusSelected.status ==

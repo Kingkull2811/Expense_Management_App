@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
+import 'package:viet_wallet/network/response/category_report_response.dart';
+import 'package:viet_wallet/utilities/enum/enum.dart';
 
 import '../model/category_model.dart';
 import '../response/base_get_response.dart';
@@ -10,11 +12,10 @@ import '../response/base_response.dart';
 import '../response/delete_category_response.dart';
 import '../response/get_list_category_response.dart';
 import '../response/logo_category_response.dart';
+import '../response/week_report_response.dart';
 
 class CategoryProvider with ProviderMixin {
-  Future<BaseGetResponse> getAllListCategory({
-    required String param,
-  }) async {
+  Future<BaseGetResponse> getAllListCategory({required String param}) async {
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
     }
@@ -37,9 +38,7 @@ class CategoryProvider with ProviderMixin {
     }
   }
 
-  Future<Object> addNewCategory({
-    required Map<String, dynamic> data,
-  }) async {
+  Future<Object> addNewCategory({required Map<String, dynamic> data}) async {
     if (await isExpiredToken()) {
       return ExpiredTokenGetResponse();
     }
@@ -89,8 +88,6 @@ class CategoryProvider with ProviderMixin {
         apiDeleteCategory,
         options: await defaultOptions(url: apiDeleteCategory),
       );
-
-      log('delete: ${response.data}');
       return DeleteCategoryResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       return errorResponse(error, stacktrace, apiDeleteCategory);
@@ -115,6 +112,38 @@ class CategoryProvider with ProviderMixin {
       return ListLogoCategoryResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       return errorGetResponse(error, stacktrace, ApiPath.apiLogoCategory);
+    }
+  }
+
+  Future<BaseResponse> getDataReport({required TransactionType type}) async {
+    if (await isExpiredToken()) {
+      return ExpiredTokenResponse();
+    }
+    try {
+      final response = await dio.get(
+        ApiPath.categoryReport,
+        queryParameters: {'type': type.name.toUpperCase()},
+        options: await defaultOptions(url: ApiPath.categoryReport),
+      );
+
+      return CategoryReportResponse.fromJson(response.data);
+    } catch (error, stacktrace) {
+      return errorResponse(error, stacktrace, ApiPath.categoryReport);
+    }
+  }
+
+  Future<BaseResponse> getWeekReport() async {
+    if (await isExpiredToken()) {
+      return ExpiredTokenResponse();
+    }
+    try {
+      final response = await dio.get(
+        ApiPath.weekReport,
+        options: await defaultOptions(url: ApiPath.weekReport),
+      );
+      return WeekReportResponse.fromJson(response.data);
+    } catch (error, stacktrace) {
+      return errorResponse(error, stacktrace, ApiPath.weekReport);
     }
   }
 }
