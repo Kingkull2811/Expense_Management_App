@@ -1,21 +1,24 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:viet_wallet/network/model/data_sfcartesian_char_model.dart';
 import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/home/home_event.dart';
 import 'package:viet_wallet/screens/home/home_state.dart';
-import 'package:viet_wallet/screens/home/report_month/report_month.dart';
-import 'package:viet_wallet/screens/home/report_week/report_week.dart';
 import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/animation_loading.dart';
 
 import '../../network/model/wallet.dart';
+import '../../network/model/week_report_model.dart';
 import '../../utilities/screen_utilities.dart';
 import '../../utilities/utils.dart';
 import '../my_wallet/wallet_details/wallet_details.dart';
 import '../my_wallet/wallet_details/wallet_details_bloc.dart';
+import 'expenditure_report/expenditure_report.dart';
+import 'revenue_report/revenue_report.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -34,6 +37,8 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController;
 
   final String currency = SharedPreferencesStorage().getCurrency();
+
+  bool _showDetail = true;
 
   @override
   void initState() {
@@ -92,9 +97,75 @@ class _HomePageState extends State<HomePage>
             children: [
               _balance((state.moneyTotal ?? 0).toDouble()),
               _myWallet(state.listWallet),
+              _reportWeek(state.weekReport),
               _expenseReport(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _reportWeek(WeekReportModel? report) {
+    final List<DataSf> chartData = report?.detailReport ?? [];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+      child: SizedBox(
+        height: _showDetail ? 400 + 40 * (chartData.length).toDouble() : 400,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Text(
+                'Báo cáo chi tiêu theo tuần',
+                textAlign: TextAlign.left,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 10, top: 10, bottom: 10.0),
+                      child: Text(
+                        '(Đơn vị: triệu VNĐ)',
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
+                    ),
+                    SfCartesianChart(
+                      primaryXAxis: CategoryAxis(),
+                      tooltipBehavior: TooltipBehavior(enable: true),
+                      series: <ChartSeries<DataSf, String>>[
+                        ColumnSeries<DataSf, String>(
+                          dataSource: chartData,
+                          xValueMapper: (DataSf data, _) => data.title,
+                          yValueMapper: (DataSf data, _) =>
+                              data.value / 1000000,
+                          name: 'Báo cáo tuần',
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(5),
+                            topLeft: Radius.circular(5),
+                          ),
+                        )
+                      ],
+                    ),
+                    listDetails(chartData),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -104,33 +175,17 @@ class _HomePageState extends State<HomePage>
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: SizedBox(
-        height: 800,
+        height: 550,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Báo cáo chi tiêu',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    'Xem báo cáo',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                )
-              ],
+            Text(
+              'Báo cáo tỉ lệ chi tiêu theo hạng mục',
+              textAlign: TextAlign.left,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
             Expanded(
               child: Padding(
@@ -161,15 +216,12 @@ class _HomePageState extends State<HomePage>
                             indicatorWeight: 1.5,
                             indicatorColor: Colors.black,
                             indicator: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10)),
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             tabs: const [
-                              Tab(
-                                text: 'Tuần',
-                              ),
-                              Tab(
-                                text: 'Tháng',
-                              ),
+                              Tab(text: 'Hạng mục chi'),
+                              Tab(text: 'Hạng mục thu'),
                             ],
                           ),
                         ),
@@ -178,8 +230,8 @@ class _HomePageState extends State<HomePage>
                         child: TabBarView(
                           controller: _tabController,
                           children: const [
-                            ReportWeekTab(),
-                            ReportMonthTab(),
+                            ExpenditureReport(),
+                            RevenueReport(),
                           ],
                         ),
                       ),
@@ -430,6 +482,87 @@ class _HomePageState extends State<HomePage>
                   color: Colors.black,
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget listDetails(List<DataSf>? listReport) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _showDetail = !_showDetail;
+              });
+            },
+            child: SizedBox(
+              height: 40,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Xem chi tiết',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Icon(
+                    _showDetail
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: Colors.grey,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_showDetail)
+            SizedBox(
+              height: 40 * (listReport!.length).toDouble(),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                physics: const NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: listReport.length,
+                itemBuilder: (context, index) => details(listReport[index]),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget details(DataSf report) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          border: BorderDirectional(
+            top: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
+            bottom: BorderSide(width: 0.5, color: Colors.grey.withOpacity(0.2)),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              report.title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+            ),
+            Text(
+              '${formatterDouble(report.value)} VND',
+              style: const TextStyle(color: Colors.black),
             ),
           ],
         ),

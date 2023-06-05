@@ -664,9 +664,13 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
             ),
           ),
         );
-        setState(() {
-          itemCategorySelected = itemCategory;
-        });
+        if (isNullOrEmpty(itemCategory)) {
+          return;
+        } else {
+          setState(() {
+            itemCategorySelected = itemCategory;
+          });
+        }
       },
       dense: false,
       horizontalTitleGap: 6,

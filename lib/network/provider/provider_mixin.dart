@@ -66,6 +66,10 @@ mixin ProviderMixin {
         // log('TOKEN: $token');
       }
     }
+    if (isNullOrEmpty(token)) {
+      await _authProvider?.checkAuthenticationStatus();
+    }
+
     return Options(
       headers: {
         'Authorization': token,

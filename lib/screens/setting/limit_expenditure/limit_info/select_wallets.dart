@@ -49,8 +49,6 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('list: ${widget.listWallet}');
-
     return WillPopScope(
       onWillPop: () async {
         return true;
@@ -59,7 +57,7 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
           appBar: AppBar(
-            automaticallyImplyLeading: false,
+            automaticallyImplyLeading: true,
             backgroundColor: Theme.of(context).primaryColor,
             centerTitle: true,
             title: const Text(

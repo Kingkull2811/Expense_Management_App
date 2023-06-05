@@ -16,14 +16,14 @@ class DayAnalytic extends StatefulWidget {
   final String fromDate, toDate;
   final List<int> walletIDs, categoryIDs;
   final TransactionType type;
-  const DayAnalytic(
-      {Key? key,
-      required this.fromDate,
-      required this.toDate,
-      required this.walletIDs,
-      required this.categoryIDs,
-      this.type = TransactionType.expense})
-      : super(key: key);
+  const DayAnalytic({
+    Key? key,
+    required this.fromDate,
+    required this.toDate,
+    required this.walletIDs,
+    required this.categoryIDs,
+    this.type = TransactionType.expense,
+  }) : super(key: key);
 
   @override
   State<DayAnalytic> createState() => _DayAnalyticState();
@@ -76,7 +76,7 @@ class _DayAnalyticState extends State<DayAnalytic> {
                               DateFormat('dd/MM')
                                   .format(DateTime.parse(data.time)),
                           yValueMapper: (CategoryReport data, _) =>
-                              data.totalAmount / 1000,
+                              (data.totalAmount / 1000),
                           name: 'Chi tiêu ngày',
                           color: Colors.lightBlueAccent,
                         ),

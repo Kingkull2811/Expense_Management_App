@@ -95,9 +95,25 @@ class _PlanningPageState extends State<PlanningPage> {
                                   right: Radius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Tài chính hiện tại',
-                                textAlign: TextAlign.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'images/ic_finances.png',
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 10.0),
+                                    child: Text(
+                                      'Tài chính hiện tại',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -147,9 +163,25 @@ class _PlanningPageState extends State<PlanningPage> {
                                   right: Radius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Tình hình thu chi',
-                                textAlign: TextAlign.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'images/ic_balance_payment.png',
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 10.0),
+                                    child: Text(
+                                      'Tình hình thu chi',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -201,9 +233,25 @@ class _PlanningPageState extends State<PlanningPage> {
                                   right: Radius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Phân tích chi tiêu',
-                                textAlign: TextAlign.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'images/ic_expenditure.png',
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 10.0),
+                                    child: Text(
+                                      'Phân tích chi tiêu',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -247,9 +295,25 @@ class _PlanningPageState extends State<PlanningPage> {
                                   right: Radius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Phân tích thu',
-                                textAlign: TextAlign.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'images/ic_revenue.png',
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 10.0),
+                                    child: Text(
+                                      'Phân tích thu',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

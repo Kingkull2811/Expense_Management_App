@@ -1,34 +1,23 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
-import 'package:viet_wallet/network/response/base_get_response.dart';
+
+import '../response/base_response.dart';
 
 class ExportProvider with ProviderMixin {
   Future<Object> getFileReport({
-    required List<int> walletIDs,
-    required String fromDate,
-    String? toDate,
+    required Map<String, dynamic> query,
+    required String savePath,
   }) async {
     if (await isExpiredToken()) {
-      return ExpiredTokenGetResponse();
+      return ExpiredTokenResponse();
     }
     try {
-      final savePath = await getApplicationDocumentsDirectory();
-
-      String tempPath = savePath.path;
-      var filePath = '$tempPath/report_${fromDate}_$toDate.xlsx';
-      var filePathNo = '$tempPath/report_$fromDate.xlsx';
-
       final response = await dio.get(
         ApiPath.exportData,
-        queryParameters: {
-          'fromDate': fromDate,
-          if (toDate != null) 'toDate': toDate,
-          'walletIds': walletIDs.map((item) => item.toString()).toList(),
-        },
+        queryParameters: query,
         options: Options(
           // headers: {
           //   'Authorization': await SecureStorage()
@@ -42,7 +31,7 @@ class ExportProvider with ProviderMixin {
         ),
       );
 
-      final file = File(toDate != null ? filePath : filePathNo);
+      final file = File(savePath);
       await file.writeAsBytes(response.data, flush: true);
 
       return file;
