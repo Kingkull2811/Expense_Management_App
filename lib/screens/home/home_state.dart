@@ -5,7 +5,7 @@ import 'package:viet_wallet/utilities/enum/api_error_result.dart';
 class HomePageState implements ApiResultState {
   final bool isLoading;
   final ApiError _apiError;
-  final int? moneyTotal;
+  final double? moneyTotal;
   final List<Wallet>? listWallet;
 
   HomePageState({
@@ -23,7 +23,7 @@ extension HomePageStateEx on HomePageState {
   HomePageState copyWith({
     bool? isLoading,
     ApiError? apiError,
-    int? moneyTotal,
+    double? moneyTotal,
     List<Wallet>? listWallet,
   }) =>
       HomePageState(

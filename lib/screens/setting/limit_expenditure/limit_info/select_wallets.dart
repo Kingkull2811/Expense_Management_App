@@ -49,9 +49,11 @@ class _SelectWalletsPageState extends State<SelectWalletsPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('list: ${widget.listWallet}');
+
     return WillPopScope(
       onWillPop: () async {
-        return false;
+        return true;
       },
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),

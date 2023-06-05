@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viet_wallet/network/response/auth_response.dart';
-import 'package:viet_wallet/network/response/user_response.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
+
+import '../network/model/sign_in_model.dart';
 
 class SharedPreferencesStorage {
   static late SharedPreferences _preferences;
@@ -21,88 +23,76 @@ class SharedPreferencesStorage {
   }
 
   ///save user info
-  Future<void> setSaveUserInfo(UserResponse? signInData) async {
-    if (signInData != null) {
-      // var token = signInData.accessToken?.split(' ')[1];
+  Future<void> setSaveUserInfo(SignInModel? data) async {
+    if (data != null) {
       await _secureStorage.writeSecureData(
-          AppConstants.accessTokenKey, signInData.accessToken);
+          AppConstants.accessTokenKey, data.accessToken);
       await _secureStorage.writeSecureData(
-          AppConstants.refreshTokenKey, signInData.refreshToken);
+          AppConstants.refreshTokenKey, data.refreshToken);
 
-      if (signInData.expiredAccessToken != null) {
-        await _preferences.setString(AppConstants.accessTokenExpiredTimeKey,
-            signInData.expiredAccessToken!);
-      }
+      await _preferences.setString(
+          AppConstants.accessTokenExpiredTimeKey, data.expiredAccessToken);
 
-      if (signInData.expiredRefreshToken != null) {
-        await _preferences.setString(AppConstants.refreshTokenExpiredKey,
-            signInData.expiredRefreshToken!);
-      }
+      await _preferences.setString(
+          AppConstants.refreshTokenExpiredKey, data.expiredRefreshToken);
 
-      if (signInData.username != null) {
-        await _preferences.setString(
-            AppConstants.usernameKey, signInData.username!);
-      }
-      if (signInData.email != null) {
-        await _preferences.setString(AppConstants.emailKey, signInData.email!);
+      await _preferences.setString(AppConstants.usernameKey, data.username);
+      await _preferences.setString(AppConstants.emailKey, data.email);
+    } else {
+      if (kDebugMode) {
+        print('no data save');
       }
     }
   }
 
-  Future<void> setCurrency({required String currency}) async {
-    await _preferences.setString(AppConstants.currencyKey, currency);
+  Future<void> saveUserInfoRefresh({
+    required AuthResponse data,
+  }) async {
+    //write accessToken, refreshToken to secureStorage
+    await _secureStorage.writeSecureData(
+        AppConstants.accessTokenKey, data.accessToken);
+    await _secureStorage.writeSecureData(
+        AppConstants.refreshTokenKey, data.refreshToken);
+    await _preferences.setString(
+        AppConstants.accessTokenExpiredTimeKey, data.expiredAccessToken ?? '');
   }
 
-  String? getCurrency() => _preferences.getString(AppConstants.currencyKey);
-
-  Future<void> setHiddenAmount(bool value) async {
-    await _preferences.setBool(AppConstants.isHiddenAmount, value);
-  }
-
-  bool? getHiddenAmount() => _preferences.getBool(AppConstants.isHiddenAmount);
-
+  ///*****User
   String getUserName() =>
       _preferences.getString(AppConstants.usernameKey) ?? '';
 
   String getUserEmail() => _preferences.getString(AppConstants.emailKey) ?? '';
 
-  Future<void> saveUserInfoRefresh({
-    required AuthResponse refreshTokenData,
-  }) async {
-    //write accessToken, refreshToken to secureStorage
-    await _secureStorage.writeSecureData(
-        AppConstants.accessTokenKey, refreshTokenData.accessToken);
-    await _secureStorage.writeSecureData(
-        AppConstants.refreshTokenKey, refreshTokenData.refreshToken);
-    await _preferences.setString(AppConstants.accessTokenExpiredTimeKey,
-        refreshTokenData.expiredAccessToken ?? '');
-  }
-
-  Future<String> getAccessToken() async {
-    final token = await _secureStorage.readSecureData(
-      AppConstants.accessTokenKey,
-    );
-    return token;
-  }
-
   String getAccessTokenExpired() {
     return _preferences.getString(AppConstants.accessTokenExpiredTimeKey) ?? '';
   }
+
+  String? getAccessToken() =>
+      _preferences.getString(AppConstants.accessTokenKey);
 
   String getRefreshTokenExpired() {
     return _preferences.getString(AppConstants.refreshTokenExpiredKey) ?? '';
   }
 
+  ///************
+  Future<void> setCurrency({required String currency}) async {
+    await _preferences.setString(AppConstants.currencyKey, currency);
+  }
+
+  String getCurrency() =>
+      _preferences.getString(AppConstants.currencyKey) ?? 'VND';
+
+  Future<void> setHiddenAmount(bool value) async {
+    await _preferences.setBool(AppConstants.isHiddenAmount, value);
+  }
+
+  bool getHiddenAmount() =>
+      _preferences.getBool(AppConstants.isHiddenAmount) ?? false;
+
+  ///logout
   void resetDataWhenLogout() {
-    _preferences.remove(AppConstants.accessTokenExpiredTimeKey);
-    _preferences.remove(AppConstants.refreshTokenExpiredKey);
-    _preferences.remove(AppConstants.usernameKey);
     _preferences.setBool(AppConstants.isLoggedOut, false);
     _preferences.setBool(AppConstants.isRememberInfo, false);
-
-    _secureStorage.deleteSecureData(AppConstants.emailKey);
-    _secureStorage.deleteSecureData(AppConstants.accessTokenKey);
-    _secureStorage.deleteSecureData(AppConstants.refreshTokenKey);
   }
 
   ///save fcm_token

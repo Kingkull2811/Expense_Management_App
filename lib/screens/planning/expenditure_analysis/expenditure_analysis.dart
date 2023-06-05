@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/expenditure_analysis_bloc.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/expenditure_analysis_event.dart';
-import 'package:viet_wallet/screens/planning/expenditure_analysis/expenditure_analysis_state.dart';
-import 'package:viet_wallet/utilities/enum/api_error_result.dart';
+import 'package:intl/intl.dart';
+import 'package:mat_month_picker_dialog/mat_month_picker_dialog.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/day_analytic/day_analytic_bloc.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_bloc.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/month_analytic/month_analytic_event.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic_bloc.dart';
+import 'package:viet_wallet/screens/planning/expenditure_analysis/year_analytic/year_analytic_event.dart';
+import 'package:viet_wallet/utilities/enum/enum.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 
+import '../../../network/model/category_model.dart';
+import '../../../network/model/wallet.dart';
+import '../../../utilities/utils.dart';
+import '../../setting/limit_expenditure/limit_info/select_category.dart';
 import '../../setting/limit_expenditure/limit_info/select_wallets.dart';
-import '../balance_payments/payments.position.page.dart';
+import 'day_analytic/day_analytic_event.dart';
 
 class Expenditure extends StatefulWidget {
-  const Expenditure({Key? key}) : super(key: key);
+  final List<Wallet>? listWallet;
+  final List<CategoryModel>? listCategory;
+  final TransactionType type;
+
+  const Expenditure({
+    Key? key,
+    this.listWallet,
+    this.listCategory,
+    this.type = TransactionType.expense,
+  }) : super(key: key);
 
   @override
   State<Expenditure> createState() => _ExpenditureState();
@@ -21,312 +40,154 @@ class _ExpenditureState extends State<Expenditure>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  ///analytic year
+  String fromYear = '2018';
+  String endYear = '2025';
+
+  ///analytic Month
+  String fromMonth =
+      DateFormat('yyyy-MM').format(DateTime(DateTime.now().year, 1));
+  String endMonth =
+      DateFormat('yyyy-MM').format(DateTime(DateTime.now().year, 12));
+
+  ///analytic Day
+  String firstDayOfMonth = DateFormat('yyyy-MM-dd')
+      .format(DateTime(DateTime.now().year, DateTime.now().month, 1));
+  String lastDayOfMonth = DateFormat('yyyy-MM-dd')
+      .format(DateTime(DateTime.now().year, DateTime.now().month + 1, 0));
+
+  List<int> initEXCate(List<CategoryModel>? listCate) {
+    List<int> listCateId = [];
+    for (CategoryModel category in listCate ?? []) {
+      if (category.childCategory != null) {
+        for (CategoryModel childCategory in category.childCategory!) {
+          listCateId.add(childCategory.id!);
+        }
+      }
+      listCateId.add(category.id!);
+    }
+    return listCateId;
+  }
+
+  List<int> initWallet(List<Wallet> wallets) {
+    return List.generate(wallets.length, (index) {
+      return listWalletSelected[index].id!;
+    });
+  }
+
+  List<int> listCateIDSelected = [];
+  List<Wallet> listWalletSelected = [];
+  List<int> listCategoryId = [];
+  List<int> walletIDs = [];
+
   @override
   void initState() {
-    BlocProvider.of<ExpenditureBloc>(context).add(ExpenditureInit());
     _tabController = TabController(length: 3, vsync: this);
+    listWalletSelected = widget.listWallet ?? [];
+    walletIDs = initWallet(widget.listWallet ?? []);
+    listCateIDSelected = initEXCate(widget.listCategory);
     super.initState();
   }
 
-  List<_SalesData> dataDay = [
-    _SalesData('day 1', 1128),
-    _SalesData('day 2', 800),
-    _SalesData('day 3', 900),
-    _SalesData('day 4', 500),
-    _SalesData('day 5', 200),
-    _SalesData('day 6', 1000),
-    _SalesData('day 7', 1000),
-  ];
-
-  List<_SalesData> dataYear = [
-    _SalesData('2018', 1128),
-    _SalesData('2019', 800),
-    _SalesData('2020', 900),
-    _SalesData('2021', 500),
-    _SalesData('2022', 200),
-    _SalesData('2023', 1000),
-  ];
-
-  List<_SalesData> dataMonth = [
-    _SalesData('1', 1128),
-    _SalesData('2', 800),
-    _SalesData('3', 900),
-    _SalesData('4', 500),
-    _SalesData('5', 200),
-    _SalesData('6', 1000),
-    _SalesData('7', 1128),
-    _SalesData('8', 800),
-    _SalesData('9', 900),
-    _SalesData('10', 500),
-    _SalesData('11', 200),
-    _SalesData('12', 1000),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Phân tích chi tiêu'),
-        backgroundColor: Theme.of(context).primaryColor,
-        centerTitle: true,
-      ),
-      body: BlocConsumer<ExpenditureBloc, ExpenditureState>(
-        listenWhen: (preState, curState) {
-          return curState.apiError != ApiError.noError;
-        },
-        listener: (context, state) {
-          if (state.apiError == ApiError.internalServerError) {
-            showMessage1OptionDialog(
-              context,
-              'Error!',
-              content: 'Internal_server_error',
-            );
-          }
-          if (state.apiError == ApiError.noInternetConnection) {
-            showMessageNoInternetDialog(context);
-          }
-        },
-        builder: (context, state) {
-          // if (state.isLoading) {
-          //   return const AnimationLoading();
-          // }
-          return Column(
-            children: [
-              Container(
-                height: 40,
-                color: Theme.of(context).primaryColor,
-                child: TabBar(
-                  controller: _tabController,
-                  unselectedLabelColor: Colors.white.withOpacity(0.2),
-                  labelColor: Colors.white,
-                  labelStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  indicatorWeight: 2,
-                  indicatorColor: Colors.white,
-                  tabs: const [
-                    Tab(text: 'NGÀY'),
-                    Tab(text: 'THÁNG'),
-                    Tab(text: 'NĂM'),
-                  ],
-                ),
-              ),
-              barDialog('2023', context),
-              const Divider(
-                color: Colors.black,
-                height: 1,
-              ),
-              InkWell(
-                onTap: () async {
-                  final result = Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          SelectWalletsPage(listWallet: state.listWallet),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: const [
-                          Icon(
-                            Icons.wallet,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(width: 9),
-                          Text(
-                            'Tất cả tài khoản',
-                            style: TextStyle(color: Colors.black),
-                          )
-                        ],
-                      ),
-                      Icon(
-                        Icons.navigate_next,
-                        color: Colors.grey.withOpacity(0.2),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Divider(
-                color: Colors.grey.withOpacity(0.2),
-                height: 10,
-                thickness: 10,
-              ),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _chartsDay(),
-                    _chartsMonth(),
-                    _chartsYear(),
-                  ],
-                ),
-              ),
+    return _body();
+    // return BlocConsumer<ExpenditureAnalyticBloc, ExpenditureAnalyticState>(
+    //   listenWhen: (preState, curState) {
+    //     return curState.apiError != ApiError.noError;
+    //   },
+    //   listener: (context, state) {
+    //     if (state.apiError == ApiError.internalServerError) {
+    //       showMessage1OptionDialog(
+    //         context,
+    //         'Error!',
+    //         content: 'Internal_server_error',
+    //       );
+    //     }
+    //     if (state.apiError == ApiError.noInternetConnection) {
+    //       showMessageNoInternetDialog(context);
+    //     }
+    //   },
+    //   builder: (context, state) {
+    //     return state.isLoading
+    //         ? const AnimationLoading()
+    //         : _body(context, state);
+    //   },
+    // );
+  }
+
+  Widget _body() {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Theme.of(context).primaryColor,
+          title: Text(
+            widget.type == TransactionType.expense
+                ? 'Phân tích chi tiêu'
+                : 'Phân tích thu',
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            unselectedLabelColor: Colors.white.withOpacity(0.2),
+            labelColor: Colors.white,
+            labelStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            indicatorWeight: 2,
+            indicatorColor: Colors.white,
+            tabs: const [
+              Tab(text: 'NGÀY'),
+              Tab(text: 'THÁNG'),
+              Tab(text: 'NĂM'),
             ],
-          );
-        },
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _chartDayTab(),
+            _chartsMonth(),
+            _chartsYear(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _chartsDay() {
+  Widget _chartDayTab() {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          //Initialize the chart widget
-          const Text(
-            '(Đơn vị: VNĐ)',
-            style: TextStyle(
-                fontSize: 12, color: Colors.black, fontWeight: FontWeight.w400),
-          ),
-          SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
-              // Chart title
-              // Enable legend
-              // Enable tooltip
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: <ChartSeries<_SalesData, String>>[
-                LineSeries<_SalesData, String>(
-                  dataSource: dataDay,
-                  xValueMapper: (_SalesData sales, _) => sales.year,
-                  yValueMapper: (_SalesData sales, _) => sales.sales,
-                  name: 'Sales',
-                  color: Colors.lightBlueAccent,
-                ),
-              ]),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Tổng chi tiêu',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13,
-                      color: Colors.grey),
-                ),
-                Text(
-                  '1.291.918.123.343 đ',
-                  style: TextStyle(fontSize: 13, color: Colors.black),
-                )
-              ],
+        padding: const EdgeInsets.all(0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _selectDayTime(context),
+            Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+            _selectCategory(),
+            Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+            _selectWallet(),
+            Divider(
+              color: Colors.grey.withOpacity(0.2),
+              height: 10,
+              thickness: 10,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Trung bình chỉ/ngày',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
-                ),
-                Text(
-                  '21.918.123 đ',
-                  style: TextStyle(fontSize: 13, color: Colors.black),
-                ),
-              ],
+            DayAnalytic(
+              walletIDs: walletIDs,
+              categoryIDs: listCateIDSelected,
+              fromDate: firstDayOfMonth,
+              toDate: lastDayOfMonth,
+              type: widget.type,
             ),
-          ),
-          SizedBox(height: 15),
-          Divider(
-            color: Colors.grey.withOpacity(0.2),
-            height: 10,
-            thickness: 1,
-          ),
-          SizedBox(height: 5),
-          listFilter(true)
-        ]),
-      ),
-    );
-  }
-
-  Widget _chartsYear() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          //Initialize the chart widget
-          const Text(
-            '(Đơn vị: VNĐ)',
-            style: TextStyle(
-                fontSize: 12, color: Colors.black, fontWeight: FontWeight.w400),
-          ),
-          SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
-              // Chart title
-              // Enable legend
-              // Enable tooltip
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: <ChartSeries<_SalesData, String>>[
-                ColumnSeries<_SalesData, String>(
-                  dataSource: dataYear,
-                  xValueMapper: (_SalesData sales, _) => sales.year,
-                  yValueMapper: (_SalesData sales, _) => sales.sales,
-                  name: 'Sales',
-                  color: Colors.lightBlue,
-                ),
-              ]),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Tổng chi tiêu',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13,
-                      color: Colors.grey),
-                ),
-                Text(
-                  '1.291.918.123.343 đ',
-                  style: TextStyle(fontSize: 13, color: Colors.black),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Trung bình chỉ/ngày',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13,
-                      color: Colors.grey),
-                ),
-                Text(
-                  '21.918.123 đ',
-                  style: TextStyle(fontSize: 13, color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 15),
-          Divider(
-            color: Colors.grey.withOpacity(0.2),
-            height: 10,
-            thickness: 1,
-          ),
-          SizedBox(height: 5),
-          listFilter(true)
-        ]),
+          ],
+        ),
       ),
     );
   }
@@ -334,150 +195,613 @@ class _ExpenditureState extends State<Expenditure>
   Widget _chartsMonth() {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          //Initialize the chart widget
-          const Text(
-            '(Đơn vị: VNĐ)',
-            style: TextStyle(
-                fontSize: 12, color: Colors.black, fontWeight: FontWeight.w400),
-          ),
-          SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
-              // Chart title
-              // Enable legend
-              // Enable tooltip
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: <ChartSeries<_SalesData, String>>[
-                ColumnSeries<_SalesData, String>(
-                  dataSource: dataMonth,
-                  xValueMapper: (_SalesData sales, _) => sales.year,
-                  yValueMapper: (_SalesData sales, _) => sales.sales,
-                  name: 'Sales',
-                  color: Colors.lightBlue,
-                ),
-              ]),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Tổng chi tiêu',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13,
-                      color: Colors.grey),
-                ),
-                Text(
-                  '1.291.918.123.343 đ',
-                  style: TextStyle(fontSize: 13, color: Colors.black),
-                )
-              ],
+        padding: const EdgeInsets.all(0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _selectMonthTime(),
+            Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+            _selectCategory(),
+            Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+            _selectWallet(),
+            Divider(
+              color: Colors.grey.withOpacity(0.2),
+              height: 10,
+              thickness: 10,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Trung bình chỉ/ngày',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 13,
-                      color: Colors.grey),
-                ),
-                Text(
-                  '21.918.123 đ',
-                  style: TextStyle(fontSize: 13, color: Colors.black),
-                ),
-              ],
+            MonthAnalytic(
+              walletIDs: walletIDs,
+              categoryIDs: listCateIDSelected,
+              fromMonth: fromMonth,
+              toMonth: endMonth,
+              type: widget.type,
             ),
-          ),
-          SizedBox(height: 15),
-          Divider(
-            color: Colors.grey.withOpacity(0.2),
-            height: 10,
-            thickness: 1,
-          ),
-          SizedBox(height: 5),
-          listFilter(true)
-        ]),
+          ],
+        ),
       ),
     );
   }
-}
 
-Widget listFilter(bool? click) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _chartsYear() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Xem chi tiết',
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black),
+            _selectYearTime(),
+            Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+            _selectCategory(),
+            Divider(height: 1, color: Colors.grey.withOpacity(0.3)),
+            _selectWallet(),
+            Divider(
+              color: Colors.grey.withOpacity(0.2),
+              height: 10,
+              thickness: 10,
             ),
-            click == true
-                ? const Icon(Icons.keyboard_arrow_up)
-                : const Icon(Icons.keyboard_arrow_down)
+            YearAnalytic(
+              walletIDs: walletIDs,
+              categoryIDs: listCateIDSelected,
+              fromYear: fromYear,
+              toYear: endYear,
+              type: widget.type,
+            ),
           ],
         ),
-        if (click == true)
-          ListView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return details();
-            },
-          ),
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
-Widget details() {
-  return Column(
-    children: [
-      SizedBox(height: 7),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            '01/04/2023',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-          ),
-          Row(
-            children: const [
-              Text(
-                '17.298.098 đ',
-                style: TextStyle(color: Colors.red),
+  void updateCheckedStatusCategory(CategoryModel category) {
+    final List<int> listCategoryId = listCateIDSelected;
+
+    if (listCategoryId.contains(category.id)) {
+      category.isChecked = true;
+    }
+    category.childCategory?.forEach(updateCheckedStatusCategory);
+  }
+
+  Widget _selectDayTime(BuildContext context) {
+    return InkWell(
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 16, right: 20),
+              child: Icon(
+                Icons.calendar_month,
+                size: 30,
+                color: Colors.grey,
               ),
-              SizedBox(width: 5),
-              Icon(Icons.keyboard_arrow_right_rounded)
-            ],
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final DateTime? timePick =
+                            await _pickDayTime(firstDayOfMonth);
+                        if (timePick == null) {
+                          return;
+                        } else if (DateTime.parse(lastDayOfMonth)
+                            .isBefore(timePick)) {
+                          showMessage1OptionDialog(this.context,
+                              'Vui lòng chọn thời gian bắt đâu sau thời gian kết thúc.');
+                        } else {
+                          if (!mounted) {
+                            return;
+                          }
+                          setState(() {
+                            firstDayOfMonth =
+                                DateFormat('yyyy-MM-dd').format(timePick);
+
+                            this.context.read<DayAnalyticBloc>().add(
+                                  DayAnalyticEvent(
+                                    walletIDs: walletIDs,
+                                    categoryIDs: listCateIDSelected,
+                                    fromDate: firstDayOfMonth,
+                                    toDate: lastDayOfMonth,
+                                    type: widget.type,
+                                  ),
+                                );
+                          });
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 3), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
+                        }
+                      },
+                      child: Text(
+                        'Từ: $firstDayOfMonth',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        final DateTime? timePick =
+                            await _pickDayTime(lastDayOfMonth);
+                        if (timePick == null) {
+                          return;
+                        } else if (DateTime.parse(firstDayOfMonth)
+                            .isAfter(timePick)) {
+                          showMessage1OptionDialog(this.context,
+                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
+                        } else {
+                          if (!mounted) {
+                            return;
+                          }
+                          setState(() {
+                            lastDayOfMonth =
+                                DateFormat('yyyy-MM-dd').format(timePick);
+                            this.context.read<DayAnalyticBloc>().add(
+                                  DayAnalyticEvent(
+                                    walletIDs: walletIDs,
+                                    categoryIDs: listCateIDSelected,
+                                    fromDate: firstDayOfMonth,
+                                    toDate: lastDayOfMonth,
+                                    type: widget.type,
+                                  ),
+                                );
+                          });
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 3), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
+                        }
+                      },
+                      child: Text(
+                        'Đến: $lastDayOfMonth',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(right: 16),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _selectMonthTime() {
+    return SizedBox(
+      height: 50,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, right: 20),
+            child: Icon(
+              Icons.calendar_month,
+              size: 30,
+              color: Colors.grey,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: InkWell(
+                    onTap: () async {
+                      final DateTime? picker = await showMonthPicker(
+                        context: context,
+                        firstDate: DateTime(2010, 01, 01),
+                        lastDate: DateTime(2040, 12, 31),
+                        initialDate: DateTime.parse('$fromMonth-01'),
+                      );
+                      if (picker != null) {
+                        setState(() {
+                          fromMonth = DateFormat('yyyy-MM').format(picker);
+
+                          context.read<MonthAnalyticBloc>().add(
+                                MonthAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  categoryIDs: listCateIDSelected,
+                                  fromMonth: fromMonth,
+                                  toMonth: endMonth,
+                                  type: widget.type,
+                                ),
+                              );
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
+                        });
+                      } else {
+                        return;
+                      }
+                    },
+                    child: Text(
+                      'Từ: $fromMonth',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: InkWell(
+                    onTap: () async {
+                      final DateTime? picker = await showMonthPicker(
+                        context: context,
+                        firstDate: DateTime(2010, 01, 01),
+                        lastDate: DateTime(2040, 12, 31),
+                        initialDate: DateTime.parse('$endMonth-01'),
+                      );
+                      if (picker != null) {
+                        setState(() {
+                          endMonth = DateFormat('yyyy-MM').format(picker);
+
+                          context.read<MonthAnalyticBloc>().add(
+                                MonthAnalyticEvent(
+                                  walletIDs: walletIDs,
+                                  categoryIDs: listCateIDSelected,
+                                  fromMonth: fromMonth,
+                                  toMonth: endMonth,
+                                  type: widget.type,
+                                ),
+                              );
+                          showLoading(context);
+                          Future.delayed(const Duration(seconds: 2), () {
+                            setState(() {});
+                            // Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
+                        });
+                      } else {
+                        return;
+                      }
+                    },
+                    child: Text(
+                      'Đến: $endMonth',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),
-      Divider(
-        color: Colors.grey.withOpacity(0.2),
-        height: 10,
-        thickness: 1,
+    );
+  }
+
+  Widget _selectYearTime() {
+    return SizedBox(
+      height: 50,
+      child: Row(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 16, right: 20),
+            child: Icon(
+              Icons.calendar_month,
+              size: 30,
+              color: Colors.grey,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Chọn năm bắt đầu'),
+                          content: SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: YearPicker(
+                              firstDate: DateTime(2010),
+                              lastDate: DateTime(2040),
+                              selectedDate: DateTime(int.parse(fromYear)),
+                              onChanged: (DateTime valuer) {
+                                setState(() {
+                                  fromYear = valuer.year.toString();
+                                  this.context.read<YearAnalyticBloc>().add(
+                                        YearAnalyticEvent(
+                                          walletIDs: walletIDs,
+                                          categoryIDs: listCateIDSelected,
+                                          fromYear: fromYear,
+                                          toYear: endYear,
+                                          type: widget.type,
+                                        ),
+                                      );
+                                });
+                                showLoading(context);
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Từ: $fromYear',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Chọn năm kết thúc'),
+                          content: SizedBox(
+                            height: 300,
+                            width: 300,
+                            child: YearPicker(
+                              firstDate: DateTime(2010),
+                              lastDate: DateTime(2040),
+                              selectedDate: DateTime(int.parse(endYear)),
+                              onChanged: (DateTime valuer) {
+                                setState(() {
+                                  endYear = valuer.year.toString();
+
+                                  this.context.read<YearAnalyticBloc>().add(
+                                        YearAnalyticEvent(
+                                          walletIDs: walletIDs,
+                                          categoryIDs: listCateIDSelected,
+                                          fromYear: fromYear,
+                                          toYear: endYear,
+                                          type: widget.type,
+                                        ),
+                                      );
+                                });
+                                showLoading(context);
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  setState(() {});
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Đến: $endYear',
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ],
       ),
-    ],
-  );
-}
+    );
+  }
 
-class _SalesData {
-  _SalesData(this.year, this.sales);
+  Widget _selectCategory() {
+    List<CategoryModel> listCate = widget.listCategory ?? [];
+    listCate.forEach(updateCheckedStatusCategory);
+    List<int> listCateIDs = [];
+    for (CategoryModel category in widget.listCategory ?? []) {
+      if (category.childCategory != null) {
+        for (CategoryModel childCategory in category.childCategory!) {
+          listCateIDs.add(childCategory.id!);
+        }
+      }
+      listCateIDs.add(category.id!);
+    }
 
-  final String year;
-  final double sales;
+    return ListTile(
+      onTap: () async {
+        final List<int>? result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectCategory(
+              listCategory: listCate,
+              type: widget.type,
+            ),
+          ),
+        );
+        if (isNotNullOrEmpty(result)) {
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            listCateIDSelected = result ?? [];
+            context.read<DayAnalyticBloc>().add(
+                  DayAnalyticEvent(
+                    walletIDs: walletIDs,
+                    categoryIDs: listCateIDSelected,
+                    fromDate: firstDayOfMonth,
+                    toDate: lastDayOfMonth,
+                    type: widget.type,
+                  ),
+                );
+            context.read<MonthAnalyticBloc>().add(
+                  MonthAnalyticEvent(
+                    walletIDs: walletIDs,
+                    categoryIDs: listCateIDSelected,
+                    fromMonth: fromMonth,
+                    toMonth: endMonth,
+                    type: widget.type,
+                  ),
+                );
+            context.read<YearAnalyticBloc>().add(
+                  YearAnalyticEvent(
+                    walletIDs: walletIDs,
+                    categoryIDs: listCateIDSelected,
+                    fromYear: fromYear,
+                    toYear: endYear,
+                    type: widget.type,
+                  ),
+                );
+          });
+          showLoading(context);
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {});
+            // Navigator.pop(context);
+            Navigator.pop(context);
+          });
+        } else {
+          return;
+        }
+      },
+      dense: false,
+      horizontalTitleGap: 10,
+      leading: const Icon(
+        Icons.category_outlined,
+        size: 30,
+        color: Colors.grey,
+      ),
+      title: Text(
+        (listCateIDSelected.length == listCateIDs.length)
+            ? 'Tất cả hạng mục'
+            : isNullOrEmpty(listCateIDSelected)
+                ? 'Chọn hạng mục'
+                : '${listCateIDSelected.length} hạng mục',
+        style: TextStyle(
+          fontSize: 16,
+          color:
+              isNotNullOrEmpty(listCateIDSelected) ? Colors.black : Colors.grey,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.grey,
+      ),
+    );
+  }
+
+  Widget _selectWallet() {
+    List<String> titles =
+        listWalletSelected.map((wallet) => wallet.name ?? '').toList();
+    String walletsName = titles.join(', ');
+
+    return ListTile(
+      onTap: () async {
+        final List<Wallet>? result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectWalletsPage(
+              listWallet: widget.listWallet,
+            ),
+          ),
+        );
+        setState(() {
+          listWalletSelected = result ?? [];
+          walletIDs = initWallet(listWalletSelected);
+          context.read<DayAnalyticBloc>().add(
+                DayAnalyticEvent(
+                  walletIDs: walletIDs,
+                  categoryIDs: listCateIDSelected,
+                  fromDate: firstDayOfMonth,
+                  toDate: lastDayOfMonth,
+                  type: widget.type,
+                ),
+              );
+          context.read<MonthAnalyticBloc>().add(
+                MonthAnalyticEvent(
+                  walletIDs: walletIDs,
+                  categoryIDs: listCateIDSelected,
+                  fromMonth: fromMonth,
+                  toMonth: endMonth,
+                  type: widget.type,
+                ),
+              );
+          context.read<YearAnalyticBloc>().add(
+                YearAnalyticEvent(
+                  walletIDs: walletIDs,
+                  categoryIDs: listCateIDSelected,
+                  fromYear: fromYear,
+                  toYear: endYear,
+                  type: widget.type,
+                ),
+              );
+        });
+        if (!mounted) {
+          return;
+        }
+        showLoading(context);
+        Future.delayed(const Duration(seconds: 2), () {
+          setState(() {});
+          // Navigator.pop(context);
+          Navigator.pop(context);
+        });
+      },
+      dense: false,
+      horizontalTitleGap: 10,
+      leading: const Icon(
+        Icons.wallet,
+        size: 30,
+        color: Colors.grey,
+      ),
+      title: Text(
+        isNullOrEmpty(listWalletSelected)
+            ? 'Chọn tài khoản'
+            : listWalletSelected.length == widget.listWallet?.length
+                ? 'Tất cả tài khoản'
+                : walletsName,
+        style: TextStyle(
+          fontSize: 16,
+          color: isNullOrEmpty(listWalletSelected) ? Colors.grey : Colors.black,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.grey,
+      ),
+    );
+  }
+
+  Future<DateTime?> _pickDayTime(String current) async {
+    return await showDatePicker(
+      context: context,
+      initialDate: DateTime.parse(current),
+      firstDate: DateTime(1990, 01, 01),
+      lastDate: DateTime(2050, 12, 31),
+    );
+  }
 }

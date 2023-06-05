@@ -23,10 +23,12 @@ import '../../../../widgets/primary_button.dart';
 class LimitInfoPage extends StatefulWidget {
   final bool isEdit;
   final LimitModel? limitData;
+  final List<Wallet>? listWallet;
 
   const LimitInfoPage({
     Key? key,
     this.isEdit = false,
+    this.listWallet,
     this.limitData,
   }) : super(key: key);
 
@@ -46,7 +48,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
 
   List<Wallet> listWalletSelected = [];
 
-  final String _currency = SharedPreferencesStorage().getCurrency() ?? 'VND';
+  final String _currency = SharedPreferencesStorage().getCurrency();
 
   late LimitInfoBloc _limitInfoBloc;
 
@@ -69,6 +71,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
     dateEnd = (widget.limitData?.toDate == null)
         ? null
         : DateFormat('yyyy-MM-dd').format((widget.limitData?.toDate)!);
+    listWalletSelected = widget.listWallet ?? [];
 
     super.initState();
   }
@@ -176,7 +179,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
               "categoryIds": listCategoryIdSelected,
               "fromDate": dateStart,
               "limitName": _nameLimitController.text.trim(),
-              "toDate": dateEnd,
+              if (isNotNullOrEmpty(dateEnd)) "toDate": dateEnd,
               "walletIds": listWalledIdSelected
             };
             final response = await _limitProvider.addLimit(data: data);
@@ -260,7 +263,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
                       : widget.limitData?.categoryIds,
                   "fromDate": dateStart,
                   "limitName": _nameLimitController.text.trim(),
-                  "toDate": dateEnd,
+                  if (isNotNullOrEmpty(dateEnd)) "toDate": dateEnd,
                   "walletIds": isNotNullOrEmpty(listWalledIdSelected)
                       ? listWalledIdSelected
                       : widget.limitData?.walletIds
@@ -336,8 +339,15 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
 
   Widget _selectWallet(LimitInfoState state) {
     List<Wallet> listWalled = state.listWallet ?? [];
+    for (Wallet wallet in listWalled) {
+      List<int>? itemIdList =
+          widget.listWallet?.map((item) => item.id!).toList();
+      if ((itemIdList ?? []).contains(wallet.id)) {
+        wallet.isChecked = true;
+      }
+    }
     List<String> titles =
-        listWalled.map((wallet) => wallet.name ?? '').toList();
+        listWalletSelected.map((wallet) => wallet.name ?? '').toList();
     String walletsName = titles.join(', ');
 
     return ListTile(
@@ -346,7 +356,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
           context,
           MaterialPageRoute(
             builder: (context) => SelectWalletsPage(
-              listWallet: widget.isEdit ? listWalled : state.listWallet,
+              listWallet: listWalled,
             ),
           ),
         );

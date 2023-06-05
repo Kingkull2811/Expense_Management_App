@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../utilities/enum/enum.dart';
+
 abstract class LimitEvent extends Equatable {
   const LimitEvent();
 
@@ -7,4 +9,11 @@ abstract class LimitEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class GetListLimitEvent extends LimitEvent {}
+class GetListLimitEvent extends LimitEvent {
+  final TransactionStatus status;
+
+  const GetListLimitEvent({this.status = TransactionStatus.on_going});
+
+  @override
+  List<Object?> get props => [status];
+}

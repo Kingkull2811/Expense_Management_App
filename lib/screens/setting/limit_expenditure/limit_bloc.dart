@@ -27,7 +27,9 @@ class LimitBloc extends Bloc<LimitEvent, LimitState> {
             ),
           );
         } else {
-          final response = await _limitProvider.getListLimit();
+          final response = await _limitProvider.getListLimit(
+            status: event.status,
+          );
           if (response is ListLimitResponse) {
             emit(state.copyWith(
               isLoading: false,

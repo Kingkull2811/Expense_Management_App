@@ -9,11 +9,10 @@ import 'package:viet_wallet/screens/home/home_bloc.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection.dart';
 import 'package:viet_wallet/screens/new_collection/new_collection_bloc.dart';
 import 'package:viet_wallet/screens/planning/planning.dart';
-import 'package:viet_wallet/screens/planning/planning_bloc.dart';
 
-import '../../utilities/database.dart';
 import '../my_wallet/my_wallet.dart';
 import '../my_wallet/my_wallet_bloc.dart';
+import '../planning/planning_bloc.dart';
 import '../setting/setting.dart';
 
 class MainApp extends StatefulWidget {
@@ -156,45 +155,35 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
     switch (index) {
       case 0:
         currentTab = BlocProvider(
-          create: (context) => HomePageBloc(context),
-          child: HomePage(
-            key: DatabaseService().homeKey,
-          ),
+          create: (context) => HomePageBloc(context), //..add(HomeInitial()),
+          child: const HomePage(),
         );
         break;
       case 1:
         currentTab = BlocProvider<MyWalletPageBloc>(
           create: (context) => MyWalletPageBloc(context),
-          child: MyWalletPage(
-            key: DatabaseService().myWalletKey,
-          ),
+          child: const MyWalletPage(),
         );
         break;
       case 2:
         currentTab = BlocProvider<NewCollectionBloc>(
           create: (context) => NewCollectionBloc(context),
-          child: NewCollectionPage(
-            key: DatabaseService().newCollectionKey,
-          ),
+          child: const NewCollectionPage(),
         );
         break;
       case 3:
         currentTab = BlocProvider<PlanningBloc>(
           create: (context) => PlanningBloc(context),
-          child: PlanningPage(
-            key: DatabaseService().planningKey,
-          ),
+          child: const PlanningPage(),
         );
         break;
       case 4:
-        currentTab = SettingPage(key: DatabaseService().menuKey);
+        currentTab = const SettingPage();
         break;
       default:
         currentTab = BlocProvider(
           create: (context) => HomePageBloc(context),
-          child: HomePage(
-            key: DatabaseService().homeKey,
-          ),
+          child: const HomePage(),
         );
     }
     return currentTab;
@@ -217,7 +206,7 @@ class MainAppState extends State<MainApp> with WidgetsBindingObserver {
             title: const Text(
               'Bạn muốn thoát khỏi ứng dụng??',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),

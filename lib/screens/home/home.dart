@@ -14,6 +14,8 @@ import 'package:viet_wallet/widgets/animation_loading.dart';
 import '../../network/model/wallet.dart';
 import '../../utilities/screen_utilities.dart';
 import '../../utilities/utils.dart';
+import '../my_wallet/wallet_details/wallet_details.dart';
+import '../my_wallet/wallet_details/wallet_details_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,14 +26,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  bool _isShowBalance = SharedPreferencesStorage().getHiddenAmount() ?? false;
+  bool _isShowBalance = SharedPreferencesStorage().getHiddenAmount();
   int notificationBadge = 3;
 
   late HomePageBloc _homePageBloc;
 
   late TabController _tabController;
 
-  final String currency = SharedPreferencesStorage().getCurrency() ?? '';
+  final String currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -193,71 +195,83 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _myWallet(List<Wallet>? listWallet) {
-    return SizedBox(
-      height: 60 * ((listWallet?.length ?? 0) + 1).toDouble() + 15,
-      child: ListView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: (listWallet?.length ?? 0) + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return Container(
-                height: 47,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(15),
-                    topLeft: Radius.circular(15),
-                  ),
-                  color: Colors.white,
-                ),
-                child: Column(
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Container(
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(15)),
+          color: Colors.white,
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+              child: SizedBox(
+                height: 20,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-                      child: SizedBox(
-                        height: 20,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Ví của tôi',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, AppRoutes.myWallet);
-                              },
-                              child: Text(
-                                'Xem tất cả',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
+                    const Text(
+                      'Ví của tôi',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 10.0),
-                      child: Divider(height: 1, color: Colors.grey),
-                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.myWallet);
+                      },
+                      child: Text(
+                        'Xem tất cả',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    )
                   ],
                 ),
-              );
-            }
-            return _createItemWallet(
-              context,
-              listWallet?[index - 1],
-              thisIndex: index - 1,
-              endIndex: (listWallet?.length ?? 0) - 1,
-            );
-          }),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 10.0),
+              child: Divider(height: 1, color: Colors.grey),
+            ),
+            isNullOrEmpty(listWallet)
+                ? Container(
+                    height: 60,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Bạn chưa có tài khoản/ví.\nVui lòng tạo mới tài khoản/ví.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 60 * (listWallet!.length).toDouble() + 15,
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: listWallet.length,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {}
+                        return _createItemWallet(
+                          context,
+                          listWallet[index],
+                          thisIndex: index,
+                          endIndex: listWallet.length,
+                        );
+                      },
+                    ),
+                  ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -281,7 +295,8 @@ class _HomePageState extends State<HomePage>
                   children: [
                     Container(
                       constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width * 0.8),
+                        maxWidth: MediaQuery.of(context).size.width * 0.8,
+                      ),
                       child: Text(
                         _isShowBalance
                             ? '${formatterDouble(balance)}  $currency'
@@ -289,7 +304,7 @@ class _HomePageState extends State<HomePage>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 26,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
@@ -298,10 +313,12 @@ class _HomePageState extends State<HomePage>
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: InkWell(
-                        onTap: () {
+                        onTap: () async {
                           setState(() {
                             _isShowBalance = !_isShowBalance;
                           });
+                          await SharedPreferencesStorage()
+                              .setHiddenAmount(_isShowBalance);
                         },
                         child: Icon(
                           _isShowBalance
@@ -320,9 +337,10 @@ class _HomePageState extends State<HomePage>
                 badgeContent: Text((notificationBadge.toString()),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white)),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    )),
                 badgeStyle: const BadgeStyle(
                   badgeColor: Colors.red,
                   padding: EdgeInsets.fromLTRB(4, 2, 4, 2),
@@ -343,65 +361,78 @@ class _HomePageState extends State<HomePage>
 
   Widget _createItemWallet(
     BuildContext context,
-    Wallet? wallet, {
+    Wallet wallet, {
     required int thisIndex,
     required int endIndex,
   }) {
-    return Container(
-      height: 60,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular((thisIndex == endIndex) ? 15 : 0),
-          bottomRight: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlocProvider(
+              create: (context) => WalletDetailsBloc(context),
+              child: WalletDetails(wallet: wallet),
+            ),
+          ),
+        );
+      },
+      child: Container(
+        height: 60,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+            bottomRight: Radius.circular((thisIndex == endIndex) ? 15 : 0),
+          ),
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                isNotNullOrEmpty(wallet?.accountType)
-                    ? getIconWallet(walletType: wallet?.accountType ?? '')
-                    : Icons.help_outline,
-                size: 24,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              '${wallet?.name}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  isNotNullOrEmpty(wallet.accountType)
+                      ? getIconWallet(walletType: wallet.accountType ?? '')
+                      : Icons.help_outline,
+                  size: 24,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10, right: 16),
-            child: Text(
-              _isShowBalance
-                  ? '${formatterDouble((wallet?.accountBalance ?? 0).toDouble())} $currency'
-                  : '****** $currency',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                '${wallet.name}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
               ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 16),
+              child: Text(
+                _isShowBalance
+                    ? '${formatterDouble((wallet.accountBalance ?? 0).toDouble())} $currency'
+                    : '****** $currency',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 class Wallet {
   final int? id;
-  final int? accountBalance;
+  final double? accountBalance;
   final String? name;
   final String? accountType;
   final String? currency;
@@ -41,6 +41,6 @@ class Wallet {
 
   @override
   String toString() {
-    return 'Wallet{id: $id, name: $name, isChecked: $isChecked}';
+    return 'Wallet{id: $id, accountBalance: $accountBalance, name: $name, accountType: $accountType, currency: $currency, description: $description, createdAt: $createdAt, createdBy: $createdBy, report: $report, isChecked: $isChecked}';
   }
 }

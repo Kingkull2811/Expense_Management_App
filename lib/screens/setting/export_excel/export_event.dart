@@ -9,11 +9,12 @@ class Initial extends ExportEvent {}
 
 class GetExport extends ExportEvent {
   final List<int> walletIDs;
-  final String formDate, toDate;
+  final String formDate;
+  final String? toDate;
 
   GetExport({
     required this.walletIDs,
     required this.formDate,
-    required this.toDate,
+    this.toDate,
   });
 }

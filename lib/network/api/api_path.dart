@@ -1,7 +1,6 @@
-class ApiPath{
+class ApiPath {
   static const String apiDomain = 'http://159.223.40.101:8081';
-  // static const String apiDomain = 'http://192.168.1.43:8081';
-  static const String apiDomainMac = 'http://10.10.142.45:8080';
+  // static const String apiDomainMac = 'http://10.10.142.45:8080';
 
   static const String signup = '$apiDomain/api/auth/sign-up';
 
@@ -29,9 +28,13 @@ class ApiPath{
 
   static const String getReportByWalletId = '$apiDomain/api/v1/report/';
 
+  static const String getReport = '$apiDomain/api/v1/report';
+
   static const String expenseLimit = '$apiDomain/api/v1/expense-limit';
 
   static const String recurring = '$apiDomain/api/v1/recurring-transaction';
 
   static const String exportData = '$apiDomain/api/v1/export';
+
+  static const String analyticReport = '$apiDomain/api/v1/report/statistic';
 }

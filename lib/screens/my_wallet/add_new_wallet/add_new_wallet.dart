@@ -1,9 +1,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:currency_picker/currency_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:viet_wallet/network/repository/wallet_repository.dart';
 import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
+import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/widgets/button_switch.dart';
 import 'package:viet_wallet/widgets/no_internet_widget.dart';
 
@@ -30,8 +30,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
 
   WalletType itemSelected = listWalletType[0];
 
-  String currency = '₫';
-  String currencyName = 'VND';
+  String currency = SharedPreferencesStorage().getCurrency();
 
   @override
   void initState() {
@@ -239,70 +238,68 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                   ),
                 ),
               ),
-              Divider(
-                height: 0.5,
-                color: Colors.grey.withOpacity(0.3),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: () {
-                    showCurrencyPicker(
-                        context: context,
-                        showFlag: true,
-                        showCurrencyName: true,
-                        showCurrencyCode: true,
-                        showSearchField: false,
-                        onSelect: (Currency value) {
-                          setState(() {
-                            currencyName = value.code;
-                            currency = value.symbol;
-                          });
-                          print('code: ${value.code}, symbol: ${value.symbol}');
-                        },
-                        favorite: ['VND']);
-                  },
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Theme.of(context).backgroundColor,
-                        ),
-                        child: const Icon(
-                          Icons.currency_exchange,
-                          size: 30,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0),
-                          child: Text(
-                            currencyName,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 18,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Divider(
+              //   height: 0.5,
+              //   color: Colors.grey.withOpacity(0.3),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(vertical: 6.0),
+              //   child: InkWell(
+              //     borderRadius: BorderRadius.circular(10),
+              //     onTap: () {
+              //       showCurrencyPicker(
+              //           context: context,
+              //           showFlag: true,
+              //           showCurrencyName: true,
+              //           showCurrencyCode: true,
+              //           showSearchField: false,
+              //           onSelect: (Currency value) {
+              //             setState(() {
+              //               currency = '${value.symbol}/${value.code}';
+              //             });
+              //           },
+              //           favorite: ['VND']);
+              //     },
+              //     child: Row(
+              //       crossAxisAlignment: CrossAxisAlignment.center,
+              //       children: [
+              //         Container(
+              //           height: 40,
+              //           width: 40,
+              //           decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(20),
+              //             color: Theme.of(context).backgroundColor,
+              //           ),
+              //           child: const Icon(
+              //             Icons.currency_exchange,
+              //             size: 30,
+              //             color: Colors.grey,
+              //           ),
+              //         ),
+              //         Expanded(
+              //           child: Padding(
+              //             padding: const EdgeInsets.only(left: 16.0),
+              //             child: Text(
+              //               currency,
+              //               style: const TextStyle(
+              //                 fontSize: 16,
+              //                 color: Colors.black,
+              //               ),
+              //             ),
+              //           ),
+              //         ),
+              //         const Padding(
+              //           padding: EdgeInsets.only(left: 10),
+              //           child: Icon(
+              //             Icons.arrow_forward_ios,
+              //             size: 18,
+              //             color: Colors.grey,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               Divider(
                 height: 0.5,
                 color: Colors.grey.withOpacity(0.3),
@@ -429,7 +426,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
-                      '.00 $currency',
+                      ' $currency',
                       style: TextStyle(
                         fontSize: 20,
                         color: Theme.of(context).primaryColor,
@@ -561,7 +558,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
         await _walletRepository.createNewWallet(
           accountBalance: int.parse(_moneyController.text.trim()),
           accountType: walletType(itemSelected.walletTypeIcon).name,
-          currency: '$currency/$currencyName',
+          currency: currency,
           description: _noteController.text.trim(),
           name: _nameController.text.trim(),
           report: _showOnReport,

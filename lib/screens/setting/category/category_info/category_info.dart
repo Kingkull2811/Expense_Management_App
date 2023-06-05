@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/model/category_model.dart';
@@ -9,6 +11,9 @@ import 'package:viet_wallet/widgets/app_image.dart';
 import 'package:viet_wallet/widgets/primary_button.dart';
 
 import '../../../../network/model/logo_category_model.dart';
+import '../../../../network/provider/category_provider.dart';
+import '../../../../network/response/base_response.dart';
+import '../../../../network/response/delete_category_response.dart';
 import '../../../../utilities/screen_utilities.dart';
 import '../../../../utilities/utils.dart';
 
@@ -108,9 +113,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
           elevation: 0.5,
           backgroundColor: Theme.of(context).primaryColor,
           leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
+            onTap: () => Navigator.of(context).pop(true),
             child: const Icon(Icons.close, size: 24, color: Colors.white),
           ),
           centerTitle: true,
@@ -210,12 +213,15 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                                   height: 50,
                                   width: 50,
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25),
-                                      color: Colors.grey.withOpacity(0.25)),
+                                    borderRadius: BorderRadius.circular(25),
+                                    color: Colors.grey.withOpacity(0.25),
+                                  ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(25),
                                     child: AppImage(
                                       localPathOrUrl: categoryIconUrl,
+                                      height: 50,
+                                      width: 50,
                                       boxFit: BoxFit.cover,
                                       errorWidget: const Icon(
                                         Icons.help_outline,
@@ -415,8 +421,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                               title: const Text(
                                 'Bạn muốn xóa hạng mục này?',
                                 style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
                                 ),
                               ),
                               actions: <Widget>[
@@ -426,6 +431,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                                 ),
                                 TextButton(
                                   onPressed: () async => await _deleteCategory(
+                                    context,
                                     (widget.categoryInfo?.id)!,
                                   ),
                                   child: const Text(
@@ -574,10 +580,13 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.grey.withOpacity(0.3),
                       ),
-                      child: AppImage(
-                        localPathOrUrl: item?.logoImageUrl ?? '',
-                        boxFit: BoxFit.cover,
-                        errorWidget: Container(),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: AppImage(
+                          localPathOrUrl: item?.logoImageUrl ?? '',
+                          boxFit: BoxFit.cover,
+                          errorWidget: Container(),
+                        ),
                       ),
                     ),
                   ),
@@ -679,14 +688,19 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
                               borderRadius: BorderRadius.circular(30),
                               color: Colors.grey.withOpacity(0.3),
                             ),
-                            child: AppImage(
-                                localPathOrUrl: listLogo[index].fileUrl,
-                                boxFit: BoxFit.cover,
-                                errorWidget: const Icon(
-                                  Icons.help_outline,
-                                  size: 40,
-                                  color: Colors.grey,
-                                )),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: AppImage(
+                                  localPathOrUrl: listLogo[index].fileUrl,
+                                  width: 50,
+                                  height: 50,
+                                  boxFit: BoxFit.contain,
+                                  errorWidget: const Icon(
+                                    Icons.help_outline,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  )),
+                            ),
                           ),
                         ),
                       ),
@@ -710,7 +724,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
     final Map<String, dynamic> data = {
       "categoryType": isExpandedCategory ? 'EXPENSE' : 'INCOME',
       "description": _noteController.text.trim(),
-      "logoImageID": categoryIconId ?? 0,
+      "logoImageID": isNotNullOrEmpty(categoryIconId) ? categoryIconId! : null,
       "name": _cateController.text.trim(),
       "parentId": parentId ?? 0,
       "pay": true
@@ -723,7 +737,7 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
     final Map<String, dynamic> data = {
       "categoryType": isExpandedCategory ? 'EXPENSE' : 'INCOME',
       "description": _noteController.text.trim(),
-      "logoImageID": categoryIconId ?? 0,
+      "logoImageID": isNotNullOrEmpty(categoryIconId) ? categoryIconId! : null,
       "name": _cateController.text.trim(),
       "parentId": parentId ?? 0,
       "pay": true
@@ -734,9 +748,47 @@ class _CategoryInfoPageState extends State<CategoryInfoPage> {
     Navigator.of(context).pop(true);
   }
 
-  Future<void> _deleteCategory(int categoryId) async {
-    _categoryInfoBloc.add(DeleteCategoryEvent(categoryId: categoryId));
-    Navigator.pop(context);
-    Navigator.of(context).pop(true);
+  Future<void> _deleteCategory(BuildContext context, int categoryId) async {
+    // _categoryInfoBloc.add(DeleteCategoryEvent(categoryId: categoryId));
+    // Navigator.pop(context);
+    // Navigator.of(context).pop(true);
+    showLoading(this.context);
+    final response = await CategoryProvider().deleteCategory(
+      categoryId: categoryId,
+    );
+    log('result: $response');
+    if (response is DeleteCategoryResponse) {
+      if (response.isDelete) {
+        showMessage1OptionDialog(
+          this.context,
+          'Xóa hạng mục thành công',
+          onClose: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+            Navigator.of(context).pop(true);
+          },
+        );
+      } else {
+        showMessage1OptionDialog(
+          this.context,
+          response.messages,
+          onClose: () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          },
+        );
+      }
+    } else if (response is ExpiredTokenResponse) {
+      logoutIfNeed(this.context);
+    } else {
+      showMessage1OptionDialog(
+        this.context,
+        'Hệ thống bị lỗi, không thể xóa hạng mục này!',
+        onClose: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+      );
+    }
   }
 }

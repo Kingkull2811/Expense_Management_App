@@ -65,27 +65,7 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
         backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor,
-          leading: IconButton(
-            onPressed: () {
-              if (isNullOrEmpty(time)) {
-                showMessage1OptionDialog(context, 'Vui lòng chọn thời gian');
-              } else {
-                OptionRepeatData optionRepeatData = OptionRepeatData(
-                  dayOfWeeks: listDay,
-                  frequency: frequency,
-                  fromDate: dateStart,
-                  toDate: dateEnd ?? '',
-                  time: time,
-                );
-                Navigator.of(context).pop(optionRepeatData);
-              }
-            },
-            icon: const Icon(
-              Icons.done,
-              size: 24,
-              color: Colors.white,
-            ),
-          ),
+          automaticallyImplyLeading: false,
           centerTitle: true,
           title: const Text(
             'Tùy chọn lặp lại',
@@ -95,6 +75,29 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
               color: Colors.white,
             ),
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                if (isNullOrEmpty(time)) {
+                  showMessage1OptionDialog(context, 'Vui lòng chọn thời gian');
+                } else {
+                  OptionRepeatData optionRepeatData = OptionRepeatData(
+                    dayOfWeeks: listDay,
+                    frequency: frequency,
+                    fromDate: dateStart,
+                    toDate: dateEnd ?? '',
+                    time: time,
+                  );
+                  Navigator.of(context).pop(optionRepeatData);
+                }
+              },
+              icon: const Icon(
+                Icons.done,
+                size: 24,
+                color: Colors.white,
+              ),
+            )
+          ],
         ),
         body: _body(context),
       ),
@@ -236,7 +239,7 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
             ),
           ),
           Text(
-            dateEnd ?? 'Không xác định',
+            isNotNullOrEmpty(dateEnd) ? dateEnd! : 'Không xác định',
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black,
@@ -289,7 +292,7 @@ class _OptionRepeatTimeState extends State<OptionRepeatTime> {
             ),
           ),
           Text(
-            time, //?? 'Không xác định',
+            isNotNullOrEmpty(time) ? time : 'Không xác định',
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black,

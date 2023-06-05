@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:viet_wallet/utilities/enum/enum.dart';
 import 'package:viet_wallet/widgets/search_box.dart';
 
 import '../../../../network/model/category_model.dart';
@@ -7,9 +8,14 @@ import '../../../../utilities/utils.dart';
 import '../../../../widgets/app_image.dart';
 
 class SelectCategory extends StatefulWidget {
+  final TransactionType type;
   final List<CategoryModel>? listCategory;
 
-  const SelectCategory({Key? key, this.listCategory}) : super(key: key);
+  const SelectCategory({
+    Key? key,
+    this.listCategory,
+    this.type = TransactionType.expense,
+  }) : super(key: key);
 
   @override
   State<SelectCategory> createState() => _SelectCategoryState();
@@ -62,9 +68,11 @@ class _SelectCategoryState extends State<SelectCategory> {
           automaticallyImplyLeading: false,
           backgroundColor: Theme.of(context).primaryColor,
           centerTitle: true,
-          title: const Text(
-            'Chọn hang mục chi',
-            style: TextStyle(
+          title: Text(
+            widget.type == TransactionType.expense
+                ? 'Chọn hạng mục chi'
+                : 'Chọn hạng mục thu',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: Colors.white,
@@ -91,7 +99,9 @@ class _SelectCategoryState extends State<SelectCategory> {
                 if (isNullOrEmpty(listCategoryIdSelected)) {
                   showMessage1OptionDialog(
                     context,
-                    'Bạn cần chọn ít nhất một hang mục chi',
+                    widget.type == TransactionType.expense
+                        ? 'Bạn cần chọn ít nhất một hạng mục chi'
+                        : 'Bạn cần chọn ít nhất một hạng mục thu',
                   );
                 } else {
                   Navigator.of(context).pop(listCategoryIdSelected);
@@ -110,7 +120,9 @@ class _SelectCategoryState extends State<SelectCategory> {
           child: isNullOrEmpty(widget.listCategory)
               ? Center(
                   child: Text(
-                    'Không có hạng mục chi',
+                    widget.type == TransactionType.expense
+                        ? 'Không có hạng mục chi'
+                        : 'Không có hạng mục thu',
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).primaryColor,
@@ -147,25 +159,6 @@ class _SelectCategoryState extends State<SelectCategory> {
   }
 
   Widget _listViewCategory(List<CategoryModel> listCate) {
-    // return ListView.builder(
-    //   scrollDirection: Axis.vertical,
-    //   physics: const NeverScrollableScrollPhysics(),
-    //   itemCount: widget.listCategory!.length + 1,
-    //   itemBuilder: (context, index) {
-    //     final isExpanded = _isExpandedMapEx[index - 1] ?? true;
-    //     if (index == 0) {
-    //       return _buildAllCheck(checkAll);
-    //     }
-    //     return Padding(
-    //       padding: const EdgeInsets.only(left: 16),
-    //       child: _itemListCategoryEx(
-    //         widget.listCategory![index - 1],
-    //         isExpanded,
-    //         index - 1,
-    //       ),
-    //     );
-    //   },
-    // );
     return ListView.builder(
       scrollDirection: Axis.vertical,
       physics: const BouncingScrollPhysics(),
@@ -181,7 +174,7 @@ class _SelectCategoryState extends State<SelectCategory> {
               color: Colors.grey,
             ),
             title: const Text(
-              'Check All',
+              'Chọn tất cả',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -280,20 +273,23 @@ class _SelectCategoryState extends State<SelectCategory> {
                       color: Colors.black,
                     ),
                   ),
-                  trailing: Theme(
-                    data: Theme.of(context).copyWith(
-                      unselectedWidgetColor: Theme.of(context).primaryColor,
-                    ),
-                    child: Checkbox(
-                      activeColor: Theme.of(context).primaryColor,
-                      value: category.isChecked,
-                      onChanged: (value) {
-                        setState(() {
-                          category.isChecked = value!;
-                          updateCategoryCheckedStatus(category, value);
-                          _checkAll = isAllChecked();
-                        });
-                      },
+                  trailing: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        unselectedWidgetColor: Theme.of(context).primaryColor,
+                      ),
+                      child: Checkbox(
+                        activeColor: Theme.of(context).primaryColor,
+                        value: category.isChecked,
+                        onChanged: (value) {
+                          setState(() {
+                            category.isChecked = value!;
+                            updateCategoryCheckedStatus(category, value);
+                            _checkAll = isAllChecked();
+                          });
+                        },
+                      ),
                     ),
                   ),
                 ),

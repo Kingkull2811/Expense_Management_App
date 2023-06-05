@@ -130,7 +130,7 @@ class _ExportPageState extends State<ExportPage> {
                 _exportBloc.add(GetExport(
                   walletIDs: walletIDs,
                   formDate: dateStart,
-                  toDate: dateEnd!,
+                  toDate: dateEnd,
                 ));
               }
             },

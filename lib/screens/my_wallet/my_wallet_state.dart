@@ -7,7 +7,7 @@ class MyWalletPageState implements ApiResultState {
   final ApiError _apiError;
   final bool isLoading;
   final bool isNoInternet;
-  final int? moneyTotal;
+  final double? moneyTotal;
   final List<Wallet>? listWallet;
 
   MyWalletPageState({
@@ -27,7 +27,7 @@ extension MyWalletPageStateEx on MyWalletPageState {
     ApiError? apiError,
     bool? isLoading,
     bool? isNoInternet,
-    int? moneyTotal,
+    double? moneyTotal,
     List<Wallet>? listWallet,
   }) =>
       MyWalletPageState(

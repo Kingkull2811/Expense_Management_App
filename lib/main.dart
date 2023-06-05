@@ -107,6 +107,8 @@ class _MyAppState extends State<MyApp> {
     bool isExpired = true;
     String passwordExpiredTime =
         SharedPreferencesStorage().getAccessTokenExpired();
+
+    print('expired: $passwordExpiredTime');
     if (passwordExpiredTime.isNotEmpty) {
       try {
         if (DateTime.parse(passwordExpiredTime).isAfter(DateTime.now())) {

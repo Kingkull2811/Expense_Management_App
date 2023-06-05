@@ -59,9 +59,11 @@ mixin ProviderMixin {
   }) async {
     String token =
         await SecureStorage().readSecureData(AppConstants.accessTokenKey);
+
     if (kDebugMode) {
       if (isNotNullOrEmpty(url)) {
         print('URL: $url');
+        // log('TOKEN: $token');
       }
     }
     return Options(

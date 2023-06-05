@@ -12,9 +12,4 @@ class SecureStorage {
     var readData = await _storage.read(key: key);
     return readData;
   }
-
-  Future deleteSecureData(String key) async {
-    var deleteData = await _storage.delete(key: key);
-    return deleteData;
-  }
 }
