@@ -46,12 +46,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
       _moneyController.text = widget.wallet.accountBalance.toString();
       _nameController.text = widget.wallet.name ?? '';
       _noteController.text = widget.wallet.description ?? '';
-      currency = isNotNullOrEmpty(widget.wallet.currency?.split('/')[0])
-          ? widget.wallet.currency?.split('/')[0] ?? '₫'
-          : '₫';
-      currencyName = isNotNullOrEmpty(widget.wallet.currency?.split('/')[1])
-          ? widget.wallet.currency?.split('/')[1] ?? 'VND'
-          : 'VND';
+      currency = widget.wallet.currency?? 'VND';
       itemSelected = WalletType(
         walletTypeName:
             getNameWalletType(walletType: widget.wallet.accountType),
