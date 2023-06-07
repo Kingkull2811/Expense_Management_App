@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:http/http.dart' as http;
+
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
@@ -35,17 +35,9 @@ class ExportProvider with ProviderMixin {
       );
 
       final file = File(savePath);
+
       await file.writeAsBytes(response.data, flush: true);
-        // var httpClient = http.Client();
-        // var request = await httpClient.get(Uri.parse(response.data));
-        //
-        // var appDocumentsDirectory = await getApplicationDocumentsDirectory();
-        // var file = File('${appDocumentsDirectory.path}/$savePath');
-        // await file.writeAsBytes(request.bodyBytes);
-        //
-        // httpClient.close();
-        //
-        // print('File downloaded to: ${file.path}');
+
       return file;
     } catch (error, stacktrace) {
       return errorGetResponse(error, stacktrace, ApiPath.exportData);

@@ -153,13 +153,16 @@ class _ExportPageState extends State<ExportPage> {
 
                 final response = await ExportProvider().getFileReport(
                   query: query,
+                  // fromDate: dateStart,
+                  // toDate: dateEnd,
+                  // walletIDs: walletIDs,
                   savePath: savePath,
                 );
 
                 if (response is File) {
                   print('file: ${response.path}');
 
-                  // await OpenFile.open(response.path);
+                  await OpenFile.open(response.path);
 
                   await Share.shareFiles(
                     [response.path],

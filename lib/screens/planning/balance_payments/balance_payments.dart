@@ -566,7 +566,8 @@ class _BalancePaymentsState extends State<BalancePayments>
                         final DateTime? timePick = await _pickDayTime(fromTime);
                         if (timePick == null) {
                           return;
-                        }else {
+                        } else {
+
                           fromTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
