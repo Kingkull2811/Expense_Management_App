@@ -57,26 +57,26 @@ class _SecurityPageState extends State<SecurityPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     _changePassword(),
-                    _itemOption(
-                      icon: Icons.dialpad,
-                      title: 'Mã bảo vệ',
-                      value: isCode,
-                      onTap: () {
-                        setState(() {
-                          isCode = !isCode;
-                        });
-                      },
-                    ),
-                    _itemOption(
-                      icon: Icons.fingerprint,
-                      title: 'Sử dụng bảo mật vân tay',
-                      value: isFingerprint,
-                      onTap: () {
-                        setState(() {
-                          isFingerprint = !isFingerprint;
-                        });
-                      },
-                    ),
+                    // _itemOption(
+                    //   icon: Icons.dialpad,
+                    //   title: 'Mã bảo vệ',
+                    //   value: isCode,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       isCode = !isCode;
+                    //     });
+                    //   },
+                    // ),
+                    // _itemOption(
+                    //   icon: Icons.fingerprint,
+                    //   title: 'Sử dụng bảo mật vân tay',
+                    //   value: isFingerprint,
+                    //   onTap: () {
+                    //     setState(() {
+                    //       isFingerprint = !isFingerprint;
+                    //     });
+                    //   },
+                    // ),
                   ],
                 ),
               ),
