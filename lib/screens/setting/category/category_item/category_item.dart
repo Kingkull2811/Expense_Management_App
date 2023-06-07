@@ -84,7 +84,7 @@ class _CategoryItemState extends State<CategoryItem>
         backgroundColor: Theme.of(context).primaryColor,
         leading: InkWell(
           onTap: () {
-            Navigator.pop(context);
+            Navigator.of(context).pop(true);
           },
           child: const Icon(
             Icons.arrow_back_ios,

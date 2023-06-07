@@ -456,10 +456,11 @@ class _BalancePaymentsState extends State<BalancePayments>
                                       );
                                 });
 
-                                showLoading(context);
-                                Future.delayed(const Duration(seconds: 2), () {
+                                // showLoading(context);
+                                Future.delayed(
+                                    const Duration(milliseconds: 1500), () {
                                   setState(() {});
-                                  Navigator.pop(context);
+                                  // Navigator.pop(context);
                                   Navigator.pop(context);
                                 });
                               },
@@ -506,12 +507,12 @@ class _BalancePaymentsState extends State<BalancePayments>
                                           ),
                                         );
                                   });
-                                  showLoading(context);
-                                  Future.delayed(const Duration(seconds: 2),
-                                      () {
+                                  // showLoading(context);
+                                  Future.delayed(
+                                      const Duration(milliseconds: 1500), () {
                                     setState(() {});
                                     Navigator.pop(context);
-                                    Navigator.pop(context);
+                                    // Navigator.pop(context);
                                   });
                                 }
                               },
@@ -567,7 +568,6 @@ class _BalancePaymentsState extends State<BalancePayments>
                         if (timePick == null) {
                           return;
                         } else {
-
                           fromTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
@@ -579,11 +579,12 @@ class _BalancePaymentsState extends State<BalancePayments>
                                   toTime: toTime,
                                 ),
                               );
-                          showLoading(context);
-                          Future.delayed(const Duration(seconds: 2), () {
+                          // showLoading(context);
+                          Future.delayed(const Duration(milliseconds: 1500),
+                              () {
                             setState(() {});
                             // Navigator.pop(context);
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
                           });
                         }
                       },
@@ -600,10 +601,11 @@ class _BalancePaymentsState extends State<BalancePayments>
                         final DateTime? timePick = await _pickDayTime(toTime);
                         if (timePick == null) {
                           return;
-                        } else if (timePick.isBefore(DateTime.parse(fromTime))) {
+                        } else if (timePick
+                            .isBefore(DateTime.parse(fromTime))) {
                           showMessage1OptionDialog(this.context,
                               'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
-                        }  else {
+                        } else {
                           toTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
@@ -615,11 +617,12 @@ class _BalancePaymentsState extends State<BalancePayments>
                                   toTime: toTime,
                                 ),
                               );
-                          showLoading(context);
-                          Future.delayed(const Duration(seconds: 2), () {
+                          // showLoading(context);
+                          Future.delayed(const Duration(milliseconds: 1500),
+                              () {
                             setState(() {});
                             // Navigator.pop(context);
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
                           });
                         }
                       },

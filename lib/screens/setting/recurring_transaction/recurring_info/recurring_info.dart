@@ -283,7 +283,7 @@ class _RecurringInfoState extends State<RecurringInfo> {
                     listDayOfWeek.map((day) => day.en.toUpperCase()).toList();
 
                 final Map<String, dynamic> data = {
-                  "addToReport": _isMathReport,
+                  // "addToReport": _isMathReport,
                   "amount":
                       double.parse(_moneyController.text.trim().toString()),
                   "categoryId": categoryID!.toString(),
@@ -345,7 +345,7 @@ class _RecurringInfoState extends State<RecurringInfo> {
           listDayOfWeek.map((day) => day.en.toUpperCase()).toList();
 
       final Map<String, dynamic> data = {
-        "addToReport": _isMathReport,
+        // "addToReport": _isMathReport,
         "amount": double.parse(_moneyController.text.trim().toString()),
         "categoryId": categoryID!.toString(),
         "dayInWeeks": frequencyType == FrequencyType.weekday ? enList : [],
@@ -429,7 +429,7 @@ class _RecurringInfoState extends State<RecurringInfo> {
               height: 0.5,
               color: Colors.grey.withOpacity(0.3),
             ),
-            _mathReport(),
+            // _mathReport(),
           ],
         ),
       ),
@@ -475,6 +475,9 @@ class _RecurringInfoState extends State<RecurringInfo> {
               create: (context) => OptionCategoryBloc(context),
               child: OptionCategoryPage(
                 categoryIdSelected: itemCategorySelected.categoryId,
+                tabIndex: itemCategorySelected.type == TransactionType.expense
+                    ? 0
+                    : 1,
               ),
             ),
           ),

@@ -586,7 +586,7 @@ class _EditWalletPageState extends State<EditWalletPage> {
           currency: currency,
           description: _noteController.text.trim(),
           name: _nameController.text.trim(),
-          report: _showOnReport,
+          // report: _showOnReport,
         );
         if (mounted) {
           showMessage1OptionDialog(context, 'Sửa khoản thành công',

@@ -10,7 +10,6 @@ import 'package:viet_wallet/screens/my_wallet/wallet_details/wallet_details_bloc
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
 import 'package:viet_wallet/utilities/utils.dart';
-import 'package:viet_wallet/widgets/no_internet_widget.dart';
 
 import '../../network/model/wallet.dart';
 import '../../widgets/animation_loading.dart';
@@ -38,20 +37,20 @@ class _MyWalletPageState extends State<MyWalletPage> {
     super.dispose();
   }
 
+  void _reloadPage() {
+    // showLoading(context);
+    _myWalletPageBloc.add(GetListWalletEvent());
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      // Navigator.pop(context);
+      setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MyWalletPageBloc, MyWalletPageState>(
       builder: (context, curState) {
-        Widget body = const SizedBox.shrink();
-        if (curState.isNoInternet) {
-          body = const Scaffold(body: NoInternetWidget());
-        }
-        if (curState.isLoading) {
-          body = const Scaffold(body: AnimationLoading());
-        } else {
-          body = _body(context, curState);
-        }
-        return body;
+        return _body(context, curState);
       },
     );
   }
@@ -63,18 +62,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
         backgroundColor: Theme.of(context).primaryColor,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        // leading: Padding(
-        //   padding: const EdgeInsets.all(10.0),
-        //   child: InkWell(
-        //     borderRadius: BorderRadius.circular(30),
-        //     onTap: () {},
-        //     child: const Icon(
-        //       Icons.search,
-        //       size: 24,
-        //       color: Colors.white,
-        //     ),
-        //   ),
-        // ),
         title: const Text(
           'Tài khoản',
           style: TextStyle(
@@ -84,93 +71,100 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.separated(
-          itemCount: (state.listWallet?.length ?? 0) + 1,
-          separatorBuilder: (context, index) {
-            if (index == 0 || index == (state.listWallet?.length ?? 0)) {
-              return const SizedBox.shrink();
-            }
-            return Container(
-              color: Theme.of(context).backgroundColor,
-              child: const Padding(
-                padding: EdgeInsets.only(left: 70),
-                child: Divider(
-                  height: 0.5,
-                  color: Colors.grey,
-                ),
-              ),
-            );
-          },
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Theme.of(context).backgroundColor,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: Text(
-                        'Tổng tiền : ${formatterDouble(state.moneyTotal)} ${SharedPreferencesStorage().getCurrency()}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
+      body: state.isLoading
+          ? const AnimationLoading()
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: RefreshIndicator(
+                onRefresh: () async => _reloadPage(),
+                child: ListView.separated(
+                  itemCount: (state.listWallet?.length ?? 0) + 1,
+                  separatorBuilder: (context, index) {
+                    if (index == 0 ||
+                        index == (state.listWallet?.length ?? 0)) {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      color: Theme.of(context).backgroundColor,
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 70),
+                        child: Divider(
+                          height: 0.5,
+                          color: Colors.grey,
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              );
-            }
-            if (state.listWallet != null) {
-              return _createItemWallet(
-                context,
-                state.listWallet![index - 1],
-                index: index - 1,
-                endIndex: (state.listWallet?.length ?? 0) - 1,
-              );
-            }
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: Theme.of(context).primaryColor,
-                      width: 2,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.addWallet);
-                      },
-                      child: Text(
-                        '+ Thêm tài khoản',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).primaryColor,
+                    );
+                  },
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Theme.of(context).backgroundColor,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: Text(
+                                'Tổng tiền : ${formatterDouble(state.moneyTotal)} ${SharedPreferencesStorage().getCurrency()}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    if (state.listWallet != null) {
+                      return _createItemWallet(
+                        context,
+                        state.listWallet![index - 1],
+                        index: index - 1,
+                        endIndex: (state.listWallet?.length ?? 0) - 1,
+                      );
+                    }
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).backgroundColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: Theme.of(context).primaryColor,
+                              width: 2,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                    context, AppRoutes.addWallet);
+                              },
+                              child: Text(
+                                '+ Thêm tài khoản',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
-            );
-          },
-        ),
-      ),
+            ),
       floatingActionButton: InkWell(
         borderRadius: BorderRadius.circular(25),
         overlayColor: const MaterialStatePropertyAll(Colors.grey),

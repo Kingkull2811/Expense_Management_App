@@ -40,10 +40,18 @@ class _HomePageState extends State<HomePage>
 
   bool _showDetail = true;
 
+  void _reloadPage() {
+    // showLoading(context);
+    _homePageBloc.add(HomeInitial());
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      // Navigator.pop(context);
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
-    _homePageBloc = BlocProvider.of<HomePageBloc>(context);
-    _homePageBloc.add(HomeInitial());
+    _homePageBloc = BlocProvider.of<HomePageBloc>(context)..add(HomeInitial());
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
   }
@@ -74,13 +82,7 @@ class _HomePageState extends State<HomePage>
         }
       },
       builder: (context, curState) {
-        Widget body = const SizedBox.shrink();
-        if (curState.isLoading) {
-          body = const Scaffold(body: AnimationLoading());
-        } else {
-          body = _body(context, curState);
-        }
-        return body;
+        return _body(context, curState);
       },
     );
   }
@@ -88,21 +90,26 @@ class _HomePageState extends State<HomePage>
   Widget _body(BuildContext context, HomePageState state) {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _balance((state.moneyTotal ?? 0).toDouble()),
-              _myWallet(state.listWallet),
-              _reportWeek(state.weekReport),
-              _expenseReport(),
-            ],
-          ),
-        ),
-      ),
+      body: state.isLoading
+          ? const AnimationLoading()
+          : RefreshIndicator(
+              onRefresh: () async => _reloadPage(),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      _balance((state.moneyTotal ?? 0).toDouble()),
+                      _myWallet(state.listWallet),
+                      _reportWeek(state.weekReport),
+                      _expenseReport(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
     );
   }
 

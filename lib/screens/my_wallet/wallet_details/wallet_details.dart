@@ -45,6 +45,24 @@ class _WalletDetailsState extends State<WalletDetails> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _reloadPage() {
+    showLoading(context);
+    _walletDetailsBloc.add(WalletDetailInit(
+      walletId: widget.wallet.id,
+      fromDate: fromDate,
+      toDate: toDate,
+    ));
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      Navigator.pop(context);
+      setState(() {});
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<WalletDetailsBloc, WalletDetailsState>(
       listenWhen: (preState, curState) {
@@ -92,110 +110,113 @@ class _WalletDetailsState extends State<WalletDetails> {
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _timeReport(),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            'Tổng thu',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).primaryColor,
+      body: RefreshIndicator(
+        onRefresh: () async => _reloadPage(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            _timeReport(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              'Tổng thu',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${formatterDouble(walletReport?.incomeTotal)} $currency',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).primaryColor,
+                            Text(
+                              '${formatterDouble(walletReport?.incomeTotal)} $currency',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(width: 1, color: Colors.grey),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const Text(
-                            'Tổng chi',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.redAccent,
+                      Container(width: 1, color: Colors.grey),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            const Text(
+                              'Tổng chi',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.redAccent,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '${formatterDouble(walletReport?.expenseTotal)} $currency',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.redAccent,
+                            Text(
+                              '${formatterDouble(walletReport?.expenseTotal)} $currency',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.redAccent,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: Container(
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Số dư hiện tại',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Số dư hiện tại',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${formatterDouble(walletReport?.currentBalance)} $currency',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
+                      Text(
+                        '${formatterDouble(walletReport?.currentBalance)} $currency',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-              child: _infoReport(context, walletReport?.dayTransactionList))
-        ],
+            Expanded(
+                child: _infoReport(context, walletReport?.dayTransactionList))
+          ],
+        ),
       ),
     );
   }
@@ -273,12 +294,7 @@ class _WalletDetailsState extends State<WalletDetails> {
                       setState(() {});
                     },
                   ).whenComplete(() {
-                    _walletDetailsBloc.add(WalletDetailInit(
-                      walletId: widget.wallet.id,
-                      fromDate: fromDate,
-                      toDate: toDate,
-                    ));
-                    setState(() {});
+                    _reloadPage();
                   });
                 },
                 child: Container(
@@ -418,10 +434,7 @@ class _WalletDetailsState extends State<WalletDetails> {
             ),
           );
           if (result) {
-            _walletDetailsBloc.add(WalletDetailInit(
-              walletId: widget.wallet.id,
-            ));
-            setState(() {});
+            _reloadPage();
           } else {
             return;
           }

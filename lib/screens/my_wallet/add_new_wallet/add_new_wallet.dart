@@ -4,7 +4,6 @@ import 'package:viet_wallet/network/repository/wallet_repository.dart';
 import 'package:viet_wallet/routes.dart';
 import 'package:viet_wallet/utilities/screen_utilities.dart';
 import 'package:viet_wallet/utilities/shared_preferences_storage.dart';
-import 'package:viet_wallet/widgets/button_switch.dart';
 import 'package:viet_wallet/widgets/no_internet_widget.dart';
 
 import '../../../utilities/enum/wallet_type.dart';
@@ -368,15 +367,15 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
                 height: 0.5,
                 color: Colors.grey.withOpacity(0.3),
               ),
-              ButtonSwitch(
-                title: 'Không tính vào báo cáo',
-                onToggle: (value) {
-                  setState(() {
-                    _showOnReport = value;
-                  });
-                },
-                value: _showOnReport,
-              ),
+              // ButtonSwitch(
+              //   title: 'Không tính vào báo cáo',
+              //   onToggle: (value) {
+              //     setState(() {
+              //       _showOnReport = value;
+              //     });
+              //   },
+              //   value: _showOnReport,
+              // ),
             ],
           ),
         ),
@@ -561,7 +560,7 @@ class _AddNewWalletPageState extends State<AddNewWalletPage> {
           currency: currency,
           description: _noteController.text.trim(),
           name: _nameController.text.trim(),
-          report: _showOnReport,
+          // report: _showOnReport,
         );
         if (mounted) {
           showMessage1OptionDialog(context, 'Tạo tài khoản thành công',

@@ -13,7 +13,7 @@ class WalletRepository {
     required String currency,
     required String description,
     required String name,
-    required bool report,
+    // required bool report,
   }) async {
     final data = {
       "accountBalance": accountBalance,
@@ -21,7 +21,7 @@ class WalletRepository {
       "currency": currency,
       "description": description,
       "name": name,
-      "report": report
+      // "report": report
     };
 
     return await _walletProvider.createNewWallet(data: data);
@@ -34,7 +34,7 @@ class WalletRepository {
     required String currency,
     required String description,
     required String name,
-    required bool report,
+    // required bool report,
   }) async {
     final data = {
       "accountBalance": accountBalance,
@@ -42,7 +42,7 @@ class WalletRepository {
       "currency": currency,
       "description": description,
       "name": name,
-      "report": report
+      // "report": report
     };
 
     return await _walletProvider.updateNewWallet(

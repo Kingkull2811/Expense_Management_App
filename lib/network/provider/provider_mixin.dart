@@ -35,7 +35,7 @@ mixin ProviderMixin {
     showErrorLog(error, stacktrace, apiPath);
 
     return BaseResponse.withHttpError(
-      message: error,
+      message: error.toString(),
       httpStatus: (error is DioError) ? error.response?.statusCode : null,
       errors: (error is DioError) ? error.response?.data : [],
     );

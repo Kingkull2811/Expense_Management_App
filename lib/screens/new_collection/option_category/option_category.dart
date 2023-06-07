@@ -17,9 +17,13 @@ import '../new_collection.dart';
 
 class OptionCategoryPage extends StatefulWidget {
   final int? categoryIdSelected;
+  final int tabIndex;
 
-  const OptionCategoryPage({Key? key, this.categoryIdSelected})
-      : super(key: key);
+  const OptionCategoryPage({
+    Key? key,
+    this.categoryIdSelected,
+    required this.tabIndex,
+  }) : super(key: key);
 
   @override
   State<OptionCategoryPage> createState() => _OptionCategoryPageState();
@@ -57,7 +61,8 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
   void initState() {
     _optionCategoryBloc = BlocProvider.of<OptionCategoryBloc>(context)
       ..add(GetOptionCategoryEvent());
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController =
+        TabController(length: 2, initialIndex: widget.tabIndex, vsync: this);
     _expenditureSearch.addListener(() {
       setState(() {
         _showClearExSearch = _expenditureSearch.text.isNotEmpty;
@@ -740,7 +745,7 @@ class _OptionCategoryPageState extends State<OptionCategoryPage>
       backgroundColor: Theme.of(context).primaryColor,
       leading: IconButton(
         onPressed: () {
-          Navigator.of(context).pop([]);
+          Navigator.of(context).pop(null);
         },
         icon: const Icon(
           Icons.arrow_back_ios,

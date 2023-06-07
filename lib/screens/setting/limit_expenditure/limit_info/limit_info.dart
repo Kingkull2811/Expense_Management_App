@@ -229,7 +229,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
                   } else {
                     await _limitProvider.deleteLimit(
                         limitId: (widget.limitData?.id)!);
-                    Navigator.pop(this.context);
+                    // Navigator.pop(this.context);
                     Navigator.of(this.context).pop(true);
                   }
                 },
@@ -279,7 +279,7 @@ class _LimitInfoPageState extends State<LimitInfoPage> {
                       this.context,
                       'Cập nhật hạn mức thành công',
                       onClose: () {
-                        Navigator.of(this.context).pop(true);
+                        // Navigator.of(this.context).pop(true);
                         Navigator.of(this.context).pop(true);
                       },
                     );

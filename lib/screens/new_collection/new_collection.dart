@@ -221,7 +221,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
               children: <Widget>[
                 _money(),
                 _select(state),
-                _mathReport(),
+                // _mathReport(),
                 _selectImage(),
                 _buttonSave(context),
               ],
@@ -262,7 +262,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
                   onTap: () async {
                     showLoading(context);
                     final Map<String, dynamic> data = {
-                      "addToReport": _isMathReport,
+                      // "addToReport": !_isMathReport,
                       "amount": double.tryParse(
                           _moneyController.text.trim().toString()),
                       'ariseDate': isNotNullOrEmpty(_getDateTimePicked())
@@ -322,7 +322,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
   Future<void> _postCollection(BuildContext context) async {
     showLoading(context);
     final Map<String, dynamic> data = {
-      "addToReport": _isMathReport,
+      // "addToReport": !_isMathReport,
       "amount": double.tryParse(_moneyController.text.trim().toString()),
       'ariseDate': isNotNullOrEmpty(_getDateTimePicked())
           ? _getDateTimePicked()
@@ -653,13 +653,14 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
   Widget _selectCategory() {
     return ListTile(
       onTap: () async {
-        final ItemCategory itemCategory = await Navigator.push(
+        final ItemCategory? itemCategory = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => BlocProvider(
               create: (context) => OptionCategoryBloc(context),
               child: OptionCategoryPage(
                 categoryIdSelected: itemCategorySelected.categoryId,
+                tabIndex: itemOption.itemId == 0 ? 0 : 1,
               ),
             ),
           ),
@@ -668,7 +669,7 @@ class _NewCollectionPageState extends State<NewCollectionPage> {
           return;
         } else {
           setState(() {
-            itemCategorySelected = itemCategory;
+            itemCategorySelected = itemCategory!;
           });
         }
       },
