@@ -206,7 +206,7 @@ class _CategoryItemState extends State<CategoryItem>
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 16, 10, 16),
+      padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -225,6 +225,7 @@ class _CategoryItemState extends State<CategoryItem>
                   : RefreshIndicator(
                       onRefresh: () async => await reloadPage(),
                       child: ListView.builder(
+                        padding: EdgeInsets.zero,
                         itemCount: listExCategory!.length,
                         itemBuilder: (context, index) {
                           final isExpanded = _isExpandedMapEx[index] ?? true;
@@ -321,6 +322,8 @@ class _CategoryItemState extends State<CategoryItem>
           SizedBox(
             height: 50 * (category.childCategory?.length ?? 0).toDouble(),
             child: ListView.builder(
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: category.childCategory?.length,
               itemBuilder: (context, indexx) => _itemChildCategory(
                 context,
@@ -348,7 +351,7 @@ class _CategoryItemState extends State<CategoryItem>
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 16, 10, 16),
+      padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -367,6 +370,7 @@ class _CategoryItemState extends State<CategoryItem>
                   : RefreshIndicator(
                       onRefresh: () async => await reloadPage(),
                       child: ListView.builder(
+                        padding: EdgeInsets.zero,
                         itemCount: listCoCategory!.length,
                         itemBuilder: (context, index) {
                           final isExpanded = _isExpandedMapCo[index] ?? true;
@@ -462,6 +466,9 @@ class _CategoryItemState extends State<CategoryItem>
                                               0)
                                           .toDouble(),
                                   child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     itemCount: listCoCategory[index]
                                         .childCategory
                                         ?.length,
@@ -660,6 +667,7 @@ class _CategoryItemState extends State<CategoryItem>
 
   Widget _resultSearch(List<CategoryModel>? listCategory) {
     return ListView.builder(
+      padding: EdgeInsets.zero,
       itemCount: listCategory!.length,
       itemBuilder: (context, index) {
         final isExpanded = _isExpandedMapEx[index] ?? true;
@@ -740,6 +748,8 @@ class _CategoryItemState extends State<CategoryItem>
                 height: 50 *
                     (listCategory[index].childCategory?.length ?? 0).toDouble(),
                 child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: listCategory[index].childCategory?.length,
                   itemBuilder: (context, indexx) => _itemChildCategory(
                     context,
