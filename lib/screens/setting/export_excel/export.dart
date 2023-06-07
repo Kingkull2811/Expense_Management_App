@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share/share.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_bloc.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_state.dart';
@@ -163,10 +164,10 @@ class _ExportPageState extends State<ExportPage> {
 
                   await OpenFile.open(response.path);
 
-                  // await Share.shareFiles(
-                  //   [response.path],
-                  //   text: fileName,
-                  // );
+                  await Share.shareFiles(
+                    [response.path],
+                    text: fileName,
+                  );
 
                   // if (await canLaunchUrl(Uri.file(response.path))) {
                   //   await launchUrl(Uri.file(response.path));

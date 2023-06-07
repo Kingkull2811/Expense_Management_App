@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-// import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
 
@@ -12,9 +12,6 @@ import '../response/base_response.dart';
 class ExportProvider with ProviderMixin {
   Future<Object> getFileReport({
     required Map<String, dynamic> query,
-    // required String fromDate,
-    // String? toDate,
-    // required List<int> walletIDs,
     required String savePath,
   }) async {
     if (await isExpiredToken()) {
@@ -37,34 +34,9 @@ class ExportProvider with ProviderMixin {
         ),
       );
 
-      // String url =
-      //     '${ApiPath.exportData}?fromDate=$fromDate&toDate=${isNotNullOrEmpty(toDate) ? toDate : ''}';
-      // for (var walletId in walletIDs) {
-      //   url += '&walletIds=$walletId';
-      // }
-      // print('url: $url');
-
-      // final http.Response response = await http.get(
-      //   Uri.parse(url),
-      //   headers: {
-      //     'Authorization':
-      //         await SecureStorage().readSecureData(AppConstants.accessTokenKey),
-      //   },
-      // );
-
-      // var httpClient = http.Client();
-      // var request = await httpClient.get(
-      //   Uri.parse(url),
-      //   headers: {
-      //     'Authorization':
-      //         await SecureStorage().readSecureData(AppConstants.accessTokenKey),
-      //   },
-      // );
       final file = File(savePath);
-      // await file.writeAsBytes(request.bodyBytes);
 
       await file.writeAsBytes(response.data, flush: true);
-      // httpClient.close();
 
       return file;
     } catch (error, stacktrace) {
