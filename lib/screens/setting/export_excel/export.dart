@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share/share.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_bloc.dart';
 import 'package:viet_wallet/screens/setting/export_excel/export_state.dart';
@@ -138,7 +140,7 @@ class _ExportPageState extends State<ExportPage> {
                   'walletIds': walletIDs,
                 };
                 final Directory downloadPath =
-                    await getApplicationSupportDirectory();
+                    await getApplicationDocumentsDirectory();
                 final String fileName = (dateEnd != null)
                     ? 'report_${dateStart}_$dateEnd.xlsx'
                     : 'report_$dateStart.xlsx';
@@ -159,10 +161,10 @@ class _ExportPageState extends State<ExportPage> {
 
                   // await OpenFile.open(response.path);
 
-                  // await Share.shareFiles(
-                  //   [response.path],
-                  //   text: fileName,
-                  // );
+                  await Share.shareFiles(
+                    [response.path],
+                    text: fileName,
+                  );
 
                   // if (await canLaunchUrl(Uri.file(response.path))) {
                   //   await launchUrl(Uri.file(response.path));
@@ -195,7 +197,7 @@ class _ExportPageState extends State<ExportPage> {
   Widget _selectWallets(List<Wallet>? listWallet) {
     List<Wallet> listWalled = listWallet ?? [];
     List<String> titles =
-        listWalled.map((wallet) => wallet.name ?? '').toList();
+        listWalletSelected.map((wallet) => wallet.name ?? '').toList();
     String walletsName = titles.join(', ');
 
     return ListTile(

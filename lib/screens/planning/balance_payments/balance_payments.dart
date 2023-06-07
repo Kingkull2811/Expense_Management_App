@@ -566,10 +566,7 @@ class _BalancePaymentsState extends State<BalancePayments>
                         final DateTime? timePick = await _pickDayTime(fromTime);
                         if (timePick == null) {
                           return;
-                        } else if (DateTime.parse(fromTime).isAfter(timePick)) {
-                          showMessage1OptionDialog(this.context,
-                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
-                        } else {
+                        }else {
                           fromTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
@@ -602,7 +599,10 @@ class _BalancePaymentsState extends State<BalancePayments>
                         final DateTime? timePick = await _pickDayTime(toTime);
                         if (timePick == null) {
                           return;
-                        } else {
+                        } else if (timePick.isBefore(DateTime.parse(fromTime))) {
+                          showMessage1OptionDialog(this.context,
+                              'Vui lòng chọn thời gian kết thúc sau thời gian bắt đâu.');
+                        }  else {
                           toTime = DateFormat('yyyy-MM-dd').format(timePick);
                           if (!mounted) {
                             return;
