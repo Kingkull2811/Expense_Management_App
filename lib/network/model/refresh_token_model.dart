@@ -1,19 +1,23 @@
 class RefreshTokenModel {
-  final String? accessToken;
-  final String? refreshToken;
-  final String? tokenType;
+  final String accessToken;
+  final String refreshToken;
+  final String accessTokenExpired;
 
+  RefreshTokenModel({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.accessTokenExpired,
+  });
 
-  RefreshTokenModel({this.accessToken, this.refreshToken, this.tokenType,});
-
-  factory RefreshTokenModel.fromJson(Map<String, dynamic> json) =>RefreshTokenModel(
-    accessToken: json["accessToken"],
-    refreshToken: json["refreshToken"],
-    tokenType: json["tokenType"],
-  );
+  factory RefreshTokenModel.fromJson(Map<String, dynamic> json) =>
+      RefreshTokenModel(
+        accessToken: json["accessToken"],
+        refreshToken: json["refreshToken"],
+        accessTokenExpired: json["expiredAccessDate"],
+      );
 
   @override
   String toString() {
-    return 'RefreshTokenModel{accessToken: $accessToken, refreshToken: $refreshToken, tokenType: $tokenType}';
+    return 'RefreshTokenModel{accessToken: $accessToken, refreshToken: $refreshToken, accessTokenExpired: $accessTokenExpired}';
   }
 }

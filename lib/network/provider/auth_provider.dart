@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:viet_wallet/network/api/api_path.dart';
+import 'package:viet_wallet/network/model/refresh_token_model.dart';
 import 'package:viet_wallet/network/provider/provider_mixin.dart';
-import 'package:viet_wallet/network/response/auth_response.dart';
 import 'package:viet_wallet/network/response/base_response.dart';
 import 'package:viet_wallet/network/response/forgot_password_response.dart';
 import 'package:viet_wallet/network/response/sign_in_response.dart';
@@ -31,14 +31,10 @@ class AuthProvider with ProviderMixin {
         String refreshToken = await _secureStorage.readSecureData(
           AppConstants.refreshTokenKey,
         );
-
         final response = await AuthProvider().refreshToken(
           refreshToken: refreshToken,
         );
-
-        await _pref.saveUserInfoRefresh(
-          data: response,
-        );
+        await _pref.saveUserInfoRefresh(data: response);
         return true;
       }
       return false;
@@ -51,7 +47,6 @@ class AuthProvider with ProviderMixin {
       final response = await dio.post(
         ApiPath.signup,
         data: data,
-        // options: AppConstants.options,
       );
 
       return SignUpResponse.fromJson(response.data);
@@ -91,22 +86,19 @@ class AuthProvider with ProviderMixin {
     }
   }
 
-  Future<AuthResponse> refreshToken({
+  Future<RefreshTokenModel?> refreshToken({
     required String refreshToken,
   }) async {
     try {
       Response response = await dio.post(
         ApiPath.refreshToken,
         data: {"refreshToken": refreshToken},
-        // options: AppConstants.options,
       );
 
-      // log("new token data: ${response.data.toString()}");
-
-      return AuthResponse.fromJson(response.data);
+      return RefreshTokenModel.fromJson(response.data['data']);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.refreshToken);
-      return AuthResponse();
+      return null;
     }
   }
 
@@ -164,9 +156,7 @@ class AuthProvider with ProviderMixin {
       final response = await dio.post(
         ApiPath.newPassword,
         data: data,
-        //options: AppConstants.options,
       );
-      // log(response.toString());
       return BaseResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.newPassword);
@@ -193,7 +183,6 @@ class AuthProvider with ProviderMixin {
         data: data,
         options: await defaultOptions(url: ApiPath.changePassword),
       );
-      // log(response.toString());
       return BaseResponse.fromJson(response.data);
     } catch (error, stacktrace) {
       showErrorLog(error, stacktrace, ApiPath.changePassword);

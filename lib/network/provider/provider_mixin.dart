@@ -26,8 +26,6 @@ mixin ProviderMixin {
         print("\nEXCEPTION RESPONSE: ${error.response}");
       }
       print("\nEXCEPTION WITH: $error\nSTACKTRACE: $stacktrace");
-    } else {
-      //record log to firebase crashlytics here}
     }
   }
 
@@ -65,9 +63,6 @@ mixin ProviderMixin {
         print('URL: $url');
         // log('TOKEN: $token');
       }
-    }
-    if (isNullOrEmpty(token)) {
-      await _authProvider?.checkAuthenticationStatus();
     }
 
     return Options(

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:viet_wallet/network/response/auth_response.dart';
+import 'package:viet_wallet/network/model/refresh_token_model.dart';
 import 'package:viet_wallet/utilities/app_constants.dart';
 import 'package:viet_wallet/utilities/secure_storage.dart';
 
@@ -31,7 +31,9 @@ class SharedPreferencesStorage {
           AppConstants.refreshTokenKey, data.refreshToken);
 
       await _preferences.setString(
-          AppConstants.accessTokenExpiredTimeKey, data.expiredAccessToken);
+        AppConstants.accessTokenExpiredTimeKey,
+        data.expiredAccessToken,
+      );
 
       await _preferences.setString(
           AppConstants.refreshTokenExpiredKey, data.expiredRefreshToken);
@@ -45,16 +47,16 @@ class SharedPreferencesStorage {
     }
   }
 
-  Future<void> saveUserInfoRefresh({
-    required AuthResponse data,
-  }) async {
+  Future<void> saveUserInfoRefresh({required RefreshTokenModel? data}) async {
     //write accessToken, refreshToken to secureStorage
-    await _secureStorage.writeSecureData(
-        AppConstants.accessTokenKey, data.accessToken);
-    await _secureStorage.writeSecureData(
-        AppConstants.refreshTokenKey, data.refreshToken);
-    await _preferences.setString(
-        AppConstants.accessTokenExpiredTimeKey, data.expiredAccessToken ?? '');
+    if (data != null) {
+      await _secureStorage.writeSecureData(
+          AppConstants.accessTokenKey, data.accessToken);
+      await _secureStorage.writeSecureData(
+          AppConstants.refreshTokenKey, data.refreshToken);
+      await _preferences.setString(
+          AppConstants.accessTokenExpiredTimeKey, data.accessTokenExpired);
+    }
   }
 
   ///*****User

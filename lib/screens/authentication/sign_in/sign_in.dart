@@ -1,5 +1,4 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viet_wallet/network/provider/auth_provider.dart';
@@ -39,24 +38,11 @@ class _SignInPageState extends State<SignInPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // NotificationServices notificationServices = NotificationServices();
-
   @override
   void initState() {
     _signInBloc = BlocProvider.of<SignInBloc>(context);
     super.initState();
     AwesomeNotification().requestFirebaseToken();
-    // notificationServices.requestNotificationPermission();
-    // notificationServices.foregroundMessage();
-    // notificationServices.firebaseInit(context);
-    // notificationServices.setupInteractMessage(context);
-    // notificationServices.isTokenRefresh();
-    //
-    // notificationServices.getDeviceToken().then((value) {
-    //   if (kDebugMode) {
-    //     print('device token: $value');
-    //   }
-    // });
   }
 
   @override
