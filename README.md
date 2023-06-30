@@ -1,16 +1,19 @@
 # viet_wallet
 
-Flutter project final in KMA.
+The last project lifetime in KMA (Academy of Cryptography Techniques) for my graduation project.
+This is a project collab with [Trần Đức Việt](https://github.com/tranducviet228) writing BE server, and mobile app writing by me.
 
-## Getting Started
+## Project Description 
 
-This project is a starting point for a Flutter application.
+> This project was developed with the topic: Building an application revenue and expense management application.
 
-A few resources to get you started if this is your first Flutter project:
+## Major Plugins
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Dependency | Description |
+| ------------ | ------------ |
+| [Bloc](https://pub.dev/packages/flutter_bloc) | Reactive State-Management helps implement the BLoC pattern. |
+| [Dio](https://pub.dev/packages/dio) | A powerful HTTP client for Dart/Flutter, which supports global configuration, interceptors, FormData, request cancellation, file uploading/downloading, timeout, and custom adapters, etc. |
+| [Shared Preferences](https://pub.dev/packages/shared_preferences) | Flutter plugin for reading and writing simple key-value pairs. Wraps NSUserDefaults on iOS and SharedPreferences on Android. |
+| [Flutter Secure Storage](https://pub.dev/packages/flutter_secure_storage) | Flutter Secure Storage provides API to store data in secure storage. Keychain is used in iOS and KeyStore-based solution is used in Android. |
+| [Awesome Notification](https://pub.dev/packages/awesome_notifications) | A complete solution to create Local and Push Notifications, customizing buttons, images, sounds, and emoticons, and applying many different layouts for Flutter apps. |
+| [Flutter Local Notifications](https://pub.dev/packages/flutter_local_notifications) | A cross-platform plugin for displaying and scheduling local notifications for Flutter applications with the ability to customize each platform. |
