@@ -1,6 +1,6 @@
 # viet_wallet
 
-The last project lifetime in KMA (Academy of Cryptography Techniques) for my graduation project.
+The last project in the course of studying at KMA (Academy of Cryptography Techniques) for the graduation project.
 This is a project collab with [Trần Đức Việt](https://github.com/tranducviet228) writing BE server, and mobile app writing by me.
 
 ## Project Description 
